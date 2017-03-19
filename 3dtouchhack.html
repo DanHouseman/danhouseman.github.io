@@ -1,0 +1,124 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>3d touch hack </title>
+  <meta name="viewport" content="initial-scale=1.0001, minimum-scale=1.0001, maximum-scale=1.0001, user-scalable=no">
+  <meta name="description" content="Hacking pressure sensitivity of an iPhone6 3D Touch in order to turn it into a scale!!">
+  <meta name="author" content="DHouse">
+  <link rel="apple-touch-icon-precomposed" sizes="512x512" href="icon.png" />
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      -webkit-user-select: none;
+      font-family: -apple-system;
+    }
+    
+    #forcearea {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #8e9192;
+      padding-top: 10px;
+      text-align: center;
+      font-size: 24px;
+    }
+    
+    #forcearea p {
+      margin: 0;
+    }
+    
+    #forcearea span {
+      font-size: 12px;
+    }
+    
+    #guide {
+      margin: 300px auto;
+      width: 320px;
+      padding: 20px;
+      border: 1px dashed #ff0000;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="forcearea">
+    <p id="forceAmount">0.00 grams</p>
+    <div id="buttonarea">
+      <button id="tareButton">0 dat bitch out!</button>
+    </div>
+    <div id="guide">
+      All your base are belong to here!
+    </div>
+  </div>
+
+  <script>
+    var touchElement = document.getElementById('forcearea');
+    var forceTextElement = document.getElementById('forceAmount');
+    var forceValue = 0;
+    var tareValue = 0;
+
+    function onTouchStartMove(e) {
+      e.preventDefault();
+      checkForce(e);
+    }
+
+    function onTouchEnd(e) {
+      e.preventDefault();
+      touch = null;
+    }
+
+    function checkForce(e) {
+      if (e.target.id == "buttonarea" || e.target.id == "tareButton") {
+        tare();
+      } else {
+        touch = e.touches[0];
+        setTimeout(refreshforceValue.bind(touch), 10);
+      }
+    }
+
+    function checkMacForce(e) {
+      forceValue = e.webkitForce / 3;
+      forceTextElement.innerHTML = ((forceValue - tareValue) * 1000).toFixed(2) + " <br><span style=\"color:red\">Uncalibrated for Mac, press \"t\" to tare.</span>";
+    }
+
+    function refreshforceValue() {
+      var touchEvent = this;
+
+      forceValue = 0;
+      if (touchEvent) {
+        forceValue = touchEvent.force || 0;
+        setTimeout(refreshforceValue.bind(touch), 10);
+      }
+   
+      forceTextElement.innerHTML = ((forceValue - tareValue) * 385).toFixed(2) + " grams";
+    }
+
+    function keypress(e) {
+      if (e.keyCode == 116) {
+        tare();
+      }
+    }
+
+    function tare() {
+      tareValue = forceValue;
+    }
+
+    (function() {
+      touchElement.addEventListener('touchstart', onTouchStartMove, false);
+      touchElement.addEventListener('touchmove', onTouchStartMove, false);
+      touchElement.addEventListener('touchend', onTouchEnd, false);
+      touchElement.addEventListener('webkitmouseforcewillbegin', checkMacForce, false);
+      touchElement.addEventListener('webkitmouseforcechanged', checkMacForce, false);
+      document.addEventListener('keypress', keypress, false)
+    })();
+  </script>
+</body>
+
+</html>
