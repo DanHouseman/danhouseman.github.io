@@ -1,0 +1,20 @@
+html, body {
+  margin: 0 20 0 0;
+}
+
+.btn, select, input {
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.container {
+  padding: 10px;
+  border: 1px solid black;
+  margin: 0 auto;
+  width: 300px;
+}
+
+input[type="range"] {
+  width: 100px;
+  background-color: green;
+}
