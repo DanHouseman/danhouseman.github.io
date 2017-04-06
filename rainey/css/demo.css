@@ -1,0 +1,146 @@
+@font-face {
+	font-weight: normal;
+	font-style: normal;
+	font-family: 'rricons';
+	src: url('../fonts/rricons/rricons.eot');
+	src: url('../fonts/rricons/rricons.eot?#iefix') format('embedded-opentype'), url('../fonts/rricons/rricons.woff') format('woff'), url('../fonts/rricons/rricons.ttf') format('truetype'), url('../fonts/rricons/rricons.svg#rricons') format('svg');
+}
+
+*,
+*:after,
+*:before {
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.clearfix:before,
+.clearfix:after {
+	display: table;
+	content: '';
+}
+
+.clearfix:after {
+	clear: both;
+}
+
+body {
+	font-family: 'Avenir Next', Avenir, 'Helvetica Neue', 'Lato', 'Segoe UI', Helvetica, Arial, sans-serif;
+	color: #444;
+	background: #ececec;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	overflow-x: hidden;
+}
+
+a {
+	color: #aaa;
+	text-decoration: none;
+}
+
+a:hover,
+a:focus {
+	color: #333;
+	outline: none;
+}
+
+.info {
+	color: #e57373;
+	font-weight: bold;
+	margin: 0;
+	padding: 1em;
+	display: none;
+}
+
+.no-preserve3d .info--support {
+	display: block;
+	position: absolute;
+	bottom: 1em;
+	right: 1em;
+}
+
+/* Header */
+
+.rrheader {
+	padding: 2.5em 0 0 2.5em;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-align-items: center;
+	align-items: center;
+	z-index: 1000;
+	color: #7d232a;
+	position: absolute;
+	top: 0;
+	left: 0;
+	max-width: 420px;
+	z-index: 10000;
+}
+
+.rrheader h1 {
+	margin: 0 1em;
+	font-size: 1.5em;
+	line-height: 1;
+}
+
+.rrheader h1 span {
+	color: #CAC9C9;
+	display: block;
+	font-size: 76.5%;
+	margin: 0.25em 0 0 0;
+}
+
+
+/* Top Navigation Style */
+
+.rrlinks {
+	position: relative;
+	display: inline-block;
+	text-align: center;
+	white-space: nowrap;
+	/* border: 2px solid #161619; */
+}
+
+.rrlinks::after {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -1px;
+	width: 2px;
+	height: 110%;
+	background: #161619;
+	content: '';
+	-webkit-transform: translateY(-50%) rotate3d(0, 0, 1, 22.5deg);
+	transform: translateY(-50%) rotate3d(0, 0, 1, 22.5deg);
+}
+
+.rricon {
+	display: inline-block;
+	margin: 0.5em;
+	padding: 0em 0;
+	width: 1.5em;
+	text-decoration: none;
+	color: #7faa3d;
+}
+
+.rricon span {
+	display: none;
+}
+
+.rricon:before {
+	margin: 0 5px;
+	text-transform: none;
+	font-weight: normal;
+	font-style: normal;
+	font-variant: normal;
+	font-family: 'rricons';
+	line-height: 1;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+.rricon--drop:before {
+	content: "\e001";
+}
+
+.rricon--prev:before {
+	content: "\e004";
+}
