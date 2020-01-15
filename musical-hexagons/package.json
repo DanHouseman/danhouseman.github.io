@@ -1,11 +1,11 @@
 {
-  "name": "@vasturiano/musical-hexagons",
+  "name": "musical-hexagons",
   "main": "b1a25cb4ae18777a@184.js",
-  "version": "184.0.0",
-  "homepage": "https://observablehq.com/@vasturiano/musical-hexagons",
+  "version": "1.0.0",
+  "homepage": "https://www.danhouseman.com/musical-hexagons",
   "author": {
-    "name": "Vasco Asturiano",
-    "url": "https://observablehq.com/@vasturiano"
+    "name": "Dan Houseman",
+    "url": "https://www.danhouseman.com"
   },
   "type": "module",
   "peerDependencies": {
