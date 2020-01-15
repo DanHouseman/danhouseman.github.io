@@ -6,14 +6,9 @@ export default function define(runtime, observer) {
   main.variable(observer()).define(["md"], function(md){return(
 md`# Musical Hexagons
 
-A two-dimensional spatial arrangement of the chromatic musical notes. 
-Contrary to the traditional piano keyboard, this is a fully relative layout, equivalent intervals are always equidistant to each other.
-
-The corresponding note is played by hovering over the keys, using the browser's [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API). 
+Contrary to the traditional piano keyboard, this is a fully relative, two-dimensional spatial arrangement of the chromatic notes.
+Equivalent intervals are always equidistant to each other and the corresponding note is played by hovering over the keys with your mouse.
 Use the selectors to specify the interval of adjacent notes in either dimension, and modify the tesselation pattern.
-
-Project initially developed during [D3 unconf 2016](http://visfest.com/d3unconf-2016/).
-`
 )});
   main.variable(observer("viewof horSemitones")).define("viewof horSemitones", ["select","getIntervalName"], function(select,getIntervalName){return(
 select({
