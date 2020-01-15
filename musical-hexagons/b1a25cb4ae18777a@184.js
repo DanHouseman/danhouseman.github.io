@@ -1,3 +1,4 @@
+// https://observablehq.com/@vasturiano/musical-hexagons@184
 import define1 from "./e93997d5089d7165@2211.js";
 
 export default function define(runtime, observer) {
@@ -8,6 +9,8 @@ md`# Musical Hexagons
 Contrary to the traditional piano keyboard, this is a fully relative, two-dimensional spatial arrangement of the chromatic notes.
 Equivalent intervals are always equidistant to each other and the corresponding note is played by hovering over the keys with your mouse.
 Use the selectors to specify the interval of adjacent notes in either dimension, and modify the tesselation pattern.
+
+`
 )});
   main.variable(observer("viewof horSemitones")).define("viewof horSemitones", ["select","getIntervalName"], function(select,getIntervalName){return(
 select({
