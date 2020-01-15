@@ -219,10 +219,11 @@ html`<svg width="${chartWidth}px" height="${chartHeight}px">
   }
 }
 );
-  main.variable(observer("audioCtx")).define("audioCtx", function(){return(
+/*  main.variable(observer("audioCtx")).define("audioCtx", function(){return(
 new (window.AudioContext || window.webkitAudioContext)()
-)});
-  main.variable(observer("getIntervalName")).define("getIntervalName", function(){return(
+)}); */
+  
+/*  main.variable(observer("getIntervalName")).define("getIntervalName", function(){return(
 function getIntervalName(semitones) {
     const shortNames = ['', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', 'M7',
         'oct', 'b9', '9', 'b10', '10', '11', '#11', '12', 'b13', '13', 'b14', '14', '2-oct'],
@@ -235,7 +236,7 @@ function getIntervalName(semitones) {
         long: longNames[semitones]
     }
 }
-)});
+)}); */
   main.variable(observer("noteScale")).define("noteScale", ["d3","schemeCategory20c"], function(d3,schemeCategory20c){return(
 d3.scaleOrdinal(schemeCategory20c)
     .domain(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])
