@@ -1,4 +1,3 @@
-// https://observablehq.com/@vasturiano/musical-hexagons@184
 import define1 from "./e93997d5089d7165@2211.js";
 
 export default function define(runtime, observer) {
