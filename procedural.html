@@ -2,13 +2,124 @@
 <head>
 <style>
 
+header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 9;
+  background: rgba(0, 0, 0, 0.6);
+}
+header section {
+  position: absolute;
+  border-radius: 2px;
+  width: 90%;
+  max-width: 600px;
+  top: 50%;
+  left: 50%;
+  background: white;
+  color: #222;
+  padding: 2rem;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  text-align: center;
+}
+header h1 {
+  margin-top: 0;
+}
+header p {
+  text-align: left;
+}
+header small {
+  margin-top: 1rem;
+  color: #CCC;
+  display: inline-block;
+}
+
+#staff-container {
+  width: 800px;
+  overflow: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  padding: 0 4rem;
+  background-color: #FFF;
+  border-radius: 4px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+input, button {
+  border-radius: 2px;
+  line-height: 1.4;
+  margin: 0;
+  padding: 0.25em 0.5em;
+}
+
+input {
+  border: 1px solid #e6e6e6;
+  width: 280px;
+}
+
+button {
+  background: #444;
+  color: white;
+  border: 1px solid #2b2b2b;
+}
+
+#play, #midi {
+  position: absolute;
+  top: 1rem;
+  z-index: 8;
+}
+
+#play {
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
+}
+
+#midi {
+  right: 1rem;
+  text-align: right;
+  margin: 0;
+}
+#midi embed {
+  position: absolute;
+  top: -99999px;
+  opacity: 0;
+  pointer-events: none;
+}
+#midi a {
+  color: #444;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  letter-spacing: 0.0125em;
+}
+
+#staff {
+  height: 440px;
+}
+#staff > div {
+  box-sizing: border-box;
+  height: 220px;
+  display: flex;
+  opacity: 1;
+  transition: opacity 250ms ease-out;
+}
+#staff > div:not(:nth-child(2)) path.symbol.l0 {
+  opacity: 0;
+}
+#staff > div:not(:nth-child(2)) {
   transition-delay: 250ms;
 }
 #staff > div.hide {
   opacity: 0;
 }
 #staff > div:first-child {
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #F0F0F0;
 }
 #staff > div:first-child > div {
   align-self: flex-end;
@@ -34,18 +145,19 @@
     height: 1320px;
   }
 }
-html,
-body {
+html, body {
   height: 100%;
 }
 
 body {
-  background-color: #f0f0f0;
+  background-color: #F0F0F0;
   color: #222;
   line-height: 1.7;
 }
+
 </style>
 </head>
+<body>
 <header id="intro">
   <section>
     <h1>Mathematically Induced Music</h1>
@@ -70,6 +182,7 @@ body {
     <div id="staff"></div>
   </section>
 </main>
+
 <script src=“https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.0/seedrandom.min.js”></script>
 <script src=“https://s3-us-west-2.amazonaws.com/s.cdpn.io/111863/Tone.min.js”></script>
 <script src=“https://cdn.rawgit.com/paulrosen/abcjs/master/bin/abcjs_basic_2.0-min.js”></script>
@@ -765,4 +878,5 @@ document.getElementById("load").addEventListener("click", function(e) {
  
 
 </script>
+</body>
 </html>
