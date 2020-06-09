@@ -36,5 +36,4 @@ Model.prototype.step = function () {
   this.agents.forEach(function (agent) {
     agent.step();
   });
-
 };
