@@ -155,18 +155,18 @@ Agent.prototype.learnWord = function (wordInstance) {
         this.island
       );
 
-      this.eventLog.add(Ev3ntL0g.NEW, derived);
+      this.eventLog.add(EventLog.NEW, derived);
 
       return this.addToVocabulary(derived);
 
     case 'CONST':
       var derived = wordInstance.mutateConst(this.island);
-      this.eventLog.add(Ev3ntL0g.NEW, derived);
+      this.eventLog.add(EventLog.NEW, derived);
       return this.addToVocabulary(derived);
 
     case 'VOWEL':
       var derived = wordInstance.mutateVowel(this.island);
-      this.eventLog.add(Ev3ntL0g.NEW, derived);
+      this.eventLog.add(EventLog.NEW, derived);
       return this.addToVocabulary(derived);
   }
 };
