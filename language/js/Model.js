@@ -4,7 +4,7 @@ function Model(size) {
   this.iteration = -1;
   this.islands = [];
   this.agents = [];
-  this.eventLog = new EventLog();
+  this.eventLog = new Ev3ntL0g();
   this.counter = new Counter();
 
   window.__COUNTER__ = this.counter;
