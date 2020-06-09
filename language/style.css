@@ -1,0 +1,127 @@
+body {
+  font-family: helvetica, sans-serif;
+  width: 510px;
+  margin: auto;
+}
+
+#canvas {
+  margin-top: 20px;
+  background: #F8F8F8;
+}
+
+.canvas-container {
+  overflow: hidden;
+}
+
+circle {
+  transition: all 0.3s ease-in-out;
+}
+
+.rules {
+  margin: auto;
+  width: 100%;
+  margin: 20px 5px;
+  color: gray;
+}
+
+.rules ul {
+  margin: 7px 0;
+  padding: 0;
+}
+
+.rules li {
+  list-style: bullet;
+  padding: 1px 0;
+  margin-left: 20px;
+}
+
+.event-log-container {
+  margin: 10px 5px;
+  float: left;
+  width: 100%;
+  color: gray;
+  padding-bottom: 50px;
+}
+
+h3 {
+  color: gray;
+  margin: 0;
+  padding-bottom: 8px;
+}
+
+.event-log-container ul {
+  margin: 0;
+  padding: 0;
+}
+
+.event-log-container li {
+  list-style: none;
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.island-stats {
+  margin-bottom: 5px;
+  float: left;
+  width: 32%;
+  margin-left: 5px;
+}
+
+.info {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.info h3 {
+  margin: 0;
+  padding-bottom: 4px;
+}
+
+.info h4 {
+  color: gray;
+  margin: 10px 0 3px 0;
+  font-weight: normal;
+  padding: 0;
+}
+
+.info .word {
+  color: black;
+}
+
+.info .parent {
+  color: gray;
+  margin-left: 5px;
+  border-left: 1px solid gray;
+  display: inline-block;
+  padding-left: 12px;
+}
+
+.info .parent:before {
+  position: absolute;
+  content: "";
+  display: inline-block;
+  background: gray;
+  width: 10px;
+  height: 1px;
+  margin-top: 8px;
+  margin-left: -12px;
+}
+
+.info .parent:empty {
+  display: none;
+}
+
+h1 {
+  font-size: 1.8em;
+  margin: 20px 0 0 0;
+  padding: 0;
+}
+
+p {
+  margin: 0;
+  padding: 5px 0;
+}
+
+a {
+  color: black;
+}
