@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Otomat</title>
+  <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+<div class="canvas-container">
+  <h1>An Agent-Based Language Evolution Simulation</h1>
+  <svg id="canvas" xmlns="http://www.w3.org/2000/svg" width="510" height="420"></svg>
+  <div class="info">
+    <div id="stats"></div>
+  </div>
+</div>
+<div class="rules">
+  <h3>Rules</h3>
+  If an agent intersect with another agent, it picks a word from its own vocabulary and share it with that agent.
+  That agent then adds that word into its own vocabulary by way of:
+  <ul>
+    <li>Mutation of a vowel sound with 0.1 probability</li>
+    <li>Mutation of a const sound with 0.1 probability</li>
+    <li>Comparing with another word</li>
+    <li>Without any mutation</li>
+  </ul>
+</div>
+<div class="event-log-container">
+  <h3>Event Log</h3>
+  <ul id="event-log"></ul>
+</div>
+<script type="text/template" id="island_stats_template">
+  <div class="island-stats">
+    <h3 style="color: {{= color }}">{{= name }}</h3>
+    <h4>Most used word</h4> 
+    <span class="word">{{= instance ? instance.word : 'N/A' }}</span>
+    <span class="parent">{{= instance && instance.parent && instance.parent.word }}</span>
+  </div>
+</script>
+<script src="js/Map.js"></script>
+<script src="js/Island.js"></script>
+<script src="js/Model.js"></script>
+<script src="js/Agent.js"></script>
+<script src="js/Simulation.js"></script>
+<script src="js/Word.js"></script>
+<script src="js/EventLog.js"></script>
+<script src="js/Counter.js"></script>
+<script src="js/utils.js"></script>
+
+<script>
+  var model = new Model();
+  model.setup();
+
+  var simulation = new Simulation(
+    document.getElementById('canvas'),
+    model
+  );
+
+  simulation.run();
+</script>
+
+</body>
+</html>
