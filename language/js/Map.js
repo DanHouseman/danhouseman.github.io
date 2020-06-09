@@ -61,7 +61,7 @@ var __ISLANDS__ = {
 
 var __INITIAL_WORDS__ = {
   'A': 'zelere',
-  'B': 'acaba',
+  'B': 'acabu',
   'C': 'lulere',
   'D': 'datu'
 };
