@@ -1,0 +1,391 @@
+<html>
+<head>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+}
+
+body {
+  position: relative;
+}
+
+.controller {
+list-style-type: none;
+  position: fixed;
+  top: 1.6rem;
+  left: 1.6rem;
+  z-index: 1;
+}
+
+ul > li {
+  padding: 0.8rem;
+}
+
+
+</style>
+</head>
+<body>
+<div class="controller">
+  <ul>
+    <li>Polygon: <input id="numSlides" type="range" min="3" max="16" value="5" step="1"></li>
+    <li>Time: <input id="time" type="range" min="0.1" max="5" value="0.5" step="0.1"></li>
+    <li>Size: <input id="size" type="range" min="10" max="1000" value="200" step="1"></li>
+  </ul>
+</div>
+<script>
+
+
+
+class Tool {
+  // random number.
+  static randomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+  // random color rgb.
+  static randomColorRGB() {
+    return (
+      "rgb(" +
+      this.randomNumber(0, 255) +
+      ", " +
+      this.randomNumber(0, 255) +
+      ", " +
+      this.randomNumber(0, 255) +
+      ")"
+    );
+  }
+  // random color hsl.
+  static randomColorHSL(hue, saturation, lightness) {
+    return "hsl(" + hue + ", " + saturation + "%, " + lightness + "%)";
+  }
+  // gradient color.
+  static gradientColor(ctx, cr, cg, cb, ca, x, y, r) {
+    const col = cr + "," + cg + "," + cb;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, "rgba(" + col + ", " + ca * 1 + ")");
+    g.addColorStop(0.5, "rgba(" + col + ", " + ca * 0.5 + ")");
+    g.addColorStop(1, "rgba(" + col + ", " + ca * 0 + ")");
+    return g;
+  }
+}
+
+/*
+  When want to use angle.
+*/
+
+class Angle {
+  constructor(angle) {
+    this.a = angle;
+    this.rad = (this.a * Math.PI) / 180;
+  }
+
+  incDec(num) {
+    this.a += num;
+    this.rad = (this.a * Math.PI) / 180;
+    return this.rad;
+  }
+}
+
+/*
+  When want to use controller.
+*/
+
+class Controller {
+  constructor(id) {
+    this.id = document.getElementById(id);
+  }
+  getVal() {
+    return this.id.value;
+  }
+}
+
+/*
+  variable for canvas.
+*/
+
+let canvas;
+
+class Canvas {
+  constructor(bool) {
+    // create canvas.
+    this.canvas = document.createElement("canvas");
+    // controller.
+    this.numSlidesRange = new Controller("numSlides");
+    this.timeRange = new Controller("time");
+    this.sizeRange = new Controller("size");
+    this.rotateRange = new Controller("rotate");
+    // if on screen.
+    if (bool === true) {
+      this.canvas.style.position = "relative";
+      this.canvas.style.display = "block";
+      this.canvas.style.top = 0;
+      this.canvas.style.left = 0;
+      document.getElementsByTagName("body")[0].appendChild(this.canvas);
+    }
+    this.ctx = this.canvas.getContext("2d");
+    this.width = this.canvas.width = window.innerWidth;
+    this.height = this.canvas.height = window.innerHeight;
+    // mouse infomation.
+    this.mouseX = null;
+    this.mouseY = null;
+    // sprite array and quantity.
+    this.maxLevels = 5;
+    this.structFactor = 0.2;
+    this.structNoise = 0;
+    this.pentagon;
+    this.startAngle = new Angle(0);
+    this.numSlides = this.numSlidesRange.getVal();
+    this.incDecNum = Number(this.timeRange.getVal());
+    this.structFactorAngle = new Angle(0);
+    this.size = this.sizeRange.getVal();
+  }
+
+  init() {
+    this.pentagon = new FractalRoot(
+      this.ctx,
+      this.width / 2,
+      this.height / 2,
+      this.startAngle.rad
+    );
+  }
+
+  render() {
+    //this.ctx.clearRect(0, 0, this.width, this.height);
+    this.size = this.sizeRange.getVal();
+    this.numSlides = this.numSlidesRange.getVal();
+    this.incDecNum = Number(this.timeRange.getVal());
+    this.ctx.globalCompositeOperation = "darken";
+    this.ctx.globalAlpha = 0.1;
+    this.ctx.fillStyle = "rgb(0,0,0)";
+    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.ctx.globalCompositeOperation = "source-over";
+    this.ctx.globalAlpha = 1;
+    this.pentagon = new FractalRoot(
+      this.ctx,
+      this.width / 2,
+      this.height / 2,
+      this.startAngle.rad
+    );
+    this.pentagon.drawShape();
+    this.startAngle.incDec(0);
+    this.structFactor = Math.sin(this.structFactorAngle.rad);
+    this.structFactorAngle.incDec(this.incDecNum);
+  }
+
+  resize() {
+    this.pentagon = [];
+    this.width = this.canvas.width = window.innerWidth;
+    this.height = this.canvas.height = window.innerHeight;
+    this.init();
+  }
+}
+
+class PointObj {
+  constructor(ex, why) {
+    this.x = ex;
+    this.y = why;
+  }
+}
+
+class FractalRoot {
+  constructor(ctx, x, y, startAngle) {
+    this.rootBranch;
+    this.pointArr = [];
+    this.startAngle = startAngle;
+    this.ctx = ctx;
+    this.centX = x;
+    this.centY = y;
+    this.count = 0;
+    let angleStep = 360 / canvas.numSlides;
+    for (let i = 0; i < 360; i += angleStep) {
+      const x =
+        Math.cos(((this.startAngle + i) * Math.PI) / 180) * canvas.size +
+        this.centX;
+      const y =
+        Math.sin(((this.startAngle + i) * Math.PI) / 180) * canvas.size +
+        this.centY;
+      this.pointArr[this.count] = new PointObj(x, y);
+      this.count++;
+    }
+    this.rootBranch = new Branch(this.ctx, 0, 0, this.pointArr);
+  }
+
+  drawShape() {
+    this.rootBranch.drawMe();
+  }
+}
+
+class Branch {
+  constructor(ctx, lev, n, points) {
+    this.ctx = ctx;
+    this.level = lev;
+    this.num = n;
+    this.outerPoints = points;
+    this.midPoints = this.calcMidPoints();
+    this.projPoints = this.calcStructPoints();
+    this.myBranches = [];
+    if (this.level + 1 < canvas.maxLevels) {
+      let childBranch = new Branch(
+        this.ctx,
+        this.level + 1,
+        0,
+        this.projPoints
+      );
+      this.myBranches.push(childBranch);
+      for (let k = 0; k < this.outerPoints.length; k++) {
+        let nextK = k - 1;
+        if (nextK < 0) {
+          nextK += this.outerPoints.length;
+        }
+        let newPoints = [
+          this.projPoints[k],
+          this.midPoints[k],
+          this.outerPoints[k],
+          this.midPoints[nextK],
+          this.projPoints[nextK]
+        ];
+        let childBranch = new Branch(
+          this.ctx,
+          this.level + 1,
+          k + 1,
+          newPoints
+        );
+        this.myBranches.push(childBranch);
+      }
+    }
+  }
+
+  drawMe() {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 0.5;
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((-90 * Math.PI) / 180);
+    ctx.translate(-canvas.width / 2, -canvas.height / 2);
+    ctx.beginPath();
+    for (let i = 0; i < this.outerPoints.length; i++) {
+      if (i === 0) ctx.moveTo(this.outerPoints[i].x, this.outerPoints[i].y);
+      let nextI = i + 1;
+      if (nextI == this.outerPoints.length) {
+        nextI = 0;
+      }
+      ctx.lineTo(this.outerPoints[nextI].x, this.outerPoints[nextI].y);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+    for (let k = 0; k < this.myBranches.length; k++) {
+      this.myBranches[k].drawMe();
+    }
+  }
+
+  calcMidPoints() {
+    let myArr = [];
+    for (let i = 0; i < this.outerPoints.length; i++) {
+      let nextI = i + 1;
+      if (nextI == this.outerPoints.length) {
+        nextI = 0;
+      }
+      let mp = this.calcMidPoint(this.outerPoints[i], this.outerPoints[nextI]);
+      myArr[i] = mp;
+    }
+    return myArr;
+  }
+
+  calcMidPoint(end1, end2) {
+    let mx;
+    let my;
+    if (end1.x > end2.y) {
+      mx = end2.x + (end1.x - end2.x) / 2;
+    } else {
+      mx = end1.x + (end2.x - end1.x) / 2;
+    }
+    if (end1.y > end2.y) {
+      my = end2.y + (end1.y - end2.y) / 2;
+    } else {
+      my = end1.y + (end2.y - end1.y) / 2;
+    }
+    return new PointObj(mx, my);
+  }
+
+  calcStructPoints() {
+    let structArr = [];
+    for (let i = 0; i < this.midPoints.length; i++) {
+      let nextI = i + 3;
+      if (nextI >= this.midPoints.length) {
+        nextI -= this.midPoints.length;
+      }
+      let sp = this.calcProjPoint(this.midPoints[i], this.outerPoints[nextI]);
+      structArr[i] = sp;
+    }
+    return structArr;
+  }
+
+  calcProjPoint(mp, op) {
+    let px;
+    let py;
+    let adj;
+    let opp;
+    if (op.x > mp.x) {
+      opp = op.x - mp.x;
+    } else {
+      opp = mp.x - op.x;
+    }
+    if (op.y > mp.y) {
+      adj = op.y - mp.y;
+    } else {
+      adj = mp.y - op.y;
+    }
+    if (op.x > mp.x) {
+      px = mp.x + opp * canvas.structFactor;
+    } else {
+      px = mp.x - opp * canvas.structFactor;
+    }
+    if (op.y > mp.y) {
+      py = mp.y + adj * canvas.structFactor;
+    } else {
+      py = mp.y - adj * canvas.structFactor;
+    }
+    return new PointObj(px, py);
+  }
+}
+
+(function () {
+  "use strict";
+  window.addEventListener("load", function () {
+    canvas = new Canvas(true);
+    canvas.init();
+
+    function render() {
+      window.requestAnimationFrame(function () {
+        canvas.render();
+        render();
+      });
+    }
+
+    render();
+
+    // event
+    window.addEventListener(
+      "resize",
+      function () {
+        canvas.resize();
+      },
+      false
+    );
+  });
+})();
+
+
+</script>
+</body>
+<html>
