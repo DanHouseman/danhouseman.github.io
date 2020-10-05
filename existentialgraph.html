@@ -9,26 +9,31 @@
   <meta name="author" content="Dan Houseman">
 
   <style>
-  body,
+@import url(https://fonts.googleapis.com/css?family=Abel);
 html {
-	position: absolute;
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	height: 100%;
 	overflow: hidden;
-	background: #000;
-	user-select: none;
-}
-canvas {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	user-select: none;
 	touch-action: none;
 	content-zooming: none;
+}
+body {
+	margin: 0;
+	padding: 0;
 	background: #000;
-	cursor: crosshair;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+#screen {
+	position:absolute;
+	width: 100%;
+	height: 100%;
+	background: #000;
+	overflow: hidden;
+	user-select: none;
+	cursor: default;
+}
+#tree {
+	display: none;
 }
 
   </style>
