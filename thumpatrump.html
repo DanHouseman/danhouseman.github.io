@@ -130,7 +130,7 @@ h2 {
 
 .trump {
   background: url('/img/trump.png') bottom center no-repeat;
-  background-size: 70%;
+  background-size: 60%;
   position: absolute;
   top: 100%;
   width: 100%;
@@ -212,7 +212,8 @@ function peep() {
 
 
 function startGame() {
-  var time = 14;
+  var time = 15;
+  timer.textContent = time;
   scoreBoard.textContent = 0;
   timeUp = false;
   var t = setInterval(function(){ if(!timeUp){ time--; } timer.textContent = time; }, 1000);
@@ -221,7 +222,6 @@ function startGame() {
   peep();
   setTimeout(() => {
     timeUp = true;
-    timer.textContent = 15;
     clearInterval(t);
     button.innerHTML = 'Try again?'
     button.style.visibility = 'visible';
