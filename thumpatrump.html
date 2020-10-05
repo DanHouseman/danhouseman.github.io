@@ -1,0 +1,246 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Thump a Trump! The vidja game!</title>
+  <meta name="description" content="Thump a Trump! The vidja game!">
+  <meta name="author" content="Dan Houseman">
+<meta property="og:image" content="https://www.danhouseman.com/img/thumpatrump.jpg" />
+<meta property="og:site_name" content="Dan's Randomness" />
+<meta property="og:type" content="Blog" />
+<meta property="og:url" content="https://www.danhouseman.com/thumpatrump" />
+<meta property="og:title" content="Thump a Trump - The vidja game... in no way is this like whack-a-mole..." />
+<body>
+
+<h1>Thump a Trump!</h1>
+<div class="container">
+<h2>Score: <span class="score">0</span>  Time: <span class="time">15</span></h2>
+<button id="start" onClick="startGame()">Start</button>
+<div class="game">
+  <div class="hole hole1">
+    <div class="trump"></div>
+  </div>
+  <div class="hole hole2">
+    <div class="trump"></div>
+  </div>
+  <div class="hole hole3">
+    <div class="trump"></div>
+  </div>
+  <div class="hole hole4">
+    <div class="trump"></div>
+  </div>
+  <div class="hole hole5">
+    <div class="trump"></div>
+  </div>
+  <div class="hole hole6">
+    <div class="trump"></div>
+  </div>
+</div>
+</div>
+<style>
+@import url('https://fonts.googleapis.com/css?family=Righteous');
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 10px;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  font-family: 'Righteous', sans-serif;
+  background: rgb(255,6,6);
+  background: linear-gradient(180deg, rgba(255,6,6,1) 0%, rgba(255,255,255,1) 24%, rgba(255,255,255,1) 75%, rgba(9,9,121,1) 99%);
+  text-align: center;
+}
+
+
+h1 {
+    font-size: 6.5rem;
+    line-height: 1;
+    margin: 2rem 0 0 0;
+    color: #ffffff;
+    -webkit-text-stroke: black;
+    -webkit-text-stroke-width: 1px;
+}
+
+h2 {
+    font-size: 3rem;
+    color: blue;
+    margin: 2rem;
+    border-bottom: 2px dashed red;
+    padding-bottom: 2rem;
+}
+
+.container {
+	    width: 90%;
+    text-align: center;
+    margin-left: 5%;
+    border: 4px dashed red;
+    padding-bottom: 1%;
+    background-color: #ffffff;
+    border-radius: 50px;
+}
+
+.score {
+	background: #ffffff;
+    padding: 0 3rem;
+    line-height: 1;
+    -webkit-border-radius: 1rem;
+    -moz-border-radius: 1rem;
+    border-radius: 1rem;
+    color: #ff0000;
+    border: 1px solid blue;
+}
+
+.game {
+  width: 80vw;
+  height: 50vh;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 auto;
+}
+
+.hole {
+  flex: 1 0 33.33%;
+  overflow: hidden;
+  position: relative;
+}
+
+.hole:after {
+    display: block;
+    background: url(/img/moneypile.png) top center no-repeat;
+    background-size: contain;
+    content: '';
+    width: 100%;
+    height: 70px;
+    position: absolute;
+    z-index: 2;
+    bottom: -15px;
+}
+
+.trump {
+  background: url('/img/trump.png') bottom center no-repeat;
+  background-size: 80%;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  height: 100%;
+  transition: all 0.4s;
+}
+
+.hole.up .trump {
+  top: -10px;
+}
+
+#start {
+    font-family: 'Nunito', sans-serif;
+    text-decoration: none;
+    border: 0;
+    background: #00a556;
+    color: #fff;
+    font-size: 2rem;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    margin: 1rem;
+    border: 1px solid darkgreen;
+}
+
+#start:hover {
+  opacity: 0.8;
+}
+</style>
+
+<script>
+const holes = document.querySelectorAll('.hole');
+const scoreBoard = document.querySelector('.score');
+const trumps = document.querySelectorAll('.trump');
+const button = document.querySelector('#start');
+const timer = document.querySelector('.time');
+let lastHole;
+let timeUp = false;
+let score = 0;
+var audio = [];
+
+audio.push('/fx/what.mp3');
+audio.push('/fx/pain.mp3');
+audio.push('/fx/trump.mp3');
+audio.push('/fx/nope.mp3');
+audio.push('/fx/wrong.mp3');
+var music = new Audio();
+
+function playSFX() {
+    music.pause();
+    music = new Audio(audio[Math.floor(Math.random() * audio.length)]);
+    music.play();
+}
+
+function randomTime(min, max) {
+  return Math.round(Math.random() * (max - min) + min);
+}
+
+function randomHole(holes) {
+  const idx = Math.floor(Math.random() * holes.length);
+  const hole = holes[idx];
+
+  if(hole === lastHole) {
+    return randomHole(holes);
+  }
+
+  lastHole = hole;
+  return hole;
+}
+
+function peep() {
+  const time = randomTime(800, 1600);
+  const hole = randomHole(holes);
+  hole.classList.add('up');
+  setTimeout(() => {
+    hole.classList.remove('up');
+    if(!timeUp) peep();
+  }, time);
+}
+
+var time = 14;
+function startGame() {
+  scoreBoard.textContent = 0;
+  timeUp = false;
+  var t = setInterval(function(){ if(!timeUp){timer.textContent = time--} }, 1000);
+  score = 0;
+  button.style.visibility = 'hidden';
+  peep();
+  setTimeout(() => {
+    timeUp = true;
+    clearInterval(t);
+    button.innerHTML = 'Try again?'
+    button.style.visibility = 'visible';
+    music.pause();
+    music = new Audio('/fx/gameover.mp3');
+    music.play();
+  }, 15000);
+}
+
+
+
+function thump(e) {
+  if(!e.isTrusted){ return; }
+  if(!timeUp) {
+  score++;
+  playSFX();
+  this.classList.remove('up');
+  scoreBoard.textContent = score;
+}
+}
+
+trumps.forEach(trump => trump.addEventListener('click', thump));
+</script>
+</body>
+</html>
