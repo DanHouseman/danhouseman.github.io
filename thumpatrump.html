@@ -212,7 +212,7 @@ function peep() {
 
 
 function startGame() {
-  var time = 15;
+  var time = 14;
   timer.textContent = time;
   scoreBoard.textContent = 0;
   timeUp = false;
@@ -241,6 +241,11 @@ function thump(e) {
   this.classList.remove('up');
   scoreBoard.textContent = score;
 }
+	else{
+	    music.pause();
+    music = new Audio('/fx/gameover.mp3');
+    music.play();
+	}
 }
 
 trumps.forEach(trump => trump.addEventListener('click', thump));
