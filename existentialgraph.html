@@ -1,0 +1,770 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Existentialism through force directed graphs.</title>
+  <meta name="description" content="Existentialist force directed graph.">
+  <meta name="author" content="Dan Houseman">
+
+  <style>
+  body,
+html {
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: #000;
+	user-select: none;
+}
+canvas {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	user-select: none;
+	touch-action: none;
+	content-zooming: none;
+	background: #000;
+	cursor: crosshair;
+}
+
+  </style>
+</head>
+
+<body>
+<div id="screen"></div>
+
+<q id="tree">I think
+	<q>I have
+		<q>not
+			<q>yet spoken.</q>
+			<q>enough choices
+						<q>to make
+							<q>a decision.</q></q></q>
+			<q>enough soul
+				<q>to understand them.</q>
+				<q>to fight.</q>
+				<q>to continue.</q>
+			</q>
+		</q>
+		<q>seen
+			<q>two of them die.
+				<q>They were full of horror,
+					<q>but silent.</q>
+				</q>
+			</q>
+			<q>bright minds
+				<q>express astonishment.</q>
+			</q>
+			<q>that all of them
+				<q>without exception
+					<q>suggested escape.</q>
+				</q>
+			</q>
+		</q>
+		<q>said that
+			<q>it existed.</q>
+			<q>we were not alone.</q>
+			<q>there is no choice.</q>
+		</q>
+	</q>
+	<q>I am
+		<q>speaking
+			<q>here of
+				<q>difficult places to retreat.</q>
+				<q>people wanting
+					<q>to be in harmony
+						<q>with themselves</q>
+						<q>with others</q>
+						<q>with nature</q>
+					</q>
+					<q>to cause harm
+						<q>to eachother</q>
+						<q>to themselves</q>
+					</q>
+				</q>
+				<q>decency.</q>
+			</q>
+		</q>
+		<q>convinced 
+			<q>that this ignorance
+				<q>explains everything,
+					<q>and that in darkness
+						<q>is my light.</q>
+						<q>is sorrow.</q>
+						<q>is hope.</q>
+					</q>
+				</q>
+			</q>
+			<q>that human existance
+				<q>is an utter absurdity
+					<q>for anyone without faith
+						<q>in immortality.</q>
+					</q>
+					<q>for anyone with faith
+						<q>in God.</q>
+					</q>
+				</q>
+			</q>
+		</q>
+		<q>going to
+			<q>introduce hope
+				<q>in a strange form.</q>
+			</q>
+			<q>escape by the leap.</q>
+			<q>keep to myself.</q>
+		</q>
+	</q>
+	<q>I know
+		<q>what
+			<q>I cannot deny.</q>
+			<q>links them.</q>
+			<q>they
+				<q>have in common.</q>
+				<q>need.</q>
+				<q>are not.</q>
+			</q>
+		</q>
+		<q>that
+			<q>the absurd cannot be settled.</q>
+			<q>one can compromise.</q>
+			<q>it is impossible for me to know.</q>
+		</q>
+		<q>it implies 
+			<q>obscurity 
+				<q>and
+					<q>ignorance.</q>
+					<q>patience.</q>
+					<q>willingness.</q>
+				</q>
+			</q>
+		</q>
+	</q>
+</q>
+
+  <script>
+
+var ge1doot = ge1doot || {};
+
+ge1doot.screen = function(id) {  
+	
+	"use strict";
+
+		var screen = {
+
+			width:0, 
+			height:0, 
+			left:0, 
+			top: 0, 
+			elem: document.getElementById(id)
+
+		};
+
+		screen.elem.onselectstart = function() { return false; }
+		screen.elem.ondragstart = function() { return false; }
+
+		screen.setSize = function() {
+
+			var o = this.elem;
+			var w = this.elem.offsetWidth * 1;
+			var h = this.elem.offsetHeight * 1;
+
+			if (w != this.width || h != this.height) {
+
+				for (this.left = 0, this.top = 0; o != null; o = o.offsetParent) {
+
+					this.left += o.offsetLeft;
+					this.top  += o.offsetTop;
+
+				}
+
+				this.width = this.elem.width = w;
+				this.height = this.elem.height = h;
+				this.resize && this.resize();
+
+			}
+		}
+
+		window.addEventListener('resize', screen.setSize.bind(screen), false);
+		screen.setSize();
+
+		screen.pointer = {
+
+			x: 0,
+			y: 0,
+			dx: 0,
+			dy: 0,
+			startX: 0,
+			startY: 0,
+			screen: screen,
+			touchMode: false,
+			isDown: false,
+			sweeping: false
+
+		}
+
+		var started = false, endX = 0, endY = 0;
+
+		var addEvent = function (elem, e, fn) {
+
+			for (var i = 0, events = e.split(','); i < events.length; i++) {
+				elem.addEventListener(events[i], fn.bind(screen.pointer), false );
+			}
+
+		}
+
+		var distance = function (dx, dy) {
+
+			return Math.sqrt(dx * dx + dy * dy);
+
+		}
+
+		addEvent(window, "mousemove,touchmove", function (e) {
+
+			e.preventDefault();
+			this.touchMode = e.targetTouches;
+			var pointer = this.touchMode ? this.touchMode[0] : e;
+			this.x = pointer.clientX - this.screen.left;
+			this.y = pointer.clientY - this.screen.top;
+
+			if (started) {
+
+				this.sweeping = true;
+				this.dx = endX - (this.x - this.startX);
+				this.dy = endY - (this.y - this.startY);
+
+			}
+
+			if (this.move) this.move(e);
+
+		});
+
+		addEvent(screen.elem, "mousedown,touchstart", function (e) {
+
+			e.preventDefault();
+			this.touchMode = e.targetTouches;
+			var pointer = this.touchMode ? this.touchMode[0] : e;
+			this.startX = this.x = pointer.clientX - this.screen.left;
+			this.startY = this.y = pointer.clientY - this.screen.top;  
+			started = true;
+			this.isDown = true;
+			if (this.down) this.down(e);
+
+			setTimeout(function () {
+				if (!started && Math.abs(this.startX - this.x) < 11 && Math.abs(this.startY - this.y) < 11) {
+					if (this.tap) this.tap(e);
+				}
+			}.bind(this), 200);
+
+		});
+
+		addEvent(window, "mouseup,touchend,touchcancel", function (e) {
+
+			e.preventDefault();
+
+			if (started) {
+
+				endX = this.dx;
+				endY = this.dy;
+				started = false;
+				this.isDown = false;
+				if (this.up) this.up(e);
+				this.sweeping = false;
+
+			}
+		});
+
+		return screen;
+
+	}
+	var ge1doot = ge1doot || {};
+
+ge1doot.SVGLib = function(o, antialias) {  
+
+	"use strict";
+
+	var __SVG = false;
+	var __svgNS = false;
+
+	if (document.createElementNS) {
+
+		var __svgNS = "http://www.w3.org/2000/svg";
+		var __svg = document.createElementNS(__svgNS, "svg");
+		var __SVG = (__svg.x != null);
+
+	} else return false;
+
+	this.screen = document.createElementNS(__svgNS, "svg");
+	this.screen.style.position = "absolute";
+	this.screen.style.width = this.screen.style.height = "100%";
+
+	o.appendChild(this.screen);
+
+	this.createLine = function (w, options) {
+
+		var o = document.createElementNS(__svgNS, "line");
+		o.setAttribute("shape-rendering", antialias?"auto":"optimizeSpeed");
+		o.setAttribute("stroke-width", Math.round(w)+"px");
+		if (options.color) o.setAttribute("stroke", options.color);
+		if (options.linecap) o.setAttribute("stroke-linecap", options.linecap);
+		if (options.dasharray) o.setAttribute("stroke-dasharray", options.dasharray);
+
+
+		o.move = function (x1, y1, x2, y2) {
+
+			this.setAttribute("x1", x1);
+			this.setAttribute("y1", y1);
+			this.setAttribute("x2", x2);
+			this.setAttribute("y2", y2);
+
+		}
+
+		o.color = function (c) { this.setAttribute("stroke", c); }
+		o.RGBcolor = function (R, G, B) { this.setAttribute("stroke", "rgb("+Math.round(R)+","+Math.round(G)+","+Math.round(B)+")"); }
+		o.strokeWidth = function (s) { this.setAttribute("stroke-width", Math.round(s)+"px"); }
+		this.screen.appendChild(o);
+
+		return o;
+
+	}
+
+	this.createText = function (text, font, size, col) {
+
+		var o = document.createElementNS(__svgNS, "text");
+		o.setAttribute("shape-rendering", antialias?"auto":"optimizeSpeed");
+		o.textContent = text;
+
+		if (col) o.setAttribute("fill", col);
+		if (size) o.setAttribute("font-size", size);
+		if (font) o.setAttribute("font-family", font);
+		
+		o.move = function (x, y) {
+
+			this.setAttribute("x", x);
+			this.setAttribute("y", y);
+
+		}
+
+		o.fillColor  = function (c) { this.setAttribute("fill", c); }
+		o.fontSize   = function (c) { this.setAttribute("font-size", c); }
+		o.fontWeight = function (c) { this.setAttribute("font-weight", c); }
+
+		this.screen.appendChild(o);
+
+		return o;
+
+	}
+
+	this.createOval = function (diam, filled) {
+
+		var o = document.createElementNS(__svgNS, "circle");
+		o.setAttribute("shape-rendering", antialias?"auto":"optimizeSpeed");
+		o.setAttribute("stroke-width", 0);
+		o.setAttribute("r", Math.round(diam / 2));
+		o.style.cursor = "pointer";
+
+		o.move = function (x1, y1, radius) {
+
+			this.setAttribute("cx", x1);
+			this.setAttribute("cy", y1);
+			this.setAttribute("r", radius);
+
+		}
+
+		o.strokeColor = function (col) { this.setAttribute("stroke", col); }
+		o.fillColor = function (col) { this.setAttribute("fill", col); }
+		o.strokeWidth = function (sw) { this.setAttribute("stroke-width", sw); }
+		this.screen.appendChild(o);
+
+		return o;
+	}
+}
+
+! function () {
+
+	"use strict";
+	
+	var setup = {
+
+		id: "tree",
+		friction: 2,
+		length: 300,
+		reduction: 1.33,
+		dotSize: 25,
+		rotationSpeed: 0.001,
+		collapsedNodeColor: "#666",
+		defaultNodeColor: "#500000",
+		expandedNodeColor: "#fff", 
+		line: {color: "#aaa", dasharray: "4,4"}, 
+		defaultNodeStrokeColor: "#999999", 
+		overNodeColor: "#c30000", 
+		defaultTextColor: "#888", 
+		selectedTextColor: "#e2e2e2", 
+		textFont: "Abel, tempus sans itc, cursive, Helvetica, sans-serif" 
+
+	}
+
+	// ==== node constructor ====
+
+	var Node = function (parent, label, col, link) {
+
+		this.link = link;
+		this.col = col;
+		this.pR = 0;
+		this.len = 0;
+		this.lex = 0;
+		this.angle = 0;
+		this.expanded = false;
+		this.children = [];
+		this.parent = parent;
+		this.visible = false;
+		this.x = 0;
+		this.y = 0;
+		this.ini = {
+			len: 0,
+			lex: 0,
+			angle: 0,
+			parent: parent
+		}
+
+		if (parent != "") {
+
+			// push child 
+
+			parent.children.push(this);
+
+			// calculate lengths & angles
+
+			var a = (2 * Math.PI) / parent.children.length;
+			var b = (parent != "") ? Math.random():0;
+
+			for (var i in parent.children) {
+
+				var c = parent.children[i];
+				c.angle = c.ini.angle = Math.PI / 2 + a * i + b;
+				c.len = c.ini.len = c.parent.ini.len / setup.reduction;
+
+			}
+
+		} else {
+
+			// root
+
+			this.visible = true;
+			this.ini.len = setup.length * setup.reduction;
+
+		}
+
+		// create line & text elements 
+
+		this.line = svg.createLine(1, setup.line);
+		this.text = svg.createText(label, setup.textFont, false, setup.defaultTextColor);
+
+	}
+
+	Node.prototype.createPlot = function () {
+
+		this.pR = Math.round(Math.max(5, setup.dotSize * this.ini.len / 200));
+		this.plot = svg.createOval(this.pR * 2, true);
+		this.plot.strokeColor(setup.defaultNodeStrokeColor);
+		this.plot.strokeWidth(1);
+		this.plot.obj = this;
+
+		this.text.fontSize(8 + this.pR);
+
+	}
+
+	Node.prototype.run = function () { 
+
+		if (this.visible) {
+
+			var xp = this.parent ? this.parent.x : drag.x;
+			var yp = this.parent ? this.parent.y : drag.y;
+
+			var a = Math.atan2(
+				(this.y + Math.sin(this.angle + rotation) * setup.friction) - yp, 
+				(this.x + Math.cos(this.angle + rotation) * setup.friction) - xp
+			);
+
+			if (this.lex < this.len) this.lex += (this.len - this.lex) * .1;
+			this.x = xp + Math.cos(a) * this.lex;
+			this.y = yp + Math.sin(a) * this.lex;
+
+			if (this.x < this.pR) this.x = this.pR; 
+			else if (this.x > screen.width - this.pR) this.x = screen.width - this.pR;
+
+			if (this.y < this.pR) this.y = this.pR;
+			else if (this.y > screen.height - this.pR) this.y = screen.height - this.pR;
+
+			this.line.move(this.x, this.y, xp, yp);
+			this.plot.move(this.x, this.y, this.pR);
+			this.text.move(this.x + this.pR + 5, this.y + this.pR * 0.25);
+
+		}
+
+	}
+
+	Node.prototype.collapse = function () {
+
+		this.expanded = false;
+		this.text.fillColor(this.parent && this.parent.children.length == 1 ? setup.selectedTextColor : setup.defaultTextColor);
+		this.text.fontWeight(this.parent && this.parent.children.length == 1 ? "bold" : "normal");
+		this.plot.fillColor((this.children.length) ? setup.collapsedNodeColor : this.col);
+
+		for (var i = 0; i < this.children.length; i++) {
+
+			var c = this.children[i];
+			c.visible = false;
+			c.lex = 0;
+			c.line.move(-1, -1, -1, -2);
+			c.plot.move(-1000, -1, 0);
+			c.text.move(-1000,0);
+			c.expanded = false;
+			c.collapse();
+
+		}
+
+	}
+
+	Node.prototype.expand = function () {
+
+		if (this.ini.parent != "") {
+
+			for (var i = 0; i < this.ini.parent.children.length; i++) {
+
+				this.ini.parent.children[i].collapse();
+
+			}
+
+		}
+
+		this.expanded = true;
+		this.text.fillColor(setup.selectedTextColor);
+		this.text.fontWeight("bold");
+		this.plot.fillColor(setup.expandedNodeColor);
+
+		for (var i = 0; i < this.children.length; i++) {
+
+			this.children[i].visible = true;
+			this.children[i].lex = 0;
+
+		}
+	}
+
+	Node.prototype.down = function () {
+
+		if (pointer.isDraging) return;
+
+		drag.ox = pointer.x - this.x;
+		drag.oy = pointer.y - this.y;
+
+		if (drag.node != this) {
+
+			this.text.fillColor(setup.selectedTextColor);
+			this.plot.fillColor(setup.expandedNodeColor);
+
+			var i = 0, node;
+			while ( node = nodes[i++]) {
+
+				node.parent = node.ini.parent;
+				node.len    = node.ini.len;
+				node.lex    = node.ini.len;
+				node.angle  = node.ini.angle;
+
+			}
+
+			var oc = [];
+			var ow = this;
+			oc.push(ow);
+
+			while(ow.parent != "") {
+
+				ow = ow.parent;
+				oc.push(ow);
+
+			}
+
+
+			for (var i = 1; i < oc.length; i++) {
+
+				oc[i].lex    = oc[i-1].ini.len;
+				oc[i].len    = oc[i-1].ini.len;
+				oc[i].angle  = oc[i-1].ini.angle - Math.PI;
+				oc[i].parent = oc[i-1];
+
+			}
+
+			this.parent = "";
+			this.len    = 0;
+			this.lex    = 0;
+			this.angle  = 0;
+			drag.node.plot.strokeColor(setup.defaultNodeStrokeColor);
+			drag.node.plot.strokeWidth(1);
+			drag.node = this;
+
+		}
+
+	}
+
+	var run = function () {
+
+		requestAnimationFrame(run);
+
+		if (drag.ing) {
+
+			drag.x = pointer.x - drag.ox,
+			drag.y = pointer.y - drag.oy;
+
+		}
+
+		rotation += setup.rotationSpeed;
+
+		var i = 0, node;
+
+		while ( node = nodes[i++]) {
+
+			node.run();
+
+		}
+
+
+	}
+
+	var setMenuTree = function (theNode, parent) {
+
+		if (theNode.tagName == "Q" || theNode.tagName == "A") {
+
+			// Node Label 
+
+			var s = theNode.innerHTML;
+			var d = s.toUpperCase().indexOf("<Q");
+			if (d > 0) s = s.substring(0, d);
+			d = s.toUpperCase().indexOf("<A");
+			if (d > 0) s = s.substring(0, d);
+
+			// create Node 
+
+			if (theNode.style.color != "") setup.defaultNodeColor = theNode.style.color;
+			parent = new Node(parent, s, setup.defaultNodeColor, theNode.href);
+
+			//  push Node 
+
+			nodes.push(parent);
+
+		}
+
+		for (var i = 0; i < theNode.childNodes.length; i++) {
+
+			setMenuTree(theNode.childNodes[i], parent);
+
+		}
+	}
+
+	var screen = ge1doot.screen("screen");
+
+	var screen = ge1doot.screen("screen");
+	var pointer = screen.pointer;
+	var nodes = [],
+		drag = {
+
+			x:  0,
+			y:  0,
+			ox: 0,
+			oy: 0,
+			node: false,
+			ing: false
+
+		},
+		rotation = 0,
+		nodeOver, setup;
+
+
+	pointer.down = function (e) {
+
+		if (e && e.target && e.target.obj) {
+			drag.ing = true;
+			e.target.obj.down();
+		}
+
+	}
+
+	pointer.up = function (e) {
+
+		drag.ing = false;
+
+	}
+
+	pointer.tap = function (e) {
+
+		if (e && e.target && e.target.obj) {
+
+			drag.ing = false;
+
+			if (drag.node.link) {
+
+				// open hyperlink
+
+				window.open(drag.node.link, "_blank");
+
+			} else {
+
+				// expand / collapse
+
+				if (drag.node.expanded) drag.node.collapse(); else drag.node.expand();
+
+			}
+		}
+	}
+
+	pointer.move = function (e) {
+
+		if (e && e.target && e.target.obj) {
+
+			var o = e.target.obj;
+
+			if (nodeOver) {
+
+				nodeOver.plot.strokeColor(setup.defaultNodeStrokeColor);
+				nodeOver.plot.strokeWidth(1);
+
+			}
+			o.plot.strokeColor(setup.overNodeColor);
+			o.plot.strokeWidth(Math.round(Math.max(2, o.pR / 3)));
+			nodeOver = o;
+
+		}
+
+	}
+
+	var svg = new ge1doot.SVGLib(screen.elem, true);
+
+	if (svg) {
+
+		setup.length = Math.max(150, screen.height / 4);
+		drag.x = screen.width  / 2;
+		drag.y = screen.height / 2;
+		setMenuTree(document.getElementById(setup.id), "");
+
+		// create plots
+
+		var i = 0, node;
+		while ( node = nodes[i++]) {
+			node.createPlot();
+		}
+
+		drag.node = nodes[0];
+		nodes[0].collapse();
+		nodes[0].expand();
+
+
+		run();
+
+	}
+
+}();
+  </script>
+</body>
+</html>
