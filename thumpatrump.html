@@ -215,7 +215,7 @@ function startGame() {
   var time = 14;
   scoreBoard.textContent = 0;
   timeUp = false;
-  var t = setInterval(function(){ if(!timeUp){ timer--; } timer.textContent = time; }, 1000);
+  var t = setInterval(function(){ if(!timeUp){ time--; } timer.textContent = time; }, 1000);
   score = 0;
   button.style.visibility = 'hidden';
   peep();
