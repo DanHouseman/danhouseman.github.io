@@ -4,9 +4,14 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Existentialism through force directed graphs.</title>
-  <meta name="description" content="Existentialist force directed graph.">
+  <title>Existentialism in as a force directed graph.</title>
+  <meta name="description" content="Existentialism in as a force directed graph.">
   <meta name="author" content="Dan Houseman">
+<meta property="og:image" content="https://www.danhouseman.com/img/existentialgraph.jpg" />
+<meta property="og:site_name" content="Dan's Randomness" />
+<meta property="og:type" content="Blog" />
+<meta property="og:url" content="https://www.danhouseman.com/existentialgraph" />
+<meta property="og:title" content="Choose your own existentialism..." />
 
   <style>
 @import url(https://fonts.googleapis.com/css?family=Abel);
@@ -152,142 +157,148 @@ body {
 
   <script>
 
-var ge1doot = ge1doot || {};
+var svgNode = svgNode || {};
 
-ge1doot.screen = function(id) {  
-	
+svgNode.screen = function(id) {
+
 	"use strict";
 
-		var screen = {
+	var screen = {
 
-			width:0, 
-			height:0, 
-			left:0, 
-			top: 0, 
-			elem: document.getElementById(id)
+		width: 0,
+		height: 0,
+		left: 0,
+		top: 0,
+		elem: document.getElementById(id)
 
-		};
+	};
 
-		screen.elem.onselectstart = function() { return false; }
-		screen.elem.ondragstart = function() { return false; }
+	screen.elem.onselectstart = function() {
+		return false;
+	}
+	screen.elem.ondragstart = function() {
+		return false;
+	}
 
-		screen.setSize = function() {
+	screen.setSize = function() {
 
-			var o = this.elem;
-			var w = this.elem.offsetWidth * 1;
-			var h = this.elem.offsetHeight * 1;
+		var o = this.elem;
+		var w = this.elem.offsetWidth * 1;
+		var h = this.elem.offsetHeight * 1;
 
-			if (w != this.width || h != this.height) {
+		if (w != this.width || h != this.height) {
 
-				for (this.left = 0, this.top = 0; o != null; o = o.offsetParent) {
+			for (this.left = 0, this.top = 0; o != null; o = o.offsetParent) {
 
-					this.left += o.offsetLeft;
-					this.top  += o.offsetTop;
-
-				}
-
-				this.width = this.elem.width = w;
-				this.height = this.elem.height = h;
-				this.resize && this.resize();
-
-			}
-		}
-
-		window.addEventListener('resize', screen.setSize.bind(screen), false);
-		screen.setSize();
-
-		screen.pointer = {
-
-			x: 0,
-			y: 0,
-			dx: 0,
-			dy: 0,
-			startX: 0,
-			startY: 0,
-			screen: screen,
-			touchMode: false,
-			isDown: false,
-			sweeping: false
-
-		}
-
-		var started = false, endX = 0, endY = 0;
-
-		var addEvent = function (elem, e, fn) {
-
-			for (var i = 0, events = e.split(','); i < events.length; i++) {
-				elem.addEventListener(events[i], fn.bind(screen.pointer), false );
-			}
-
-		}
-
-		var distance = function (dx, dy) {
-
-			return Math.sqrt(dx * dx + dy * dy);
-
-		}
-
-		addEvent(window, "mousemove,touchmove", function (e) {
-
-			e.preventDefault();
-			this.touchMode = e.targetTouches;
-			var pointer = this.touchMode ? this.touchMode[0] : e;
-			this.x = pointer.clientX - this.screen.left;
-			this.y = pointer.clientY - this.screen.top;
-
-			if (started) {
-
-				this.sweeping = true;
-				this.dx = endX - (this.x - this.startX);
-				this.dy = endY - (this.y - this.startY);
+				this.left += o.offsetLeft;
+				this.top += o.offsetTop;
 
 			}
 
-			if (this.move) this.move(e);
+			this.width = this.elem.width = w;
+			this.height = this.elem.height = h;
+			this.resize && this.resize();
 
-		});
+		}
+	}
 
-		addEvent(screen.elem, "mousedown,touchstart", function (e) {
+	window.addEventListener('resize', screen.setSize.bind(screen), false);
+	screen.setSize();
 
-			e.preventDefault();
-			this.touchMode = e.targetTouches;
-			var pointer = this.touchMode ? this.touchMode[0] : e;
-			this.startX = this.x = pointer.clientX - this.screen.left;
-			this.startY = this.y = pointer.clientY - this.screen.top;  
-			started = true;
-			this.isDown = true;
-			if (this.down) this.down(e);
+	screen.pointer = {
 
-			setTimeout(function () {
-				if (!started && Math.abs(this.startX - this.x) < 11 && Math.abs(this.startY - this.y) < 11) {
-					if (this.tap) this.tap(e);
-				}
-			}.bind(this), 200);
-
-		});
-
-		addEvent(window, "mouseup,touchend,touchcancel", function (e) {
-
-			e.preventDefault();
-
-			if (started) {
-
-				endX = this.dx;
-				endY = this.dy;
-				started = false;
-				this.isDown = false;
-				if (this.up) this.up(e);
-				this.sweeping = false;
-
-			}
-		});
-
-		return screen;
+		x: 0,
+		y: 0,
+		dx: 0,
+		dy: 0,
+		startX: 0,
+		startY: 0,
+		screen: screen,
+		touchMode: false,
+		isDown: false,
+		sweeping: false
 
 	}
-	var ge1doot = ge1doot || {};
 
-ge1doot.SVGLib = function(o, antialias) {  
+	var started = false,
+		endX = 0,
+		endY = 0;
+
+	var addEvent = function(elem, e, fn) {
+
+		for (var i = 0, events = e.split(','); i < events.length; i++) {
+			elem.addEventListener(events[i], fn.bind(screen.pointer), false);
+		}
+
+	}
+
+	var distance = function(dx, dy) {
+
+		return Math.sqrt(dx * dx + dy * dy);
+
+	}
+
+	addEvent(window, "mousemove,touchmove", function(e) {
+
+		e.preventDefault();
+		this.touchMode = e.targetTouches;
+		var pointer = this.touchMode ? this.touchMode[0] : e;
+		this.x = pointer.clientX - this.screen.left;
+		this.y = pointer.clientY - this.screen.top;
+
+		if (started) {
+
+			this.sweeping = true;
+			this.dx = endX - (this.x - this.startX);
+			this.dy = endY - (this.y - this.startY);
+
+		}
+
+		if (this.move) this.move(e);
+
+	});
+
+	addEvent(screen.elem, "mousedown,touchstart", function(e) {
+
+		e.preventDefault();
+		this.touchMode = e.targetTouches;
+		var pointer = this.touchMode ? this.touchMode[0] : e;
+		this.startX = this.x = pointer.clientX - this.screen.left;
+		this.startY = this.y = pointer.clientY - this.screen.top;
+		started = true;
+		this.isDown = true;
+		if (this.down) this.down(e);
+
+		setTimeout(function() {
+			if (!started && Math.abs(this.startX - this.x) < 11 && Math.abs(this.startY - this.y) < 11) {
+				if (this.tap) this.tap(e);
+			}
+		}.bind(this), 200);
+
+	});
+
+	addEvent(window, "mouseup,touchend,touchcancel", function(e) {
+
+		e.preventDefault();
+
+		if (started) {
+
+			endX = this.dx;
+			endY = this.dy;
+			started = false;
+			this.isDown = false;
+			if (this.up) this.up(e);
+			this.sweeping = false;
+
+		}
+	});
+
+	return screen;
+
+}
+var svgNode = svgNode || {};
+
+svgNode.SVGLib = function(o, antialias) {
 
 	"use strict";
 
@@ -308,17 +319,17 @@ ge1doot.SVGLib = function(o, antialias) {
 
 	o.appendChild(this.screen);
 
-	this.createLine = function (w, options) {
+	this.createLine = function(w, options) {
 
 		var o = document.createElementNS(__svgNS, "line");
-		o.setAttribute("shape-rendering", antialias?"auto":"optimizeSpeed");
-		o.setAttribute("stroke-width", Math.round(w)+"px");
+		o.setAttribute("shape-rendering", antialias ? "auto" : "optimizeSpeed");
+		o.setAttribute("stroke-width", Math.round(w) + "px");
 		if (options.color) o.setAttribute("stroke", options.color);
 		if (options.linecap) o.setAttribute("stroke-linecap", options.linecap);
 		if (options.dasharray) o.setAttribute("stroke-dasharray", options.dasharray);
 
 
-		o.move = function (x1, y1, x2, y2) {
+		o.move = function(x1, y1, x2, y2) {
 
 			this.setAttribute("x1", x1);
 			this.setAttribute("y1", y1);
@@ -327,35 +338,47 @@ ge1doot.SVGLib = function(o, antialias) {
 
 		}
 
-		o.color = function (c) { this.setAttribute("stroke", c); }
-		o.RGBcolor = function (R, G, B) { this.setAttribute("stroke", "rgb("+Math.round(R)+","+Math.round(G)+","+Math.round(B)+")"); }
-		o.strokeWidth = function (s) { this.setAttribute("stroke-width", Math.round(s)+"px"); }
+		o.color = function(c) {
+			this.setAttribute("stroke", c);
+		}
+		o.RGBcolor = function(R, G, B) {
+			this.setAttribute("stroke", "rgb(" + Math.round(R) + "," + Math.round(G) + "," + Math.round(B) + ")");
+		}
+		o.strokeWidth = function(s) {
+			this.setAttribute("stroke-width", Math.round(s) + "px");
+		}
 		this.screen.appendChild(o);
 
 		return o;
 
 	}
 
-	this.createText = function (text, font, size, col) {
+	this.createText = function(text, font, size, col) {
 
 		var o = document.createElementNS(__svgNS, "text");
-		o.setAttribute("shape-rendering", antialias?"auto":"optimizeSpeed");
+		o.setAttribute("shape-rendering", antialias ? "auto" : "optimizeSpeed");
 		o.textContent = text;
 
 		if (col) o.setAttribute("fill", col);
 		if (size) o.setAttribute("font-size", size);
 		if (font) o.setAttribute("font-family", font);
-		
-		o.move = function (x, y) {
+
+		o.move = function(x, y) {
 
 			this.setAttribute("x", x);
 			this.setAttribute("y", y);
 
 		}
 
-		o.fillColor  = function (c) { this.setAttribute("fill", c); }
-		o.fontSize   = function (c) { this.setAttribute("font-size", c); }
-		o.fontWeight = function (c) { this.setAttribute("font-weight", c); }
+		o.fillColor = function(c) {
+			this.setAttribute("fill", c);
+		}
+		o.fontSize = function(c) {
+			this.setAttribute("font-size", c);
+		}
+		o.fontWeight = function(c) {
+			this.setAttribute("font-weight", c);
+		}
 
 		this.screen.appendChild(o);
 
@@ -363,15 +386,15 @@ ge1doot.SVGLib = function(o, antialias) {
 
 	}
 
-	this.createOval = function (diam, filled) {
+	this.createOval = function(diam, filled) {
 
 		var o = document.createElementNS(__svgNS, "circle");
-		o.setAttribute("shape-rendering", antialias?"auto":"optimizeSpeed");
+		o.setAttribute("shape-rendering", antialias ? "auto" : "optimizeSpeed");
 		o.setAttribute("stroke-width", 0);
 		o.setAttribute("r", Math.round(diam / 2));
 		o.style.cursor = "pointer";
 
-		o.move = function (x1, y1, radius) {
+		o.move = function(x1, y1, radius) {
 
 			this.setAttribute("cx", x1);
 			this.setAttribute("cy", y1);
@@ -379,19 +402,25 @@ ge1doot.SVGLib = function(o, antialias) {
 
 		}
 
-		o.strokeColor = function (col) { this.setAttribute("stroke", col); }
-		o.fillColor = function (col) { this.setAttribute("fill", col); }
-		o.strokeWidth = function (sw) { this.setAttribute("stroke-width", sw); }
+		o.strokeColor = function(col) {
+			this.setAttribute("stroke", col);
+		}
+		o.fillColor = function(col) {
+			this.setAttribute("fill", col);
+		}
+		o.strokeWidth = function(sw) {
+			this.setAttribute("stroke-width", sw);
+		}
 		this.screen.appendChild(o);
 
 		return o;
 	}
 }
 
-! function () {
+! function() {
 
 	"use strict";
-	
+
 	var setup = {
 
 		id: "tree",
@@ -402,19 +431,22 @@ ge1doot.SVGLib = function(o, antialias) {
 		rotationSpeed: 0.001,
 		collapsedNodeColor: "#666",
 		defaultNodeColor: "#500000",
-		expandedNodeColor: "#fff", 
-		line: {color: "#aaa", dasharray: "4,4"}, 
-		defaultNodeStrokeColor: "#999999", 
-		overNodeColor: "#c30000", 
-		defaultTextColor: "#888", 
-		selectedTextColor: "#e2e2e2", 
-		textFont: "Abel, tempus sans itc, cursive, Helvetica, sans-serif" 
+		expandedNodeColor: "#fff",
+		line: {
+			color: "#aaa",
+			dasharray: "4,4"
+		},
+		defaultNodeStrokeColor: "#999999",
+		overNodeColor: "#c30000",
+		defaultTextColor: "#888",
+		selectedTextColor: "#e2e2e2",
+		textFont: "Abel, tempus sans itc, cursive, Helvetica, sans-serif"
 
 	}
 
 	// ==== node constructor ====
 
-	var Node = function (parent, label, col, link) {
+	var Node = function(parent, label, col, link) {
 
 		this.link = link;
 		this.col = col;
@@ -444,7 +476,7 @@ ge1doot.SVGLib = function(o, antialias) {
 			// calculate lengths & angles
 
 			var a = (2 * Math.PI) / parent.children.length;
-			var b = (parent != "") ? Math.random():0;
+			var b = (parent != "") ? Math.random() : 0;
 
 			for (var i in parent.children) {
 
@@ -470,7 +502,7 @@ ge1doot.SVGLib = function(o, antialias) {
 
 	}
 
-	Node.prototype.createPlot = function () {
+	Node.prototype.createPlot = function() {
 
 		this.pR = Math.round(Math.max(5, setup.dotSize * this.ini.len / 200));
 		this.plot = svg.createOval(this.pR * 2, true);
@@ -482,7 +514,7 @@ ge1doot.SVGLib = function(o, antialias) {
 
 	}
 
-	Node.prototype.run = function () { 
+	Node.prototype.run = function() {
 
 		if (this.visible) {
 
@@ -490,7 +522,7 @@ ge1doot.SVGLib = function(o, antialias) {
 			var yp = this.parent ? this.parent.y : drag.y;
 
 			var a = Math.atan2(
-				(this.y + Math.sin(this.angle + rotation) * setup.friction) - yp, 
+				(this.y + Math.sin(this.angle + rotation) * setup.friction) - yp,
 				(this.x + Math.cos(this.angle + rotation) * setup.friction) - xp
 			);
 
@@ -498,7 +530,7 @@ ge1doot.SVGLib = function(o, antialias) {
 			this.x = xp + Math.cos(a) * this.lex;
 			this.y = yp + Math.sin(a) * this.lex;
 
-			if (this.x < this.pR) this.x = this.pR; 
+			if (this.x < this.pR) this.x = this.pR;
 			else if (this.x > screen.width - this.pR) this.x = screen.width - this.pR;
 
 			if (this.y < this.pR) this.y = this.pR;
@@ -512,7 +544,7 @@ ge1doot.SVGLib = function(o, antialias) {
 
 	}
 
-	Node.prototype.collapse = function () {
+	Node.prototype.collapse = function() {
 
 		this.expanded = false;
 		this.text.fillColor(this.parent && this.parent.children.length == 1 ? setup.selectedTextColor : setup.defaultTextColor);
@@ -526,7 +558,7 @@ ge1doot.SVGLib = function(o, antialias) {
 			c.lex = 0;
 			c.line.move(-1, -1, -1, -2);
 			c.plot.move(-1000, -1, 0);
-			c.text.move(-1000,0);
+			c.text.move(-1000, 0);
 			c.expanded = false;
 			c.collapse();
 
@@ -534,7 +566,7 @@ ge1doot.SVGLib = function(o, antialias) {
 
 	}
 
-	Node.prototype.expand = function () {
+	Node.prototype.expand = function() {
 
 		if (this.ini.parent != "") {
 
@@ -559,7 +591,7 @@ ge1doot.SVGLib = function(o, antialias) {
 		}
 	}
 
-	Node.prototype.down = function () {
+	Node.prototype.down = function() {
 
 		if (pointer.isDraging) return;
 
@@ -571,13 +603,14 @@ ge1doot.SVGLib = function(o, antialias) {
 			this.text.fillColor(setup.selectedTextColor);
 			this.plot.fillColor(setup.expandedNodeColor);
 
-			var i = 0, node;
-			while ( node = nodes[i++]) {
+			var i = 0,
+				node;
+			while (node = nodes[i++]) {
 
 				node.parent = node.ini.parent;
-				node.len    = node.ini.len;
-				node.lex    = node.ini.len;
-				node.angle  = node.ini.angle;
+				node.len = node.ini.len;
+				node.lex = node.ini.len;
+				node.angle = node.ini.angle;
 
 			}
 
@@ -585,7 +618,7 @@ ge1doot.SVGLib = function(o, antialias) {
 			var ow = this;
 			oc.push(ow);
 
-			while(ow.parent != "") {
+			while (ow.parent != "") {
 
 				ow = ow.parent;
 				oc.push(ow);
@@ -595,17 +628,17 @@ ge1doot.SVGLib = function(o, antialias) {
 
 			for (var i = 1; i < oc.length; i++) {
 
-				oc[i].lex    = oc[i-1].ini.len;
-				oc[i].len    = oc[i-1].ini.len;
-				oc[i].angle  = oc[i-1].ini.angle - Math.PI;
-				oc[i].parent = oc[i-1];
+				oc[i].lex = oc[i - 1].ini.len;
+				oc[i].len = oc[i - 1].ini.len;
+				oc[i].angle = oc[i - 1].ini.angle - Math.PI;
+				oc[i].parent = oc[i - 1];
 
 			}
 
 			this.parent = "";
-			this.len    = 0;
-			this.lex    = 0;
-			this.angle  = 0;
+			this.len = 0;
+			this.lex = 0;
+			this.angle = 0;
 			drag.node.plot.strokeColor(setup.defaultNodeStrokeColor);
 			drag.node.plot.strokeWidth(1);
 			drag.node = this;
@@ -614,22 +647,23 @@ ge1doot.SVGLib = function(o, antialias) {
 
 	}
 
-	var run = function () {
+	var run = function() {
 
 		requestAnimationFrame(run);
 
 		if (drag.ing) {
 
 			drag.x = pointer.x - drag.ox,
-			drag.y = pointer.y - drag.oy;
+				drag.y = pointer.y - drag.oy;
 
 		}
 
 		rotation += setup.rotationSpeed;
 
-		var i = 0, node;
+		var i = 0,
+			node;
 
-		while ( node = nodes[i++]) {
+		while (node = nodes[i++]) {
 
 			node.run();
 
@@ -638,7 +672,7 @@ ge1doot.SVGLib = function(o, antialias) {
 
 	}
 
-	var setMenuTree = function (theNode, parent) {
+	var setMenuTree = function(theNode, parent) {
 
 		if (theNode.tagName == "Q" || theNode.tagName == "A") {
 
@@ -668,15 +702,15 @@ ge1doot.SVGLib = function(o, antialias) {
 		}
 	}
 
-	var screen = ge1doot.screen("screen");
+	var screen = svgNode.screen("screen");
 
-	var screen = ge1doot.screen("screen");
+	var screen = svgNode.screen("screen");
 	var pointer = screen.pointer;
 	var nodes = [],
 		drag = {
 
-			x:  0,
-			y:  0,
+			x: 0,
+			y: 0,
 			ox: 0,
 			oy: 0,
 			node: false,
@@ -687,7 +721,7 @@ ge1doot.SVGLib = function(o, antialias) {
 		nodeOver, setup;
 
 
-	pointer.down = function (e) {
+	pointer.down = function(e) {
 
 		if (e && e.target && e.target.obj) {
 			drag.ing = true;
@@ -696,13 +730,13 @@ ge1doot.SVGLib = function(o, antialias) {
 
 	}
 
-	pointer.up = function (e) {
+	pointer.up = function(e) {
 
 		drag.ing = false;
 
 	}
 
-	pointer.tap = function (e) {
+	pointer.tap = function(e) {
 
 		if (e && e.target && e.target.obj) {
 
@@ -718,13 +752,14 @@ ge1doot.SVGLib = function(o, antialias) {
 
 				// expand / collapse
 
-				if (drag.node.expanded) drag.node.collapse(); else drag.node.expand();
+				if (drag.node.expanded) drag.node.collapse();
+				else drag.node.expand();
 
 			}
 		}
 	}
 
-	pointer.move = function (e) {
+	pointer.move = function(e) {
 
 		if (e && e.target && e.target.obj) {
 
@@ -744,19 +779,20 @@ ge1doot.SVGLib = function(o, antialias) {
 
 	}
 
-	var svg = new ge1doot.SVGLib(screen.elem, true);
+	var svg = new svgNode.SVGLib(screen.elem, true);
 
 	if (svg) {
 
 		setup.length = Math.max(150, screen.height / 4);
-		drag.x = screen.width  / 2;
+		drag.x = screen.width / 2;
 		drag.y = screen.height / 2;
 		setMenuTree(document.getElementById(setup.id), "");
 
 		// create plots
 
-		var i = 0, node;
-		while ( node = nodes[i++]) {
+		var i = 0,
+			node;
+		while (node = nodes[i++]) {
 			node.createPlot();
 		}
 
