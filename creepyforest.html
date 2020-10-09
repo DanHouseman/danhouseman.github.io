@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Procedurally generated spooky forest of doom.</title>
+		<meta name="description" content="Procedurally generated spooky forest of doom.">
+		<meta name="author" content="Dan Houseman">
+		<meta property="og:image" content="https://www.danhouseman.com/img/creepyforest.png" />
+		<meta property="og:site_name" content="Dan's Randomness" />
+		<meta property="og:type" content="Blog" />
+		<meta property="og:url" content="https://www.danhouseman.com/creepyforest" />
+		<meta property="og:title" content="Procedurally generated spooky forest of doom." />
+		<style>
+			body,
+			html {
+				position: absolute;
+				margin: 0;
+				padding: 0;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background: #fff;
+				user-select: none;
+			}
+			canvas {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				user-select: none;
+				touch-action: none;
+				content-zooming: none;
+				background: #fff;
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas></canvas>
+		<script>
+		"use strict";
+		const canvas = document.querySelector("canvas");
+		const ctx = canvas.getContext("2d");
+		const branch = (l) => {
+			if (l > 8) return;
+			ctx.save();
+			ctx.scale(1 - l * 0.1, 0.5);
+			ctx.fillRect(-0.5, -0.5, 1, 1);
+			ctx.restore();
+			if (Math.random() * 1.04 < 0.04) {
+				ctx.save();
+				ctx.translate(-0.1, 0);
+				ctx.rotate(((Math.random() * 5 + 15) * Math.PI) / 180);
+				ctx.translate(0, 0.3);
+				ctx.scale(0.7 * 0.9999995, 0.7 * 0.9999995);
+				branch(l + 1);
+				ctx.restore();
+				ctx.translate(0.1, 0);
+				ctx.rotate(((-Math.random() * 15 - 10) * Math.PI) / 180);
+				ctx.translate(0, 0.3);
+				ctx.scale(0.7 * 0.9999995, 0.7 * 0.9999995);
+				return branch(l + 1);
+			} else {
+				ctx.rotate(((Math.random() * 10 - 5) * Math.PI) / 180);
+				ctx.translate(0, 0.3);
+				ctx.scale(0.9999995, 0.9999995);
+				return branch(l);
+			}
+		};
+		const requestAnimationFrame = () => {
+			return new Promise((resolve) => {
+				window.requestAnimationFrame(resolve);
+			});
+		};
+		let running = false;
+		async function start() {
+			if (running === true) return;
+			running = true;
+			const w = (canvas.width = canvas.offsetWidth * 1.5);
+			const h = (canvas.height = canvas.offsetHeight * 2);
+			ctx.fillStyle = "#e2e2e2";
+			ctx.fillRect(0, 0, w, h);
+			for (let i = 0; i < 50; i++) {
+				ctx.save();
+				ctx.translate(w * 0.2 + Math.random() * w * 0.6, h);
+				ctx.scale(-20 - i * 0.5, -20 - i * 0.5);
+				ctx.fillStyle = `hsl(0, 0%, ${100 - i * 2}%)`;
+				branch(0);
+				ctx.restore();
+				await requestAnimationFrame();
+			}
+			running = false;
+		}
+		["click", "touchdown"].forEach((event) => {
+			document.addEventListener(event, start, false);
+		});
+		start();
+		</script>
+	</body>
+</html>
