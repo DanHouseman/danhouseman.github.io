@@ -1,0 +1,4824 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Herb In Soil - Test Bed - Low Poly Animated Plants</title>
+    <meta name="description" content="A test bed for Herb In Soil website.">
+    <meta name="author" content="Dan Houseman">
+    <meta property="og:image" content="https://atlas-content-cdn.pixelsquid.com/stock-images/low-poly-tulip-flowering-plants-63kLZa5-600.jpg" />
+    <meta property="og:site_name" content="Herb In Soil" />
+    <meta property="og:type" content="Shop" />
+    <meta property="og:url" content="https://www.herbinsoil.com/" />
+    <meta property="og:title" content="Herb In Soil Test Bed - Low Poly Animated Plants" />
+</head>
+
+ <style>
+    html,
+    body {
+        height: 100%;
+    }
+
+    body {
+        background: rgba(243, 214, 50, 0.35);
+        display: -webkit-box;
+        -webkit-box-pack: center;
+        -webkit-box-orient: vertical;
+    }
+
+    .wrap {
+        position: relative;
+        min-height: 320px;
+        width: 300px;
+        height: 300px;
+        margin: auto;
+    }
+
+    .shard-wrap .shard {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transition: all 1s;
+    }
+
+    .shard-wrap:nth-child(1) .shard {
+        transition-delay: 0.04s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(48.66666% 61.86666%, 46.79998% 79.33332%, 54.13332% 76.66666%);
+        background-color: #521C33;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(48.66666% 61.86666%, 46.79998% 79.33332%, 54.13332% 76.66666%);
+        background-color: #B23D70;
+    }
+
+    .boleshu .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(51.6% 99%, 54.4% 98.8%, 49% 79.4%);
+        background-color: #34373C;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(51.6% 99%, 54.4% 98.8%, 49% 79.4%);
+        background-color: #6F7580;
+    }
+
+    .changruimulan .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(49% 35.6%, 39.66667% 57.2%, 41.4% 61.4%);
+        background-color: #525A46;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(49% 35.6%, 39.66667% 57.2%, 41.4% 61.4%);
+        background-color: #525A46;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(47.99999% 72.25%, 49.74999% 65.375%, 43.12499% 66.25%);
+        background-color: #2C291D;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(47.99999% 72.25%, 49.74999% 65.375%, 43.12499% 66.25%);
+        background-color: #2C291D;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(46.4% 45.4%, 71% 10.4%, 97% 15.2%);
+        background-color: #006600;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(46.4% 45.4%, 71% 10.4%, 94.6% 17.4%);
+        background-color: #006600;
+    }
+
+    .gongtong .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(51.19998% 10.4%, 51.19999% 40.79999%, 53.09999% 8.999999%);
+        background-color: #B8CE40;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(51.19998% 10.4%, 51.19999% 40.79999%, 53.09999% 8.999999%);
+        background-color: #B8CE40;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(35.66666% 1.666666%, 74.63333% 34.53333%, 37.19999% 5.666666%);
+        background-color: #212317;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(35.66666% 1.666666%, 74.63333% 34.53333%, 37.19999% 5.666666%);
+        background-color: #212317;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(48.15% 30.35%, 34.125% 18.25%, 38.125% 26%);
+        background-color: #544227;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(48.15% 30.35%, 34.125% 18.25%, 38.125% 26%);
+        background-color: #544227;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(94.6% 7.6%, 94.6% 12.8%, 64.6% 36%);
+        background-color: #35282A;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(94.6% 7.6%, 94.6% 12.8%, 64.6% 36%);
+        background-color: #35282A;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(19.49999% 57.99999%, 45.49999% 12.75%, 51.74999% 7.749999%);
+        background-color: #5A402E;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(19.49999% 57.99999%, 45.49999% 12.75%, 51.74999% 7.749999%);
+        background-color: #5A402E;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(1% 38%, 0.6% 45.4%, 68% 23.2%);
+        background-color: #000000;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(1% 38%, 0.6% 45.4%, 68% 23.2%);
+        background-color: #000000;
+    }
+
+    .shuishan .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(49.55% 81.875%, 50.125% 90.3%, 65.6% 85.2%);
+        background-color: #6C6A5A;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(49.55% 81.875%, 50.125% 90.3%, 65.6% 85.2%);
+        background-color: #6C6A5A;
+    }
+
+    .suoluo .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(48.45% 33.7%, 26.25% 72.7%, 46.8% 82.8%);
+        background-color: #83C258;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(48.45% 33.7%, 26.25% 72.7%, 46.8% 82.8%);
+        background-color: #4D7A2D;
+    }
+
+    .xishu .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(79.66665% 1.999998%, 67.99998% 54.33333%, 82.33331% 1.333332%);
+        background-color: #000000;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(79.66665% 1.999998%, 67.99998% 54.33333%, 82.33331% 1.333332%);
+        background-color: #000000;
+    }
+
+    .yinshan .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(97% 39%, 1% 86.2%, 2.2% 91.4%);
+        background-color: #1C1612;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(1) .shard {
+        -webkit-clip-path: polygon(97% 39%, 1% 86.2%, 2.2% 91.4%);
+        background-color: #1C1612;
+    }
+
+    .shard-wrap:nth-child(2) .shard {
+        transition-delay: 0.08s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(48.79998% 61.73332%, 46.79998% 79.33332%, 38.53332% 68.53332%);
+        background-color: #702C4C;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(48.79998% 61.73332%, 46.79998% 79.33332%, 38.53332% 68.53332%);
+        background-color: #CB578F;
+    }
+
+    .boleshu .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(49.1% 79.7%, 51.7% 89.35%, 51.3% 57.8%);
+        background-color: #435547;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(49.1% 79.7%, 51.7% 89.35%, 51.3% 57.8%);
+        background-color: #6A8570;
+    }
+
+    .changruimulan .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(24.61905% 21.9238%, 53.66666% 57.16666%, 74.66666% 17.53333%);
+        background-color: #5A793D;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(24.61905% 21.9238%, 53.66666% 57.16666%, 74.66666% 17.53333%);
+        background-color: #557E2E;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(46.49999% 70.375%, 47.37499% 73.5%, 43.87499% 71.625%);
+        background-color: #383426;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(46.49999% 70.375%, 47.37499% 73.5%, 43.87499% 71.625%);
+        background-color: #383426;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(46.4% 45.2%, 80.6% 24.8%, 90% 31.2%);
+        background-color: #2F7722;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(46.4% 45.2%, 80.6% 24.8%, 88% 36.8%);
+        background-color: #2F7722;
+    }
+
+    .gongtong .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(51.63332% 36.76666%, 46.99999% 85.16666%, 52.99999% 68%);
+        background-color: #D5E5C4;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(51.03332% 36.36666%, 44.59999% 84.56666%, 50.19999% 71.2%);
+        background-color: #C7DCB1;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(45.26666% 34.5%, 48.16666% 56.99999%, 36.06666% 1.03333%);
+        background-color: #2E2E1B;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(45.26666% 34.5%, 48.16666% 56.99999%, 36.06666% 1.03333%);
+        background-color: #2E2E1B;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(44.4% 35.8%, 55.4% 35.8%, 58.21666% 93.03333%);
+        background-color: #9D6B45;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(44.4% 35.8%, 55.4% 35.8%, 58.21666% 93.03333%);
+        background-color: #9D6B45;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(65% 35.4%, 58.2% 46.2%, 86% 19%);
+        background-color: #1C160F;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(65% 35.4%, 58.2% 46.2%, 86% 19%);
+        background-color: #1C160F;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(31.24999% 38.75%, 98.49999% 98.24999%, 87.24999% 45.75%);
+        background-color: #4B641A;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(31.24999% 38.75%, 98.49999% 98.24999%, 87.24999% 45.75%);
+        background-color: #4B641A;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(63.2% 26%, 17% 34.6%, 105.8% 7.2%);
+        background-color: #000000;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(63.2% 26%, 17% 34.6%, 105.8% 7.2%);
+        background-color: #000000;
+    }
+
+    .shuishan .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(49.6% 81.8%, 50.325% 90.375%, 35.55% 86.175%);
+        background-color: #896F6D;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(49.6% 81.8%, 50.325% 90.375%, 35.55% 86.175%);
+        background-color: #896F6D;
+    }
+
+    .suoluo .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(38% 91.6%, 29.15% 59.05%, 48.6% 38.4%);
+        background-color: #7BB73D;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(38% 91.6%, 29.15% 59.05%, 48.6% 38.4%);
+        background-color: #629031;
+    }
+
+    .xishu .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(64.45% 33.04999%, 78.31667% 13.7%, 63.1% 17.35%);
+        background-color: #659B4D;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(69.33889% 33.71666%, 78.31667% 13.7%, 65.32222% 20.46111%);
+        background-color: #659B4D;
+    }
+
+    .yinshan .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(47.4% 63.8%, 51.2% 62.2%, 51% 52.6%);
+        background-color: #1C1612;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(2) .shard {
+        -webkit-clip-path: polygon(47.4% 63.8%, 51.2% 62.2%, 51% 52.6%);
+        background-color: #1C1612;
+    }
+
+    .shard-wrap:nth-child(3) .shard {
+        transition-delay: 0.12s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(48.79998% 62.13332%, 29.06666% 59.73332%, 38.66666% 68.53334%);
+        background-color: #9E377C;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(48.79998% 62.13332%, 29.06666% 59.73332%, 38.66666% 68.53334%);
+        background-color: #CF77B3;
+    }
+
+    .boleshu .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(51.3% 57.7%, 51.45% 70.4%, 53.7% 40.6%);
+        background-color: #885E4A;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(51.3% 57.7%, 51.45% 70.4%, 53.7% 40.6%);
+        background-color: #C18D75;
+    }
+
+    .changruimulan .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(51.4% 37.6%, 57.16667% 16.86667%, 69.5% 12%);
+        background-color: #DEDD99;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(51.4% 37.6%, 57.16667% 16.86667%, 69.5% 12%);
+        background-color: #DEDD99;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(14.225% 8.825001%, 29.15% 24.675%, 28.675% 29.7%);
+        background-color: #12200A;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(14.225% 8.825001%, 29.15% 24.675%, 28.675% 29.7%);
+        background-color: #12200A;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(25.66666% 16.33333%, 85.24999% 49.54166%, 25.83333% 84.87499%);
+        background-color: #80B330;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(25.66666% 16.33333%, 85.24999% 49.54166%, 25.83333% 84.87499%);
+        background-color: #80B330;
+    }
+
+    .gongtong .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(51.83332% 28.03333%, 53.03332% 68.03333%, 60.69999% 52.49999%);
+        background-color: #D5E2C7;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(51.83332% 28.03333%, 49.83332% 71.63333%, 60.69999% 52.49999%);
+        background-color: #D4E5C1;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(28.93333% 89.99999%, 48.33333% 56.33333%, 47.69999% 52.96666%);
+        background-color: #2E2E1B;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(28.93333% 89.99999%, 48.33333% 56.33333%, 47.69999% 52.96666%);
+        background-color: #2E2E1B;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(58.16667% 92.65834%, 44.45% 35.75%, 42.68333% 92.43333%);
+        background-color: #6C422D;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(58.16667% 92.65834%, 44.45% 35.75%, 42.68333% 92.43333%);
+        background-color: #6C422D;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(65.2% 35.8%, 54.35% 43.575%, 50.85% 36.8%);
+        background-color: #4D6214;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(65.2% 35.8%, 54.35% 43.575%, 50.85% 36.8%);
+        background-color: #4D6214;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(30.99999% 39%, 87.74999% 45.99999%, 60.24999% 35.25%);
+        background-color: #507027;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(30.99999% 39%, 87.74999% 45.99999%, 60.24999% 35.25%);
+        background-color: #507027;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(23.975% 46.725%, 16.2% 81.4%, 33.95% 62.04166%);
+        background-color: #B3CF4C;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(23.975% 46.725%, 17.31111% 81.62222%, 33.95% 62.04166%);
+        background-color: #88A02B;
+    }
+
+    .shuishan .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(49.675% 89.575%, 37.8% 94.4%, 63% 93.6%);
+        background-color: #0D375C;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(49.675% 89.575%, 37.8% 94.4%, 63% 93.6%);
+        background-color: #0D375C;
+    }
+
+    .suoluo .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(50.8% 37%, 19.6% 78.4%, 19.8% 53.4%);
+        background-color: #437C2A;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(50.8% 37%, 19.6% 78.4%, 19.8% 53.4%);
+        background-color: #68BD41;
+    }
+
+    .xishu .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(78.15% 5.8%, 77% 28.7%, 92.8% 60.85%);
+        background-color: #589636;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(78.15% 5.8%, 81% 28.47778%, 97.24445% 53.51667%);
+        background-color: #589636;
+    }
+
+    .yinshan .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(50% 50.4%, 71.4% 76.6%, 64.6% 78.6%);
+        background-color: #275A27;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(3) .shard {
+        -webkit-clip-path: polygon(50% 50.4%, 71.4% 76.6%, 64.6% 78.6%);
+        background-color: #419441;
+    }
+
+    .shard-wrap:nth-child(4) .shard {
+        transition-delay: 0.16s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(48.79998% 61.86666%, 24.8% 43.33334%, 29.33332% 59.86666%);
+        background-color: #DA6AAE;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(48.79998% 61.86666%, 24.8% 43.33334%, 29.33332% 59.86666%);
+        background-color: #DA6AAE;
+    }
+
+    .boleshu .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(53.8% 41.1%, 51.3% 57.55%, 54.8% 20.1%);
+        background-color: #A0896A;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(53.8% 41.1%, 51.3% 57.55%, 54.8% 20.1%);
+        background-color: #C6B399;
+    }
+
+    .changruimulan .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(51.9% 36.7%, 69.6% 11.8%, 69.61905% 27.36666%);
+        background-color: #E2DEC4;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(51.9% 36.7%, 69.6% 11.8%, 69.61905% 27.36666%);
+        background-color: #E2DEC4;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(29.15% 24.425%, 28.5% 29.7%, 44.4% 31.4%);
+        background-color: #403F2E;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(29.15% 24.425%, 28.5% 29.7%, 44.4% 31.4%);
+        background-color: #403F2E;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(69.99999% 17.83333%, 62.91666% 84.12499%, 7.83333% 53.16666%);
+        background-color: #74AB14;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(69.99999% 17.83333%, 62.91666% 84.12499%, 7.83333% 53.16666%);
+        background-color: #74AB14;
+    }
+
+    .gongtong .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(53.13332% 30.06666%, 60.79999% 52.79999%, 65.83332% 33.16666%);
+        background-color: #D9EAC9;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(53.13332% 30.06666%, 60.79999% 52.79999%, 65.83332% 33.16666%);
+        background-color: #D6EAC1;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(67.26666% 13.9%, 69.23333% 16.1%, 55.86666% 18.96666%);
+        background-color: #45512C;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(67.26666% 13.9%, 69.23333% 16.1%, 55.86666% 18.96666%);
+        background-color: #45512C;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(44.5% 35.875%, 50.25% 26.25%, 55.54999% 36.225%);
+        background-color: #544227;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(44.5% 35.875%, 50.25% 26.25%, 55.54999% 36.225%);
+        background-color: #544227;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(46.55% 54.225%, 23.025% 77.1%, 39% 74.875%);
+        background-color: #9D9A48;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(46.55% 54.225%, 21.625% 75.3%, 37% 74.075%);
+        background-color: #BFB94E;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(34.49999% 29.25%, 4.749988% 43%, 51.99999% 43.25%);
+        background-color: #74AB36;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(34.49999% 29.25%, 4.749988% 43%, 51.99999% 43.25%);
+        background-color: #74AB36;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(23.35% 46.45%, 16.35% 81.15%, 7.500002% 47.8%);
+        background-color: #A6C538;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(23.35% 46.45%, 17.68333% 81.59445%, 7.500002% 47.8%);
+        background-color: #80962B;
+    }
+
+    .shuishan .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(49.8% 89.8%, 62.8% 93.6%, 66.2% 85%);
+        background-color: #193543;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(49.8% 89.8%, 62.8% 93.6%, 66.2% 85%);
+        background-color: #193543;
+    }
+
+    .suoluo .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(48.8% 38.8%, 27% 40.65%, 14.35% 61.35%);
+        background-color: #5FD947;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(48.8% 38.8%, 27% 40.65%, 14.35% 61.35%);
+        background-color: #387D2A;
+    }
+
+    .xishu .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(77.95% 13.6%, 76.8% 16%, 39% 40.8%);
+        background-color: #000000;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(77.95% 13.6%, 76.8% 16%, 39% 40.8%);
+        background-color: #000000;
+    }
+
+    .yinshan .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(64.6% 78.6%, 71.2% 76.4%, 93.33334% 85.46666%);
+        background-color: #275A27;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(4) .shard {
+        -webkit-clip-path: polygon(64.6% 78.6%, 71.2% 76.4%, 95.33334% 82.35555%);
+        background-color: #419441;
+    }
+
+    .shard-wrap:nth-child(5) .shard {
+        transition-delay: 0.2s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(48.79998% 62.4%, 51.73332% 52.26666%, 38.26666% 54.26666%);
+        background-color: #C74291;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(48.79998% 62.4%, 51.73332% 52.26666%, 38.26666% 54.26666%);
+        background-color: #D859A5;
+    }
+
+    .boleshu .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(54.6% 20.8%, 55.7% 17.65%, 54.15% 34.25%);
+        background-color: #95704B;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(54.6% 20.8%, 55.7% 17.65%, 54.15% 34.25%);
+        background-color: #B39679;
+    }
+
+    .changruimulan .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(46.7% 37.3%, 84.4% 49.2%, 78% 26%);
+        background-color: #3A623F;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(46.7% 37.3%, 78.8% 52.4%, 79.4% 25.4%);
+        background-color: #35773D;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(28.65% 29.7%, 46.2% 35.6%, 44% 31.2%);
+        background-color: #2F3314;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(28.65% 29.7%, 46.2% 35.6%, 44% 31.2%);
+        background-color: #2F3314;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(48.99999% 29.66666%, 36.29166% 18.54166%, 25.66666% 16.66666%);
+        background-color: #A1C16E;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(48.99999% 29.66666%, 36.29166% 18.54166%, 25.66666% 16.66666%);
+        background-color: #90B553;
+    }
+
+    .gongtong .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(51.63332% 28%, 47.16667% 85.16665%, 45.7% 76.89999%);
+        background-color: #D6EAE4;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(51.63332% 28%, 44.56667% 84.56665%, 42.5% 75.89999%);
+        background-color: #C1E5C4;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(58.69999% 21.13333%, 58.16666% 31.66666%, 55.09999% 32.16666%);
+        background-color: #2F3515;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(58.69999% 21.13333%, 58.16666% 31.66666%, 55.09999% 32.16666%);
+        background-color: #5A6628;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(49.675% 26.475%, 54.39999% 34.175%, 67.69999% 23.7%);
+        background-color: #815D3F;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(49.675% 26.475%, 54.39999% 34.175%, 67.69999% 23.7%);
+        background-color: #815D3F;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(48.525% 52.725%, 23.175% 77.175%, 19.325% 63.65%);
+        background-color: #AA9D00;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(48.525% 52.725%, 21.775% 75.175%, 19.325% 63.65%);
+        background-color: #D5C410;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(47.24999% 17.5%, 71.49999% 13.5%, 58.49999% 30.25%);
+        background-color: #D6DB9E;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(47.24999% 17.5%, 70.38887% 12.16667%, 58.49999% 30.25%);
+        background-color: #DFE49F;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(24.5% 46.4%, 33.80833% 62.31666%, 40.71667% 50.56667%);
+        background-color: #A4C035;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(24.5% 46.4%, 33.80833% 62.31666%, 40.71667% 50.56667%);
+        background-color: #A4C035;
+    }
+
+    .shuishan .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(49.975% 89.75%, 37.8% 94.4%, 35.4% 86%);
+        background-color: #214187;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(49.975% 89.75%, 37.8% 94.4%, 35.4% 86%);
+        background-color: #214187;
+    }
+
+    .suoluo .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(14.05% 31.65%, 51% 38.4%, 6.95% 58.15%);
+        background-color: #75B25E;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(14.05% 31.65%, 51% 38.4%, 6.95% 58.15%);
+        background-color: #40712D;
+    }
+
+    .xishu .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(67.8% 59%, 55.2% 57.6%, 60.4% 38.3%);
+        background-color: #D3E973;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(67.8% 59%, 55.2% 57.6%, 60.4% 38.3%);
+        background-color: #93B844;
+    }
+
+    .yinshan .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(51.525% 69.875%, 53.8% 90.8%, 55.4% 69.2%);
+        background-color: #317A3B;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(5) .shard {
+        -webkit-clip-path: polygon(51.525% 69.875%, 51.57778% 91.02222%, 55.4% 69.2%);
+        background-color: #60BC6D;
+    }
+
+    .shard-wrap:nth-child(6) .shard {
+        transition-delay: 0.24s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(51.73332% 52.26666%, 42.53334% 39.19998%, 38.13334% 54.26666%);
+        background-color: #F369B4;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(51.73332% 52.26666%, 42.53334% 39.19998%, 38.13334% 54.26666%);
+        background-color: #F7A0D0;
+    }
+
+    .boleshu .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(49.6% 75%, 39.2% 72.5%, 38.8% 74%);
+        background-color: #95704B;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(49.6% 75%, 39.2% 72.5%, 38.8% 74%);
+        background-color: #95704B;
+    }
+
+    .changruimulan .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(52.4% 37%, 35.2619% 21.3%, 23.42381% 28.32858%);
+        background-color: #F1FCF4;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(52.4% 37%, 35.2619% 21.3%, 23.42381% 28.32858%);
+        background-color: #F1FCF4;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(43.925% 31.175%, 86.325% 20.55%, 45.95% 35.525%);
+        background-color: #393824;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(43.925% 31.175%, 86.325% 20.55%, 45.95% 35.525%);
+        background-color: #393824;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(26.23333% 43.46666%, 25.66666% 16.66666%, 21.58333% 27.625%);
+        background-color: #A0C067;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(26.23333% 43.46666%, 25.66666% 16.66666%, 21.58333% 27.625%);
+        background-color: #80A143;
+    }
+
+    .gongtong .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(50.76666% 31.3%, 45.73333% 77.06667%, 35.23333% 57.99999%);
+        background-color: #E0EBDA;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(50.56666% 31.1%, 42.53333% 76.66667%, 35.23333% 57.99999%);
+        background-color: #CCE2BF;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(60.89999% 23.73333%, 59.33333% 37.16666%, 61.26666% 37.53333%);
+        background-color: #3D4D21;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(60.89999% 23.73333%, 58.53333% 36.96666%, 60.66666% 37.53333%);
+        background-color: #3D4D21;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(48.1% 29.875%, 44.825% 35.75%, 37.25% 25.625%);
+        background-color: #2C201C;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(48.1% 29.875%, 44.825% 35.75%, 37.25% 25.625%);
+        background-color: #2C201C;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(49.75% 52.225%, 19.45% 63.85%, 11% 50%);
+        background-color: #766D01;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(49.75% 52.225%, 19.45% 63.85%, 13% 51.4%);
+        background-color: #B5A601;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(41.99999% 24.75%, 54.24999% 23.5%, 45.24999% 8.249998%);
+        background-color: #DCDFAD;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(41.99999% 24.75%, 54.24999% 23.5%, 45.24999% 8.249998%);
+        background-color: #DCDFAD;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(23.1% 45.675%, 11.15% 40.39167%, 7.5% 48%);
+        background-color: #819A22;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(23.1% 45.675%, 11.15% 40.39167%, 7.5% 48%);
+        background-color: #BAD64C;
+    }
+
+    .shuishan .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(47.2% 85.4%, 51.8% 85.4%, 46.6% 53%);
+        background-color: #562D2D;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(47.2% 85.4%, 51.8% 85.4%, 46.6% 53%);
+        background-color: #A37556;
+    }
+
+    .suoluo .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(3.2% 33.2%, 19.6% 16%, 60.2% 41.6%);
+        background-color: #B3F982;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(3.2% 33.2%, 19.6% 16%, 60.2% 41.6%);
+        background-color: #3BA944;
+    }
+
+    .xishu .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(58.8% 52.4%, 52.2% 61%, 44.2% 45.4%);
+        background-color: #9EC54E;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(58.8% 52.4%, 52.2% 61%, 44.2% 45.4%);
+        background-color: #ABCC65;
+    }
+
+    .yinshan .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(50.6% 48.8%, 51.6% 70.2%, 55.4% 69.6%);
+        background-color: #317A3B;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(6) .shard {
+        -webkit-clip-path: polygon(50.6% 48.8%, 51.6% 70.2%, 55.4% 69.6%);
+        background-color: #60BC6D;
+    }
+
+    .shard-wrap:nth-child(7) .shard {
+        transition-delay: 0.28s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(53.99998% 76.39998%, 68.26666% 45.46666%, 59.86664% 47.46666%);
+        background-color: #ECA8D7;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(53.99998% 76.39998%, 68.26666% 45.46666%, 59.86664% 47.46666%);
+        background-color: #DC60B6;
+    }
+
+    .boleshu .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(51% 60.4%, 50.9% 62.25%, 39.1% 58.5%);
+        background-color: #95704B;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(51% 60.4%, 50.9% 62.25%, 39.1% 58.5%);
+        background-color: #95704B;
+    }
+
+    .changruimulan .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(23.67619% 28.37142%, 37.04761% 45.09522%, 50.99999% 36.16666%);
+        background-color: #F9FDFC;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(23.67619% 28.37142%, 37.04761% 45.09522%, 50.99999% 36.16666%);
+        background-color: #F9FDFC;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(49.8% 37%, 52.8% 17%, 65.8% 13.4%);
+        background-color: #284836;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(49.8% 37%, 52.8% 17%, 65.8% 13.4%);
+        background-color: #133317;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(26.66666% 42.41666%, 7.83333% 53.33333%, 9.999996% 45.49999%);
+        background-color: #88C535;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(26.66666% 42.41666%, 7.83333% 53.33333%, 9.999996% 45.49999%);
+        background-color: #A1CC65;
+    }
+
+    .gongtong .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(51.66666% 28.66666%, 35.33333% 57.99999%, 34.66666% 40.66666%);
+        background-color: #D8E6CF;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(51.66666% 28.66666%, 35.33333% 57.99999%, 34.66666% 40.66666%);
+        background-color: #D7ECCA;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(59.43333% 21.7%, 71.16666% 19.26666%, 73.63332% 21.33333%);
+        background-color: #4A5A2B;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(59.43333% 21.7%, 71.36666% 20.06666%, 73.63332% 23.13333%);
+        background-color: #4A5A2B;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(50.425% 26.5%, 47.9% 30.175%, 37.4% 24.05%);
+        background-color: #5E483D;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(50.425% 26.5%, 47.9% 30.175%, 37.4% 24.05%);
+        background-color: #5E483D;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(46.575% 52.775%, 11.2% 50%, 17.625% 31.5%);
+        background-color: #CDB727;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(46.575% 52.775%, 12.8% 51.6%, 17.425% 33.7%);
+        background-color: #DDCA4F;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(46.99999% 17.25%, 40.99999% 27.75%, 25.24999% 13.25%);
+        background-color: #BFC68B;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(46.99999% 17.25%, 40.99999% 27.75%, 24.3611% 14.58333%);
+        background-color: #DCE2B0;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(24.625% 45.4%, 31.70833% 41.05833%, 40.15833% 50.76667%);
+        background-color: #253702;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(24.625% 45.4%, 31.70833% 41.05833%, 40.15833% 50.76667%);
+        background-color: #66AE13;
+    }
+
+    .shuishan .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(54.8% 17.4%, 46.4% 53.6%, 48.4% 65.6%);
+        background-color: #734644;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(54.8% 17.4%, 46.4% 53.6%, 48.4% 65.6%);
+        background-color: #AA7472;
+    }
+
+    .suoluo .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(52.05% 37.95%, 5.3% 42.1%, 20.25% 27.6%);
+        background-color: #6FBD47;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(52.05% 37.95%, 5.3% 42.1%, 20.25% 27.6%);
+        background-color: #487B2C;
+    }
+
+    .xishu .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(52.2% 57.2%, 51.6% 66.2%, 38.2% 61%);
+        background-color: #C2D864;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(52.2% 57.2%, 51.6% 66.2%, 38.2% 61%);
+        background-color: #75B148;
+    }
+
+    .yinshan .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(51.8% 48.6%, 40.8% 67.4%, 46.2% 67.2%);
+        background-color: #54B859;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(7) .shard {
+        -webkit-clip-path: polygon(51.8% 48.6%, 40.8% 67.4%, 46.2% 67.2%);
+        background-color: #43A146;
+    }
+
+    .shard-wrap:nth-child(8) .shard {
+        transition-delay: 0.32s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(48.53332% 62.26666%, 63.99998% 49.46666%, 51.59998% 52.26666%);
+        background-color: #9A4588;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(48.53332% 62.26666%, 63.99998% 49.46666%, 51.59998% 52.26666%);
+        background-color: #CC8EC0;
+    }
+
+    .boleshu .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(53.6% 49.25%, 71.55% 57%, 56% 62%);
+        background-color: #A0E266;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(53.6% 49.25%, 69.55% 55%, 54.66666% 64.5%);
+        background-color: #85B856;
+    }
+
+    .changruimulan .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(55.11139% 35.98823%, 14.22532% 53.29412%, 15.08101% 33.8%);
+        background-color: #4D7048;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(55.11139% 35.98823%, 13.97216% 50.23531%, 12.54937% 31.21176%);
+        background-color: #62A158;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(50% 36.4%, 65.75% 13.275%, 67% 28.4%);
+        background-color: #2D4720;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(50% 36.4%, 65.75% 13.275%, 67% 28.4%);
+        background-color: #4A7335;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(27.16666% 63.74999%, 11.33333% 61.66666%, 7.83333% 53.16666%);
+        background-color: #8EC370;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(27.16666% 63.74999%, 11.33333% 61.66666%, 7.83333% 53.16666%);
+        background-color: #7AB757;
+    }
+
+    .gongtong .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(49.39999% 29.56666%, 34.73333% 40.73333%, 39.86666% 30.7%);
+        background-color: #E0EBDA;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(49.39999% 29.56666%, 34.73333% 40.73333%, 39.86666% 30.7%);
+        background-color: #C9E2BA;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(65.13333% 27.03333%, 62.66666% 40.49999%, 65.16666% 40.26666%);
+        background-color: #68752C;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(65.13333% 27.03333%, 62.06666% 40.49999%, 65.16666% 40.26666%);
+        background-color: #8D9F31;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(48% 27.35%, 52.62499% 26.25%, 49.5% 19.625%);
+        background-color: #372A1B;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(48% 27.35%, 52.62499% 26.25%, 49.5% 19.625%);
+        background-color: #372A1B;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(45.4% 48%, 22.2% 46.2%, 22.6% 48.4%);
+        background-color: #A57503;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(45.4% 48%, 24% 46.6%, 24.4% 48.4%);
+        background-color: #D19404;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(50.24999% 20.75%, 71.89999% 20.45%, 49.24999% 31.5%);
+        background-color: #E5E7BF;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(50.24999% 20.75%, 71.89999% 19.33889%, 49.24999% 31.5%);
+        background-color: #CACD5F;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(23.6% 45.15%, 11.20833% 40.43333%, 19.975% 38.60833%);
+        background-color: #637C0E;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(23.6% 45.15%, 11.20833% 40.43333%, 19.975% 38.60833%);
+        background-color: #B8D745;
+    }
+
+    .shuishan .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(55% 17.2%, 55% 19%, 46% 3.6%);
+        background-color: #70413A;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(55% 17.2%, 55% 19%, 46% 3.6%);
+        background-color: #A47984;
+    }
+
+    .suoluo .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(27.95% 32.6%, 1.5% 52.49999%, 51.95% 37.6%);
+        background-color: #8DD264;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(27.95% 32.6%, 1.5% 52.49999%, 51.95% 37.6%);
+        background-color: #62AC33;
+    }
+
+    .xishu .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(58.2% 54.2%, 57.4% 67.2%, 43.6% 55.8%);
+        background-color: #B7D25E;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(58.2% 54.2%, 57.4% 67.2%, 43.6% 55.8%);
+        background-color: #79A153;
+    }
+
+    .yinshan .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(46.4% 67%, 18.8% 86.4%, 41.2% 67%);
+        background-color: #54B859;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(8) .shard {
+        -webkit-clip-path: polygon(46.4% 67%, 16.13333% 83.28889%, 41.2% 67%);
+        background-color: #43A146;
+    }
+
+    .shard-wrap:nth-child(9) .shard {
+        transition-delay: 0.36s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(51.59998% 52.4%, 54.66666% 39.33332%, 63.73332% 49.6%);
+        background-color: #FE80CC;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(51.59998% 52.4%, 54.66666% 39.33332%, 63.73332% 49.6%);
+        background-color: #FEB8E3;
+    }
+
+    .boleshu .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(61.1% 53.5%, 58.8% 54.4%, 52.85% 48.7%);
+        background-color: #5F6545;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(61.1% 53.5%, 58.8% 54.4%, 52.85% 48.7%);
+        background-color: #5F6545;
+    }
+
+    .changruimulan .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(68% 48.4%, 22.6% 13.2%, 48.2% 3.8%);
+        background-color: #4F774B;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(65% 50.6%, 25.2% 11.6%, 50.8% 3.4%);
+        background-color: #47913F;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(53.85% 39.95%, 47.15% 34.05%, 44.4% 35.05%);
+        background-color: #576745;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(53.85% 39.95%, 47.15% 34.05%, 44.4% 35.05%);
+        background-color: #576745;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(25.95833% 63.45833%, 21.83333% 77.66666%, 25.95833% 84.87499%);
+        background-color: #A0C986;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(25.95833% 63.45833%, 21.83333% 77.66666%, 25.95833% 84.87499%);
+        background-color: #5DB851;
+    }
+
+    .gongtong .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(51.66666% 28.5%, 39.66666% 30.83333%, 45.33333% 27%);
+        background-color: #CFDDBA;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(51.66666% 28.5%, 39.66666% 30.83333%, 45.33333% 27%);
+        background-color: #CFDDBA;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(47.03333% 48.99999%, 65.73333% 54.99999%, 61.53333% 56.33333%);
+        background-color: #56632B;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(47.03333% 48.99999%, 64.33333% 54.79999%, 61.53333% 56.33333%);
+        background-color: #56632B;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(66.62499% 23.875%, 63.74999% 24.375%, 68.62499% 19.625%);
+        background-color: #544227;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(66.62499% 23.875%, 63.74999% 24.375%, 68.62499% 19.625%);
+        background-color: #544227;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(45.4% 47.8%, 23.2% 49.6%, 24.2% 51.2%);
+        background-color: #AE8003;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(45.4% 47.8%, 20.6% 50.4%, 21.4% 52%);
+        background-color: #EAA904;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(47.24999% 20.25%, 23.49999% 31.25%, 41.99999% 41.75%);
+        background-color: #C2C290;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(47.24999% 20.25%, 23.72221% 32.36111%, 41.99999% 41.75%);
+        background-color: #D7D7B6;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(55.74999% 37%, 36.875% 75.75%, 60.33332% 61.79167%);
+        background-color: #85991D;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(55.74999% 37%, 38.43056% 75.97222%, 60.33332% 61.79167%);
+        background-color: #51951C;
+    }
+
+    .shuishan .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(60.4% 48.8%, 35.6% 46.6%, 79.8% 49%);
+        background-color: #7F575F;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(60.4% 48.8%, 35.6% 46.6%, 79.8% 49%);
+        background-color: #7F575F;
+    }
+
+    .suoluo .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(52.7% 38.15%, 7% 20.35%, 26.2% 10.65%);
+        background-color: #69D546;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(52.7% 38.15%, 7% 20.35%, 26.2% 10.65%);
+        background-color: #47C652;
+    }
+
+    .xishu .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(50.4% 61%, 41.4% 70%, 57.8% 67.4%);
+        background-color: #D3E87F;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(50.4% 61%, 41.4% 70%, 57.8% 67.4%);
+        background-color: #9EC54E;
+    }
+
+    .yinshan .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(53.49999% 50.66667%, 30.49999% 61.83333%, 32.83332% 64.99999%);
+        background-color: #4E9C78;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(9) .shard {
+        -webkit-clip-path: polygon(53.49999% 50.66667%, 30.49999% 61.83333%, 32.83332% 64.99999%);
+        background-color: #7BCAA5;
+    }
+
+    .shard-wrap:nth-child(10) .shard {
+        transition-delay: 0.4s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(48.66666% 62.13332%, 53.99998% 76.39998%, 63.86666% 49.06666%);
+        background-color: #902E69;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(48.66666% 62.13332%, 53.99998% 76.39998%, 63.86666% 49.06666%);
+        background-color: #CB61A2;
+    }
+
+    .boleshu .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(53.7% 31.8%, 53.5% 34.05%, 42.8% 31.4%);
+        background-color: #95704B;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(53.7% 31.8%, 53.5% 34.05%, 42.8% 31.4%);
+        background-color: #95704B;
+    }
+
+    .changruimulan .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(51.8% 5%, 59.36667% 14.36667%, 51.7% 37.4%);
+        background-color: #FEFEFE;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(51.8% 5%, 59.36667% 14.36667%, 51.7% 37.4%);
+        background-color: #FEFEFE;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(52.375% 39.125%, 77% 38.2%, 84.8% 49.6%);
+        background-color: #234010;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(52.375% 39.125%, 74% 46%, 78.2% 56.2%);
+        background-color: #344926;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(44.29167% 73.45833%, 34.49999% 83.66666%, 25.91666% 84.58333%);
+        background-color: #8DB966;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(44.29167% 73.45833%, 34.49999% 83.66666%, 25.91666% 84.58333%);
+        background-color: #82B652;
+    }
+
+    .gongtong .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(81.46666% 44.23332%, 57.99999% 25.33333%, 49.33333% 27.16667%);
+        background-color: #DAE7C9;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(81.46666% 44.23332%, 57.99999% 25.33333%, 49.33333% 27.16667%);
+        background-color: #DAE7C9;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(45.33333% 43.49999%, 32.23333% 54.79999%, 33.06666% 58.96666%);
+        background-color: #454929;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(45.33333% 43.49999%, 32.23333% 53.19999%, 32.06666% 57.16666%);
+        background-color: #608B40;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(38.25% 25.825%, 39.875% 29.25%, 20.125% 24.75%);
+        background-color: #161718;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(38.25% 25.825%, 39.875% 29.25%, 20.125% 24.75%);
+        background-color: #161718;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(45.2% 48%, 21.2% 53.4%, 22.8% 55.6%);
+        background-color: #B59809;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(45.2% 48%, 18.2% 54.2%, 18.8% 56.4%);
+        background-color: #A47008;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(79.14999% 40.6%, 52.54999% 20.7%, 40.99999% 36%);
+        background-color: #CCD691;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(77.81666% 38.37778%, 52.54999% 20.7%, 40.99999% 36%);
+        background-color: #E8F0B6;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(55.12499% 36.58333%, 36.875% 75.75%, 34.5% 38.04167%);
+        background-color: #94AD24;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(55.12499% 36.58333%, 38.65278% 75.97222%, 34.5% 38.04167%);
+        background-color: #57A31E;
+    }
+
+    .shuishan .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(55.8% 52%, 22.2% 67.2%, 44.8% 58.8%);
+        background-color: #775D64;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(55.8% 52%, 22.2% 67.2%, 44.8% 58.8%);
+        background-color: #775D64;
+    }
+
+    .suoluo .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(56.85% 45%, 45.75% 11.65%, 16.5% 7.85%);
+        background-color: #B6F498;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(56.85% 45%, 45.75% 11.65%, 16.5% 7.85%);
+        background-color: #58B05B;
+    }
+
+    .xishu .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(53.6% 65.4%, 43.8% 80.6%, 69.4% 68.2%);
+        background-color: #93B844;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(53.6% 65.4%, 43.8% 80.6%, 69.4% 68.2%);
+        background-color: #D3E87F;
+    }
+
+    .yinshan .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(30.49999% 61.83333%, 32.83332% 65.16666%, 10.66666% 68.33333%);
+        background-color: #4E9C78;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(10) .shard {
+        -webkit-clip-path: polygon(30.49999% 61.83333%, 32.83332% 65.16666%, 7.999994% 65.44444%);
+        background-color: #7BCAA5;
+    }
+
+    .shard-wrap:nth-child(11) .shard {
+        transition-delay: 0.44s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(48.13332% 78.79998%, 51.73332% 77.33332%, 50.93332% 83.33332%);
+        background-color: #464F20;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(48.13332% 78.79998%, 51.73332% 77.33332%, 50.93332% 83.33332%);
+        background-color: #464F20;
+    }
+
+    .boleshu .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(55.3% 19.7%, 63.4% 18.5%, 62.5% 20.4%);
+        background-color: #95704B;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(55.3% 19.7%, 63.4% 18.5%, 62.5% 20.4%);
+        background-color: #95704B;
+    }
+
+    .changruimulan .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(51.8% 37.1%, 51.8% 5.2%, 44.4% 12.3%);
+        background-color: #E7E5D7;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(51.8% 37.1%, 51.8% 5.2%, 44.4% 12.3%);
+        background-color: #E7E5D7;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(52.675% 39.05%, 72.575% 52.175%, 85.2% 49.6%);
+        background-color: #16240B;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(52.675% 39.05%, 66.975% 56.175%, 78.6% 56%);
+        background-color: #3D5A24;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(43.16666% 72.99999%, 52.99999% 83.83333%, 63.12499% 84.08333%);
+        background-color: #A1C16E;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(43.16666% 72.99999%, 52.99999% 83.83333%, 63.12499% 84.08333%);
+        background-color: #84C33B;
+    }
+
+    .gongtong .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(52% 15.7%, 50.8% 39.4%, 52.6% 39.3%);
+        background-color: #B8CE40;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(52% 15.7%, 50.8% 39.4%, 52.6% 39.3%);
+        background-color: #B8CE40;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(42.33333% 66.83333%, 50.16666% 78.16666%, 46.66666% 78.16666%);
+        background-color: #94B81F;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(42.33333% 66.83333%, 50.16666% 78.16666%, 46.66666% 78.16666%);
+        background-color: #5E9F2C;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(43.75% 25.375%, 41.625% 17.625%, 39.5% 24.375%);
+        background-color: #262118;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(43.75% 25.375%, 41.625% 17.625%, 39.5% 24.375%);
+        background-color: #262118;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(45.2% 48.2%, 25.6% 53%, 26.4% 56.4%);
+        background-color: #AF7C05;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(45.2% 48.2%, 22% 54.4%, 23.8% 56.8%);
+        background-color: #E1A20E;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(46.74999% 24.75%, 22.99999% 46.75%, 56.74999% 41.25%);
+        background-color: #AEB67D;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(46.74999% 24.75%, 23.22221% 47.86111%, 56.74999% 41.25%);
+        background-color: #DCE1BB;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(56.24999% 36.625%, 60.37499% 61.79166%, 67.24999% 47.95834%);
+        background-color: #7B9916;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(56.24999% 36.625%, 60.37499% 61.79166%, 67.24999% 47.95834%);
+        background-color: #60BC19;
+    }
+
+    .shuishan .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(46% 3.8%, 43.8% 2.6%, 38.4% 4.8%);
+        background-color: #CFFBBA;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(46% 3.8%, 43.8% 2.6%, 41.06667% 6.8%);
+        background-color: #CFFBBA;
+    }
+
+    .suoluo .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(51.4% 40%, 41% 1%, 59% 8%);
+        background-color: #B8F76D;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(51.4% 40%, 41% 1%, 59% 8%);
+        background-color: #7EC968;
+    }
+
+    .xishu .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(57% 67%, 57% 84.2%, 68.4% 70.6%);
+        background-color: #C2D666;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(57% 67%, 57% 84.2%, 68.4% 70.6%);
+        background-color: #93B844;
+    }
+
+    .yinshan .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(24.8% 51%, 26.8% 55%, 2% 50.4%);
+        background-color: #2E8843;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(11) .shard {
+        -webkit-clip-path: polygon(24.8% 51%, 26.8% 55%, 4.888889% 47.06667%);
+        background-color: #57C571;
+    }
+
+    .shard-wrap:nth-child(12) .shard {
+        transition-delay: 0.48s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(50.93332% 82.93332%, 54.26666% 76.39998%, 56.39998% 78.93332%);
+        background-color: #5B4127;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(50.93332% 82.93332%, 56.46666% 78.39998%, 57.79998% 81.73332%);
+        background-color: #A09944;
+    }
+
+    .boleshu .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(62.8% 19.4%, 68.9% 19.7%, 73% 24.7%);
+        background-color: #FC617C;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(62.8% 19.4%, 68.23333% 17.53333%, 73.33334% 21.2%);
+        background-color: #FC617C;
+    }
+
+    .changruimulan .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(46.33333% 17.26667%, 30.9% 14.13333%, 51.46666% 35.63333%);
+        background-color: #FFFFFF;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(46.33333% 17.26667%, 30.9% 14.13333%, 51.46666% 35.63333%);
+        background-color: #FFFFFF;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(43.87499% 33.58333%, 73.83332% 67.16666%, 70.99999% 87.33332%);
+        background-color: #11220D;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(43.87499% 33.58333%, 66.63332% 72.36666%, 61.79999% 87.33332%);
+        background-color: #3F6137;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(65.20832% 60.79166%, 67.45832% 75.74999%, 62.91666% 84.41666%);
+        background-color: #467730;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(65.20832% 60.79166%, 67.45832% 75.74999%, 62.91666% 84.41666%);
+        background-color: #63B73D;
+    }
+
+    .gongtong .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(81.86665% 44.43333%, 48.96666% 22.16666%, 45.16666% 27.4%);
+        background-color: #CEDFB9;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(81.86665% 44.43333%, 48.96666% 22.16666%, 45.16666% 27.4%);
+        background-color: #CEDFB9;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(37.99999% 72.49999%, 21.33333% 75.33333%, 21.66666% 78.16666%);
+        background-color: #738F30;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(37.99999% 72.49999%, 21.33333% 75.33333%, 21.66666% 78.16666%);
+        background-color: #566A24;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(12.25% 24.5%, 27.375% 25.5%, 14.9% 20.1%);
+        background-color: #5E8E37;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(12.45% 25.9%, 27.375% 25.5%, 14.1% 21.3%);
+        background-color: #77B345;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(45% 48.4%, 26.2% 59.2%, 27.4% 61%);
+        background-color: #9B7204;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(45% 48.4%, 27.6% 58.2%, 29.2% 60.6%);
+        background-color: #D99D06;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(77.79999% 46.65%, 52.39999% 30.35%, 40.99999% 39.75%);
+        background-color: #C6D188;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(77.79999% 45.09445%, 52.39999% 30.35%, 40.99999% 39.75%);
+        background-color: #C4DF8A;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(54.87499% 35.875%, 34.5% 37.91667%, 43% 27.83333%);
+        background-color: #647412;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(54.87499% 35.875%, 34.5% 37.91667%, 43% 27.83333%);
+        background-color: #83CC4B;
+    }
+
+    .shuishan .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(22.8% 67.2%, 11.6% 82.8%, 16.6% 74.2%);
+        background-color: #4F3744;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(22.8% 67.2%, 11.6% 82.8%, 16.6% 74.2%);
+        background-color: #4F3744;
+    }
+
+    .suoluo .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(41.5% 69.85%, 53.6% 10%, 82.6% 1%);
+        background-color: #79BF59;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(41.5% 69.85%, 53.6% 10%, 82.6% 1%);
+        background-color: #A9DE91;
+    }
+
+    .xishu .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(68.8% 60.2%, 80.8% 76.2%, 65.4% 73.4%);
+        background-color: #C2D666;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(68.8% 60.2%, 80.8% 76.2%, 65.4% 73.4%);
+        background-color: #8CAE40;
+    }
+
+    .yinshan .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(53.6% 53.2%, 26.4% 55%, 24.6% 51%);
+        background-color: #2E8843;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(12) .shard {
+        -webkit-clip-path: polygon(53.6% 53.2%, 26.4% 55%, 24.6% 51%);
+        background-color: #57C571;
+    }
+
+    .shard-wrap:nth-child(13) .shard {
+        transition-delay: 0.52s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(56.39998% 78.93332%, 54.26666% 76.39998%, 59.06666% 73.46666%);
+        background-color: #485018;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(57.59998% 81.73332%, 55.86666% 78.59998%, 61.86666% 77.86666%);
+        background-color: #ADBF3A;
+    }
+
+    .boleshu .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(62.9% 19.4%, 72.9% 24.6%, 65.6% 24.8%);
+        background-color: #E95262;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(62.9% 19.4%, 73.23333% 21.26667%, 67.43334% 22.8%);
+        background-color: #E95262;
+    }
+
+    .changruimulan .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(52.16667% 36.36667%, 74.66667% 44.26667%, 86.56667% 37.53333%);
+        background-color: #C3CD90;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(52.16667% 36.36667%, 74.66667% 44.26667%, 86.56667% 37.53333%);
+        background-color: #C3CD90;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(44.12499% 33.62499%, 70.99999% 87.16666%, 57.83333% 79.16666%);
+        background-color: #091308;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(44.12499% 33.62499%, 62.39999% 86.96666%, 51.03333% 79.76666%);
+        background-color: #3B5539;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(64.75832% 61.00833%, 80.58332% 56.79166%, 84.91665% 49.54166%);
+        background-color: #A1C16E;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(64.75832% 61.00833%, 80.58332% 56.79166%, 84.91665% 49.54166%);
+        background-color: #59C34B;
+    }
+
+    .gongtong .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(47.96666% 35.76666%, 55.06666% 36.2%, 51.36666% 40.33333%);
+        background-color: #322711;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(47.96666% 35.76666%, 55.06666% 36.2%, 51.36666% 40.33333%);
+        background-color: #322711;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(36.49999% 75.33333%, 21.5% 82.16666%, 22.33333% 84.33333%);
+        background-color: #AFDD04;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(36.49999% 75.33333%, 20.9% 80.56666%, 21.33333% 83.93333%);
+        background-color: #BFE15F;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(26.875% 25.25%, 14.425% 26.45%, 26.9% 18.775%);
+        background-color: #596C31;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(26.875% 25.25%, 13.825% 29.05%, 24.5% 17.975%);
+        background-color: #7F9946;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(45.4% 49.8%, 28.6% 59%, 29.6% 62.4%);
+        background-color: #AF8703;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(45.4% 49.8%, 24.6% 61.8%, 26.6% 64.2%);
+        background-color: #D6A504;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(41.34999% 31.85%, 30.24999% 52.49999%, 50.99999% 39%);
+        background-color: #D4D6A6;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(41.34999% 31.85%, 30.69443% 52.94443%, 50.99999% 39%);
+        background-color: #BEC07B;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(55.24999% 35.625%, 43% 27.75%, 54.45833% 30.33333%);
+        background-color: #384307;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(55.24999% 35.625%, 43% 27.75%, 54.45833% 30.33333%);
+        background-color: #749A21;
+    }
+
+    .shuishan .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(46.8% 10%, 65.4% 7.2%, 51.2% 10.4%);
+        background-color: #A9D992;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(46.8% 10%, 65.4% 7.2%, 51.2% 10.4%);
+        background-color: #A9D992;
+    }
+
+    .suoluo .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(49% 39.4%, 68.25% 11.05%, 95.4% 12.4%);
+        background-color: #3D7921;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(49% 39.4%, 68.25% 11.05%, 95.4% 12.4%);
+        background-color: #66AC43;
+    }
+
+    .xishu .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(68% 58.8%, 70% 68.6%, 84.4% 63.8%);
+        background-color: #9BBA50;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(68% 58.8%, 70% 68.6%, 84.4% 63.8%);
+        background-color: #B2C978;
+    }
+
+    .yinshan .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(53.6% 53.4%, 29.8% 48.4%, 30% 44.4%);
+        background-color: #1A400C;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(13) .shard {
+        -webkit-clip-path: polygon(53.6% 53.4%, 29.8% 48.4%, 30% 44.4%);
+        background-color: #54A634;
+    }
+
+    .shard-wrap:nth-child(14) .shard {
+        transition-delay: 0.56s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(50.93332% 82.93332%, 57.06666% 95.06666%, 59.19998% 94.53332%);
+        background-color: #4B3B3A;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(50.93332% 82.93332%, 57.06666% 95.06666%, 59.19998% 94.53332%);
+        background-color: #4B3B3A;
+    }
+
+    .boleshu .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(43.1% 31.4%, 36.275% 26.675%, 33.775% 35.35%);
+        background-color: #994B46;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(43.1% 31.4%, 36.275% 26.675%, 33.775% 35.35%);
+        background-color: #D9726D;
+    }
+
+    .changruimulan .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(52.03333% 36.4%, 86.23333% 37.8%, 75.56667% 27.96667%);
+        background-color: #E7E4E6;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(52.03333% 36.4%, 86.23333% 37.8%, 75.56667% 27.96667%);
+        background-color: #E7E4E6;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(45.74999% 53.25%, 45.62499% 38.5%, 58.87499% 44.125%);
+        background-color: #769C51;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(45.74999% 53.25%, 45.62499% 38.5%, 58.87499% 44.125%);
+        background-color: #91B36F;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(66.83332% 39.83333%, 79.41665% 41.87499%, 85.20832% 49.70833%);
+        background-color: #A0C067;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(66.83332% 39.83333%, 79.41665% 41.87499%, 85.20832% 49.70833%);
+        background-color: #3CAD2E;
+    }
+
+    .gongtong .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(50.3% 32.9%, 48.1% 35.8%, 55.2% 36.1%);
+        background-color: #000000;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(50.3% 32.9%, 48.1% 35.8%, 55.2% 36.1%);
+        background-color: #000000;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(37.83333% 74.16666%, 43.16666% 88.33332%, 39.63333% 87.39999%);
+        background-color: #BCE51B;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(37.83333% 74.16666%, 41.16666% 88.73332%, 37.23333% 87.39999%);
+        background-color: #B3DC5A;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(26.625% 25.125%, 22.5% 19.75%, 35.3% 21.9%);
+        background-color: #7E864E;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(26.625% 25.125%, 20.9% 18.95%, 34.5% 21.3%);
+        background-color: #70963A;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(46.2% 52.6%, 28.6% 62.6%, 29.6% 65.2%);
+        background-color: #725001;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(46.2% 52.6%, 30.6% 61.6%, 32.2% 63.6%);
+        background-color: #AB7501;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(78.29999% 61.04999%, 61.49999% 37.25%, 54.24999% 50.75%);
+        background-color: #C5D091;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(77.85554% 58.82776%, 61.49999% 37.25%, 54.24999% 50.75%);
+        background-color: #A3B450;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(56.62499% 35.75%, 68.24999% 35.75%, 66.83332% 48.16667%);
+        background-color: #444E1D;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(56.62499% 35.75%, 68.24999% 35.75%, 66.83332% 48.16667%);
+        background-color: #5F9B3A;
+    }
+
+    .shuishan .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(52.2% 7.8%, 45.6% 20.4%, 50.4% 13.8%);
+        background-color: #B7F47B;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(52.2% 7.8%, 45.6% 20.4%, 50.4% 13.8%);
+        background-color: #B7F47B;
+    }
+
+    .suoluo .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(58.5% 32%, 87.4% 14.2%, 98.2% 33.4%);
+        background-color: #294D16;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(58.5% 32%, 87.4% 14.2%, 98.2% 33.4%);
+        background-color: #7EB53F;
+    }
+
+    .xishu .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(80.05% 54.7%, 69.6% 67.8%, 62.65% 57.75%);
+        background-color: #7DA74E;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(80.05% 54.7%, 69.6% 67.8%, 62.65% 57.75%);
+        background-color: #CBDD7D;
+    }
+
+    .yinshan .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(33.8% 46.4%, 29.8% 48.4%, 17.8% 30.4%);
+        background-color: #1A400C;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(14) .shard {
+        -webkit-clip-path: polygon(33.8% 46.4%, 29.8% 48.4%, 21.13333% 29.06667%);
+        background-color: #54A634;
+    }
+
+    .shard-wrap:nth-child(15) .shard {
+        transition-delay: 0.6s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(59.16664% 94.5%, 52.03332% 82.06666%, 50.93332% 82.93334%);
+        background-color: #686A5D;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(59.16664% 94.5%, 52.03332% 82.06666%, 50.93332% 82.93334%);
+        background-color: #686A5D;
+    }
+
+    .boleshu .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(36.3% 26.7%, 33.8% 35.3%, 26.5% 29.4%);
+        background-color: #894E3E;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(36.3% 26.7%, 33.8% 35.3%, 26.5% 29.4%);
+        background-color: #CF7862;
+    }
+
+    .changruimulan .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(51.8% 36.8%, 55.8% 21.6%, 57.375% 23.225%);
+        background-color: #D1C559;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(51.8% 36.8%, 57% 18%, 58.175% 20.825%);
+        background-color: #DBC823;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(45.87499% 53%, 59.87499% 61.375%, 47.49999% 67%);
+        background-color: #566A2D;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(45.87499% 53%, 59.87499% 61.375%, 47.49999% 67%);
+        background-color: #465524;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(66.83332% 39.99999%, 73.33332% 27.5%, 69.83332% 17.83333%);
+        background-color: #527F24;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(66.83332% 39.99999%, 73.33332% 27.5%, 69.83332% 17.83333%);
+        background-color: #89C945;
+    }
+
+    .gongtong .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(55% 36.3%, 53.4% 33.3%, 48% 35.8%);
+        background-color: #000000;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(55% 36.3%, 53.4% 33.3%, 48% 35.8%);
+        background-color: #000000;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(45.03333% 37.13333%, 65.83333% 45.66666%, 61.99999% 46.83333%);
+        background-color: #4D5C25;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(45.03333% 37.13333%, 65.83333% 45.66666%, 61.99999% 46.83333%);
+        background-color: #4D5C25;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(41.5% 18.5%, 23.5% 18.125%, 34.275% 13.125%);
+        background-color: #486419;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(41.5% 18.5%, 24.5% 19.525%, 33.275% 12.325%);
+        background-color: #789E37;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(44.45% 41.65%, 17.4% 31.2%, 30.6% 49.2%);
+        background-color: #F2E070;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(44.45% 41.65%, 17.6% 34%, 30.6% 49.2%);
+        background-color: #F5D832;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(42.74999% 39.75%, 26.14999% 62.74999%, 48.99999% 52.74999%);
+        background-color: #A4AD79;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(42.74999% 39.75%, 26.59443% 63.41666%, 48.99999% 52.74999%);
+        background-color: #C7D099;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(82.875% 26.375%, 64.125% 64.5%, 87.25% 47.125%);
+        background-color: #7C9015;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(82.875% 26.375%, 65.68055% 65.61111%, 87.25% 47.125%);
+        background-color: #55822A;
+    }
+
+    .shuishan .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(41.2% 17.8%, 54.2% 17%, 69.2% 18.4%);
+        background-color: #7DCD88;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(41.2% 17.8%, 54.2% 17%, 69.2% 18.4%);
+        background-color: #7DCD88;
+    }
+
+    .suoluo .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(51.05% 37.7%, 98.6% 45.2%, 66.8% 24.4%);
+        background-color: #4B8A2F;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(51.05% 37.7%, 98.6% 45.2%, 66.8% 24.4%);
+        background-color: #78CB52;
+    }
+
+    .xishu .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(74.95% 44.05%, 69.4% 62%, 59.8% 53.4%);
+        background-color: #B7CA6B;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(74.95% 44.05%, 69.4% 62%, 59.8% 53.4%);
+        background-color: #9CC562;
+    }
+
+    .yinshan .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(53.6% 55.6%, 39% 35.8%, 35.6% 37%);
+        background-color: #317A3B;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(15) .shard {
+        -webkit-clip-path: polygon(53.6% 55.6%, 39% 35.8%, 35.6% 37%);
+        background-color: #4DB65B;
+    }
+
+    .shard-wrap:nth-child(16) .shard {
+        transition-delay: 0.64s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(60% 45.2%, 58.93332% 44%, 61.33334% 33.73332%);
+        background-color: #2E3027;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(60% 45.2%, 58.93332% 44%, 61.33334% 33.73332%);
+        background-color: #2E3027;
+    }
+
+    .boleshu .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(60.4% 71.1%, 60.5% 53.6%, 59.4% 54.1%);
+        background-color: #BF8F8D;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(60.4% 71.1%, 60.5% 53.6%, 59.4% 54.1%);
+        background-color: #BF8F8D;
+    }
+
+    .changruimulan .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(51.4% 37.6%, 58.3% 21.05%, 59.49286% 23.45714%);
+        background-color: #AB8B41;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(51.4% 37.6%, 56.5% 23.65%, 58.49286% 24.25714%);
+        background-color: #CAAF77;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(45.67499% 53.15%, 58.99999% 44%, 59.74999% 61.375%);
+        background-color: #77965A;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(45.67499% 53.15%, 58.99999% 44%, 59.74999% 61.375%);
+        background-color: #7FA757;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(48.95833% 30.04166%, 58.41666% 17.95833%, 69.83332% 18.08333%);
+        background-color: #A1C94D;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(48.95833% 30.04166%, 58.41666% 17.95833%, 69.83332% 18.08333%);
+        background-color: #61D43E;
+    }
+
+    .gongtong .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(68.59999% 2.25%, 24.6% 26.2%, 61.39999% 2.875%);
+        background-color: #000000;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(68.59999% 2.25%, 24.6% 26.2%, 61.39999% 2.875%);
+        background-color: #000000;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(42.49999% 28.33333%, 29.5% 38.99999%, 31.16666% 42.33333%);
+        background-color: #687228;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(42.49999% 28.33333%, 29.1% 37.79999%, 30.76666% 41.33333%);
+        background-color: #687228;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(41.6% 19.1%, 29.25% 13.875%, 63.09999% 19.65%);
+        background-color: #6A882F;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(41.6% 19.1%, 27.45% 14.475%, 63.09999% 18.45%);
+        background-color: #3E7C26;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(44.15% 41.275%, 30.2% 48.6%, 37.25% 70.9%);
+        background-color: #D0C43A;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(44.15% 41.275%, 30.2% 48.6%, 37.25% 70.9%);
+        background-color: #E1D22D;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(74.24999% 68.74999%, 57.99999% 48.5%, 50.74999% 59.49999%);
+        background-color: #B2BE6B;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(74.47221% 67.19443%, 57.99999% 48.5%, 50.74999% 59.49999%);
+        background-color: #99A54A;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(82% 26.375%, 64% 64.625%, 59.625% 36.375%);
+        background-color: #819825;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(82% 26.375%, 66.22222% 65.73611%, 59.625% 36.375%);
+        background-color: #418220;
+    }
+
+    .shuishan .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(58.6% 27%, 56% 26.8%, 39.2% 34%);
+        background-color: #719F5D;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(65.48889% 36.55555%, 56% 26.8%, 48.97778% 24.66667%);
+        background-color: #719F5D;
+    }
+
+    .suoluo .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(52.25% 37.05%, 87.9% 66.75%, 85.8% 42.8%);
+        background-color: #6BB045;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(52.25% 37.05%, 87.9% 66.75%, 85.8% 42.8%);
+        background-color: #95C978;
+    }
+
+    .xishu .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(69.2% 61.6%, 60.8% 70%, 73% 83.4%);
+        background-color: #99BC50;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(69.2% 61.6%, 60.8% 70%, 73% 83.4%);
+        background-color: #BBCB6B;
+    }
+
+    .yinshan .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(40.4% 38.6%, 35.6% 36.8%, 32.6% 16.8%);
+        background-color: #317A3B;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(16) .shard {
+        -webkit-clip-path: polygon(40.4% 38.6%, 35.6% 36.8%, 35.93333% 18.35556%);
+        background-color: #4DB65B;
+    }
+
+    .shard-wrap:nth-child(17) .shard {
+        transition-delay: 0.68s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(61.2% 33.66666%, 62.13332% 38.56666%, 60% 45.16666%);
+        background-color: #433830;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(61.4% 33.66666%, 62.13332% 38.56666%, 60% 45.16666%);
+        background-color: #433830;
+    }
+
+    .boleshu .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(60.45% 71.15%, 65% 63.1%, 60.4% 57.4%);
+        background-color: #95503F;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(60.45% 71.15%, 65% 63.1%, 60.4% 57.4%);
+        background-color: #CC6F5B;
+    }
+
+    .changruimulan .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(51.8% 37.4%, 63.025% 23.7%, 64.2% 25.2%);
+        background-color: #EDE498;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(51.8% 37.4%, 60.425% 24.5%, 62.2% 27%);
+        background-color: #EAD63D;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(45.99999% 53.125%, 45.62499% 38.375%, 33.75% 43.25%);
+        background-color: #8EAC6D;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(45.99999% 53.125%, 45.62499% 38.375%, 33.75% 43.25%);
+        background-color: #A5C283;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(31.16666% 25.83333%, 75.83332% 48.5%, 32.16667% 73.66666%);
+        background-color: #CB6804;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(31.16666% 25.83333%, 75.83332% 48.5%, 32.16667% 73.66666%);
+        background-color: #CB6804;
+    }
+
+    .gongtong .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(50.775% 9.6%, 16.95% 27.525%, 25% 26.2%);
+        background-color: #000000;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(50.775% 9.6%, 16.95% 27.525%, 25% 26.2%);
+        background-color: #000000;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(42.33333% 53.99999%, 47.06667% 48.46667%, 38.43333% 48.2%);
+        background-color: #A42F1D;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(42.33333% 53.99999%, 47.06667% 48.46667%, 38.43333% 48.2%);
+        background-color: #E14D37;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(41.5% 18.5%, 36.7% 13.35%, 58.27499% 8.675%);
+        background-color: #8B955F;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(41.5% 18.5%, 36.7% 13.35%, 55.47499% 7.675%);
+        background-color: #5C8C49;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(52.34999% 40.075%, 21.45% 29.175%, 31.8% 41.8%);
+        background-color: #EDE166;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(52.34999% 40.075%, 20.45% 30.775%, 32.8% 43.4%);
+        background-color: #F4E243;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(33.74999% 74.99999%, 50.99999% 44.75%, 40.04999% 39.7%);
+        background-color: #B5BC8D;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(35.52777% 75.88888%, 50.99999% 44.75%, 40.04999% 39.7%);
+        background-color: #D1D7A7;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(83.5% 26.375%, 87.25% 47%, 93.375% 35.875%);
+        background-color: #65780B;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(83.5% 26.375%, 87.25% 47%, 93.375% 35.875%);
+        background-color: #59A70F;
+    }
+
+    .shuishan .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(50% 44%, 35.4% 35.4%, 31.6% 35.6%);
+        background-color: #9BDFA7;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(50% 44%, 35.4% 35.4%, 31.6% 35.6%);
+        background-color: #9BDFA7;
+    }
+
+    .suoluo .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(50.7% 38.3%, 77.1% 80.2%, 78.9% 50.2%);
+        background-color: #79BF59;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(50.7% 38.3%, 75.35% 78.45%, 78.9% 50.2%);
+        background-color: #8BE263;
+    }
+
+    .xishu .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(69.4% 61.6%, 61.2% 70.6%, 50.4% 63%);
+        background-color: #709944;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(69.4% 61.6%, 61.2% 70.6%, 50.4% 63%);
+        background-color: #709944;
+    }
+
+    .yinshan .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(50.4% 53.8%, 49% 25.6%, 52.8% 26.2%);
+        background-color: #5CA066;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(17) .shard {
+        -webkit-clip-path: polygon(50.4% 53.8%, 49% 25.6%, 52.8% 26.2%);
+        background-color: #45764C;
+    }
+
+    .shard-wrap:nth-child(18) .shard {
+        transition-delay: 0.72s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(61.26666% 33.63332%, 62.06666% 38.63332%, 68.33334% 28.89998%);
+        background-color: #485119;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(61.26666% 33.63332%, 62.06666% 38.63332%, 68.33334% 28.89998%);
+        background-color: #485119;
+    }
+
+    .boleshu .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(60.45% 71.1%, 59.8% 58%, 56.4% 64.4%);
+        background-color: #E34D56;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(60.45% 71.1%, 59.8% 58%, 56.4% 64.4%);
+        background-color: #E34D56;
+    }
+
+    .changruimulan .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(52.2% 36.8%, 63.55% 27.9%, 65.575% 29.125%);
+        background-color: #C8BF5A;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(52.2% 36.8%, 63.95% 27.9%, 66.775% 28.925%);
+        background-color: #EAE17F;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(46.12499% 53.375%, 44.62499% 67.125%, 32.375% 61.625%);
+        background-color: #5F7E35;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(46.12499% 53.375%, 44.62499% 67.125%, 32.375% 61.625%);
+        background-color: #465C27;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(17.83333% 53.33332%, 63.99999% 26.66666%, 58.83333% 74.99999%);
+        background-color: #CF7407;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(17.83333% 53.33332%, 63.99999% 26.66666%, 58.83333% 74.99999%);
+        background-color: #CF7407;
+    }
+
+    .gongtong .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(17.8% 28.4%, 19.4% 28%, 24.4% 65.2%);
+        background-color: #B8CE40;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(17.8% 28.4%, 19.4% 28%, 24.4% 65.2%);
+        background-color: #B8CE40;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(42.13333% 54.3%, 49.13332% 55.59999%, 47.03333% 48.43333%);
+        background-color: #D93F34;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(42.13333% 54.3%, 49.13332% 55.59999%, 47.03333% 48.43333%);
+        background-color: #DC544B;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(41.375% 18.5%, 39.25% 11.25%, 60.77499% 22.425%);
+        background-color: #659530;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(41.375% 18.5%, 38.25% 11.45%, 61.97499% 21.425%);
+        background-color: #7BAC43;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(39% 37.4%, 38% 77.8%, 53.575% 43.9%);
+        background-color: #E9D665;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(39% 37.4%, 36.4% 78.4%, 53.575% 43.9%);
+        background-color: #DFC52E;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(66.29999% 77.19999%, 62.64999% 55.24999%, 52.49999% 60.74999%);
+        background-color: #A7AC71;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(67.4111% 78.08888%, 62.64999% 55.24999%, 52.49999% 60.74999%);
+        background-color: #A0A74D;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(81.875% 25.875%, 59.5% 36.375%, 63.625% 21%);
+        background-color: #6C7F13;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(81.875% 25.875%, 59.5% 36.375%, 63.625% 21%);
+        background-color: #5DA328;
+    }
+
+    .shuishan .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(75.4% 45.4%, 70.4% 48.8%, 71.8% 45.6%);
+        background-color: #ADC2A9;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(75.4% 45.4%, 70.4% 48.8%, 71.8% 45.6%);
+        background-color: #ADC2A9;
+    }
+
+    .suoluo .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(50.3% 37.6%, 83.45% 76.45%, 72.8% 43%);
+        background-color: #437C2A;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(50.3% 37.6%, 82.45% 75.95%, 72.8% 43%);
+        background-color: #61BD37;
+    }
+
+    .xishu .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(56.8% 62.6%, 69.4% 62%, 55.2% 48.2%);
+        background-color: #8EAE52;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(56.8% 62.6%, 69.4% 62%, 55.2% 48.2%);
+        background-color: #8EAE52;
+    }
+
+    .yinshan .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(52.8% 26.4%, 49% 25.6%, 53.2% 8.4%);
+        background-color: #5CA066;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(18) .shard {
+        -webkit-clip-path: polygon(52.8% 26.4%, 49% 25.6%, 51.64445% 12.84444%);
+        background-color: #45764C;
+    }
+
+    .shard-wrap:nth-child(19) .shard {
+        transition-delay: 0.76s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(61.46666% 33.86666%, 71.73334% 25.73334%, 41.06666% 16.133332%);
+        background-color: #67203E;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(61.46666% 33.86666%, 71.73334% 25.73334%, 41.06666% 18.133332%);
+        background-color: #BD3B74;
+    }
+
+    .boleshu .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(39.5% 58.5%, 36.3% 55.5%, 36.7% 61.6%);
+        background-color: #583C33;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(39.5% 58.5%, 36.3% 55.5%, 36.7% 61.6%);
+        background-color: #583C33;
+    }
+
+    .changruimulan .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(51.25% 36.85%, 66.8% 28.8%, 67.4% 30.6%);
+        background-color: #C7C34A;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(51.25% 36.85%, 68% 28.2%, 68.6% 30.6%);
+        background-color: #E7E027;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(46.12499% 53.375%, 33.5% 43%, 32.5% 61.875%);
+        background-color: #9EBB86;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(46.12499% 53.375%, 33.5% 43%, 32.5% 61.875%);
+        background-color: #7A9F59;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(40.49999% 40.16666%, 37.83333% 64%, 61.33333% 51.99999%);
+        background-color: #CDEEBD;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(40.49999% 40.16666%, 37.83333% 64%, 61.33333% 51.99999%);
+        background-color: #CDEEBD;
+    }
+
+    .gongtong .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(17.45% 27.15%, 25.3% 26.025%, 4.8% 38.4%);
+        background-color: #000000;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(17.45% 27.15%, 25.3% 26.025%, 3% 37.4%);
+        background-color: #000000;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(41.99999% 54.16666%, 49.16666% 55.49999%, 42.26666% 60.89999%);
+        background-color: #B12C22;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(41.99999% 54.16666%, 49.16666% 55.49999%, 42.26666% 60.89999%);
+        background-color: #D95E3F;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(49.375% 20%, 42.25% 10.25%, 65.87499% 10.375%);
+        background-color: #536F2A;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(49.375% 20%, 42.25% 10.25%, 65.87499% 10.375%);
+        background-color: #719739;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(37.8% 36.6%, 52% 39.2%, 47.05% 67.15%);
+        background-color: #EEDB7B;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(37.8% 36.2%, 52% 39.2%, 43.45% 69.35%);
+        background-color: #E6CA41;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(40.84999% 44.4%, 39.74999% 86.54999%, 58.24999% 49%);
+        background-color: #7F8848;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(40.84999% 44.4%, 41.30555% 86.32777%, 58.24999% 49%);
+        background-color: #B7BE87;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(83.75% 25.625%, 90.625% 24%, 93.5% 36.125%);
+        background-color: #43540C;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(83.75% 25.625%, 90.625% 24%, 93.5% 36.125%);
+        background-color: #7BC741;
+    }
+
+    .shuishan .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(61.4% 51.6%, 76.8% 47.6%, 64.2% 49.6%);
+        background-color: #89CDC7;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(61.4% 51.6%, 76.8% 47.6%, 64.2% 49.6%);
+        background-color: #89CDC7;
+    }
+
+    .suoluo .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(50.8% 98.6%, 58.2% 99%, 58.4% 66.2%);
+        background-color: #110902;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(50.8% 98.6%, 58.2% 99%, 58.4% 66.2%);
+        background-color: #110902;
+    }
+
+    .xishu .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(42.2% 34.4%, 56.4% 40%, 41% 46.4%);
+        background-color: #7DA74E;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(42.2% 34.4%, 56.4% 40%, 41% 46.4%);
+        background-color: #A6CE78;
+    }
+
+    .yinshan .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(50% 53.8%, 59.2% 31%, 56.6% 28.2%);
+        background-color: #498376;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(19) .shard {
+        -webkit-clip-path: polygon(50% 53.8%, 59.2% 31%, 56.6% 28.2%);
+        background-color: #315838;
+    }
+
+    .shard-wrap:nth-child(20) .shard {
+        transition-delay: 0.8s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(61.33334% 33.7333%, 64.93332% 34.26666%, 82.66666% 13.199998%);
+        background-color: #A02D60;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(61.33334% 33.7333%, 64.93332% 34.26666%, 84.86666% 13.399998%);
+        background-color: #CA6C96;
+    }
+
+    .boleshu .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(36.7% 61.4%, 36.4% 55.4%, 30.3% 57.7%);
+        background-color: #C45F4F;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(36.7% 61.4%, 36.4% 55.4%, 30.3% 57.7%);
+        background-color: #C45F4F;
+    }
+
+    .changruimulan .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(39.7% 57.1%, 41.5% 61.2%, 39.6% 85.6%);
+        background-color: #525A46;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(39.7% 57.1%, 41.5% 61.2%, 39.6% 85.6%);
+        background-color: #525A46;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(46% 39.925%, 45.8% 53.4%, 39.6% 46%);
+        background-color: #AAC4A1;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(46% 39.925%, 45.8% 53.4%, 39.6% 46%);
+        background-color: #90AC75;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(49.33333% 46.5%, 40.83333% 51.99998%, 49.33333% 55.99999%);
+        background-color: #ACA946;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(53.13333% 49.7%, 43.03333% 47.59998%, 45.33333% 56.39999%);
+        background-color: #A0BD5F;
+    }
+
+    .gongtong .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(20.35% 37.3%, 34.4% 52.4%, 24.6% 67.6%);
+        background-color: #6FAE52;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(20.35% 37.3%, 32.8% 53.4%, 22.4% 67.8%);
+        background-color: #639C49;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(42.16666% 53.99999%, 42.29999% 60.96666%, 35.76666% 55.53333%);
+        background-color: #E6392C;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(42.16666% 53.99999%, 42.29999% 60.96666%, 35.76666% 55.53333%);
+        background-color: #ED524A;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(49.5% 19.75%, 47% 8.374999%, 71.22499% 17.3%);
+        background-color: #475428;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(49.5% 19.75%, 46% 8.374999%, 70.42499% 14.1%);
+        background-color: #6F8536;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(52.825% 39.625%, 43.85% 44.325%, 51.8% 45.8%);
+        background-color: #BEAC02;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(52.825% 39.625%, 43.85% 44.325%, 51.8% 45.8%);
+        background-color: #93860A;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(54.79999% 81.59999%, 40.49999% 54.99999%, 60.19999% 50.29999%);
+        background-color: #C5CC97;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(54.79999% 81.59999%, 40.49999% 54.99999%, 60.19999% 50.29999%);
+        background-color: #9DA752;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(82.25% 25.25%, 76.375% 17.625%, 63.625% 21%);
+        background-color: #2A3908;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(82.25% 25.25%, 76.375% 17.625%, 63.625% 21%);
+        background-color: #5DA427;
+    }
+
+    .shuishan .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(63% 49.8%, 75.2% 43%, 67.2% 46%);
+        background-color: #52A169;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(63% 49.8%, 75.2% 43%, 67.2% 46%);
+        background-color: #52A169;
+    }
+
+    .suoluo .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(58.55% 68.7%, 51% 98.6%, 52.8% 36.6%);
+        background-color: #181111;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(58.55% 68.7%, 51% 98.6%, 52.8% 36.6%);
+        background-color: #181111;
+    }
+
+    .xishu .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(44.4% 39%, 34.2% 46.2%, 52.4% 55%);
+        background-color: #C2D666;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(44.4% 39%, 34.2% 46.2%, 52.4% 55%);
+        background-color: #93B844;
+    }
+
+    .yinshan .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(59% 31.6%, 56.4% 28.6%, 66.2% 15.8%);
+        background-color: #498376;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(20) .shard {
+        -webkit-clip-path: polygon(59% 31.6%, 56.4% 28.6%, 62.19999% 16.02222%);
+        background-color: #315838;
+    }
+
+    .shard-wrap:nth-child(21) .shard {
+        transition-delay: 0.84s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(61.33332% 33.86666%, 78.66666% 17.066664%, 73.73332% 3.6%);
+        background-color: #E08BC4;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(61.33332% 33.86666%, 79.46666% 18.466664%, 74.93332% 5.2%);
+        background-color: #E9AED6;
+    }
+
+    .boleshu .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(36.7% 61.4%, 31.1% 61%, 30.2% 57.7%);
+        background-color: #F87467;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(36.7% 61.4%, 31.1% 61%, 30.2% 57.7%);
+        background-color: #F87467;
+    }
+
+    .changruimulan .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(39.7% 84.8%, 39.76667% 56.96667%, 35.8% 96.2%);
+        background-color: #525A46;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(39.7% 84.8%, 39.76667% 56.96667%, 35.8% 96.2%);
+        background-color: #525A46;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(45.97499% 53.45%, 39.625% 46%, 39.25% 59.625%);
+        background-color: #A8BF95;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(45.97499% 53.45%, 39.625% 46%, 39.25% 59.625%);
+        background-color: #7D9A5A;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(46.66666% 50.49999%, 45.99999% 37.83332%, 49.49999% 36.49999%);
+        background-color: #BCB87A;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(46.66666% 50.49999%, 50.19999% 37.63332%, 53.69999% 37.09999%);
+        background-color: #98B369;
+    }
+
+    .gongtong .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(19.425% 35.375%, 34.4% 43.2%, 34% 52.8%);
+        background-color: #509327;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(19.425% 35.375%, 34.4% 43.2%, 32.6% 53.8%);
+        background-color: #70C03E;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(42.33333% 53.99999%, 35.76666% 55.53333%, 38.39999% 47.99999%);
+        background-color: #D93F34;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(42.33333% 53.99999%, 35.76666% 55.53333%, 38.39999% 47.99999%);
+        background-color: #D3332B;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(68.24999% 20.5%, 70.92499% 12.4%, 84.32499% 17.325%);
+        background-color: #5F802B;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(68.24999% 20.5%, 70.52499% 12.2%, 84.32499% 15.925%);
+        background-color: #566D30;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(53.075% 39.675%, 45.975% 37.7%, 43.4% 44.6%);
+        background-color: #A49F19;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(53.075% 39.675%, 45.975% 37.7%, 43.4% 44.6%);
+        background-color: #CCC42C;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(41.74999% 26%, 55.49999% 23.5%, 39.59999% 11.95%);
+        background-color: #D0D386;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(41.74999% 26%, 55.49999% 23.5%, 39.59999% 11.95%);
+        background-color: #DCDDA5;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(26.33332% 43.83333%, 28.49999% 43.99999%, 16.49999% 95.16666%);
+        background-color: #93A54E;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(26.33332% 43.83333%, 28.49999% 43.99999%, 30.27776% 93.61111%);
+        background-color: #93A54E;
+    }
+
+    .shuishan .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(47.2% 45.2%, 41.2% 50.4%, 44.2% 46%);
+        background-color: #287624;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(47.2% 44.31111%, 42.75556% 52.84444%, 43.08889% 48.22222%);
+        background-color: #79C675;
+    }
+
+    .suoluo .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(52.8% 37.2%, 47.6% 38%, 52.2% 68.8%);
+        background-color: #2A1F0F;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(52.8% 37.2%, 47.6% 38%, 52.2% 68.8%);
+        background-color: #2A1F0F;
+    }
+
+    .xishu .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(33.6% 45.4%, 44.2% 45%, 41.2% 61.6%);
+        background-color: #7DA74E;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(33.6% 45.4%, 44.2% 45%, 41.2% 61.6%);
+        background-color: #B7D25E;
+    }
+
+    .yinshan .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(50.33332% 53.16666%, 65.99999% 35.49999%, 69.83332% 36.83333%);
+        background-color: #79AD72;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(21) .shard {
+        -webkit-clip-path: polygon(50.33332% 53.16666%, 65.99999% 35.49999%, 69.83332% 36.83333%);
+        background-color: #4E8546;
+    }
+
+    .shard-wrap:nth-child(22) .shard {
+        transition-delay: 0.88s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(61.46666% 32.53332%, 70.66666% 21.46668%, 43.33332% 10.933332%);
+        background-color: #DECAE3;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(61.46666% 32.53332%, 70.66666% 21.46668%, 41.93332% 14.133332%);
+        background-color: #EADDED;
+    }
+
+    .boleshu .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(39.1% 72.7%, 38.3% 78.1%, 39.4% 77.35%);
+        background-color: #C8A5A3;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(39.1% 72.7%, 38.3% 78.1%, 39.4% 77.35%);
+        background-color: #C8A5A3;
+    }
+
+    .changruimulan .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(41% 67.3%, 44.8% 64.7%, 40.7% 70.4%);
+        background-color: #6A6959;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(41% 67.3%, 44.8% 64.7%, 40.7% 70.4%);
+        background-color: #6A6959;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(45.99999% 53.5%, 43.99999% 66.25%, 39.25% 59.625%);
+        background-color: #8EAC6D;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(45.99999% 53.5%, 43.99999% 66.25%, 39.25% 59.625%);
+        background-color: #6D864F;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(48.49998% 51.16667%, 59% 65.50001%, 59.66667% 61.33333%);
+        background-color: #DDD8B7;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(48.49998% 51.16667%, 54.2% 67.70001%, 56.66667% 63.93333%);
+        background-color: #BECD97;
+    }
+
+    .gongtong .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(21.7% 36%, 34.4% 43.6%, 30.15% 35.15%);
+        background-color: #86B331;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(21.7% 36%, 34.4% 43.6%, 30.15% 35.15%);
+        background-color: #A2CD4A;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(41.3% 53%, 43.9% 53.1%, 42% 55.4%);
+        background-color: #3D3727;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(42.3% 52.4%, 44.1% 54.5%, 41.2% 55%);
+        background-color: #3D3727;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(68.12499% 20.875%, 61.62499% 11.875%, 88.72499% 22.1%);
+        background-color: #486419;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(68.12499% 20.875%, 61.22499% 14.075%, 88.72499% 19.7%);
+        background-color: #6A9224;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(52.625% 39.25%, 49.4% 53%, 54.4% 43%);
+        background-color: #7A8303;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(52.625% 39.25%, 49.4% 53%, 54.4% 43%);
+        background-color: #7A8303;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(49.99999% 21%, 49.49999% 31.25%, 34.49999% 24.5%);
+        background-color: #DFE5B6;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(49.99999% 21%, 49.49999% 31.25%, 34.49999% 24.5%);
+        background-color: #BAC661;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(28.33333% 44.16666%, 16.49999% 94.99999%, 19.49999% 95.16666%);
+        background-color: #7A8B3E;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(28.33333% 44.16666%, 30.27776% 93.22221%, 32.83332% 92.94444%);
+        background-color: #7A8B3E;
+    }
+
+    .shuishan .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(43.6% 45.6%, 31% 50%, 35.8% 47%);
+        background-color: #6FC55F;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(43.6% 45.15556%, 36.77778% 52.66666%, 37.57777% 48.11111%);
+        background-color: #90CF92;
+    }
+
+    .suoluo .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(53% 38.2%, 53% 39.4%, 65.2% 34.2%);
+        background-color: #111209;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(53% 38.2%, 53% 39.4%, 65.2% 34.2%);
+        background-color: #111209;
+    }
+
+    .xishu .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(28.2% 59.4%, 39% 47.6%, 28.6% 42.8%);
+        background-color: #D4E777;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(28.2% 59.4%, 39% 47.6%, 28.6% 42.8%);
+        background-color: #8EB96E;
+    }
+
+    .yinshan .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(69.99999% 37%, 65.66665% 35.99999%, 68.33332% 17.5%);
+        background-color: #79AD72;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(22) .shard {
+        -webkit-clip-path: polygon(69.99999% 37%, 65.66665% 35.99999%, 67.66666% 17.94444%);
+        background-color: #4E8546;
+    }
+
+    .shard-wrap:nth-child(23) .shard {
+        transition-delay: 0.92s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(62.53334% 10.533332%, 47.33332% 6.933332%, 61.33332% 32.66666%);
+        background-color: #F5C6EB;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(62.53334% 10.533332%, 44.33332% 8.133332%, 61.33332% 32.66666%);
+        background-color: #F9E0F4;
+    }
+
+    .boleshu .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(34.2% 80.6%, 42.55% 81.7%, 39.4% 77.3%);
+        background-color: #D4404F;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(35.2% 82.76667%, 43.38333% 80.53334%, 39.4% 77.3%);
+        background-color: #D4404F;
+    }
+
+    .changruimulan .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(44.6% 64.85%, 47.5% 66.5%, 42.78333% 67.4%);
+        background-color: #565C46;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(44.6% 64.85%, 46.9% 68.9%, 42.78333% 67.4%);
+        background-color: #8D7353;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(45.72499% 53.7%, 45.99999% 40.125%, 51.74999% 44.625%);
+        background-color: #C7D6C6;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(45.72499% 53.7%, 45.99999% 40.125%, 51.74999% 44.625%);
+        background-color: #ABBC8F;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(45.83333% 51.83332%, 27% 57.33333%, 31.49999% 60%);
+        background-color: #BCBD58;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(45.83333% 51.83332%, 25.4% 54.53333%, 29.69999% 57.2%);
+        background-color: #AED18D;
+    }
+
+    .gongtong .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(19.2% 35.4%, 30.175% 35.325%, 22.4% 32.4%);
+        background-color: #8FC269;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(19.2% 35.4%, 30.175% 35.325%, 22.4% 32.4%);
+        background-color: #B3D599;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(69% 30%, 76.8% 30.1%, 72.7% 35.3%);
+        background-color: #C33436;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(69% 30%, 76.8% 30.1%, 72.7% 35.3%);
+        background-color: #DE484B;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(67.87499% 20.875%, 75.99999% 24.75%, 85.42499% 18.875%);
+        background-color: #8B955F;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(67.87499% 20.875%, 75.99999% 24.75%, 85.42499% 18.875%);
+        background-color: #427B41;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(52.95% 40.05%, 39.425% 35.725%, 51.44999% 36.675%);
+        background-color: #B9B66C;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(52.95% 40.05%, 39.425% 35.725%, 51.44999% 36.675%);
+        background-color: #B9B66C;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(54.09999% 29.65%, 51.99999% 45.4%, 40.99999% 31.8%);
+        background-color: #E7E9C1;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(54.09999% 29.65%, 51.99999% 45.4%, 40.99999% 31.8%);
+        background-color: #B4B75B;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(74.33332% 17.16666%, 72.33332% 19.5%, 68.99999% 66.66666%);
+        background-color: #475308;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(74.33332% 17.16666%, 72.33332% 19.5%, 81.44443% 65.55555%);
+        background-color: #475308;
+    }
+
+    .shuishan .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(31.4% 44.2%, 26.6% 48.2%, 39.2% 43.8%);
+        background-color: #9AC393;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(32.06666% 46.42222%, 30.15555% 50.64445%, 38.75555% 45.13333%);
+        background-color: #56894D;
+    }
+
+    .suoluo .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(64.8% 34.4%, 75.2% 36.6%, 93% 42.6%);
+        background-color: #413321;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(64.8% 34.4%, 75.2% 36.6%, 93% 42.6%);
+        background-color: #413321;
+    }
+
+    .xishu .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(30.6% 38%, 16% 48.8%, 37.6% 45.4%);
+        background-color: #C2D666;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(30.6% 38%, 16% 48.8%, 37.6% 45.4%);
+        background-color: #75B148;
+    }
+
+    .yinshan .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(50.6% 52.6%, 77.16667% 42.16667%, 80.5% 44.96667%);
+        background-color: #54B859;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(23) .shard {
+        -webkit-clip-path: polygon(50.6% 52.6%, 77.16667% 42.16667%, 80.5% 44.96667%);
+        background-color: #37853A;
+    }
+
+    .shard-wrap:nth-child(24) .shard {
+        transition-delay: 0.96s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(61.33332% 33.46666%, 72.53332% 7.333332%, 55.59998% 11.2%);
+        background-color: #CE52A1;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(61.33332% 33.46666%, 75.13332% 8.133332%, 56.99998% 11.4%);
+        background-color: #D778B6;
+    }
+
+    .boleshu .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(34.3% 80.6%, 36.5% 85.9%, 42.4% 81.7%);
+        background-color: #CC4B5D;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(35.3% 82.43333%, 41.83333% 86.4%, 43.39999% 80.53334%);
+        background-color: #CC4B5D;
+    }
+
+    .changruimulan .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(41.8% 30.6%, 61.5% 39.23333%, 45.95714% 43.11429%);
+        background-color: #CED8A5;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(41.8% 30.6%, 61.5% 39.23333%, 45.95714% 43.11429%);
+        background-color: #CED8A5;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(45.87499% 53.375%, 48.49999% 66.5%, 51.99999% 58.625%);
+        background-color: #748247;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(45.87499% 53.375%, 48.49999% 66.5%, 51.99999% 58.625%);
+        background-color: #78864A;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(47.33333% 50.99999%, 55.99999% 37.83333%, 59.33332% 39.83333%);
+        background-color: #A0C067;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(47.33333% 50.99999%, 60.39999% 42.83333%, 63.53332% 44.83333%);
+        background-color: #B5CD88;
+    }
+
+    .gongtong .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(19.5% 35.3%, 24.8% 67.6%, 13.6% 55.8%);
+        background-color: #307603;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(19.5% 35.3%, 22.6% 67.8%, 13.6% 55.8%);
+        background-color: #4E9121;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(72.7% 35.2%, 78.8% 37.3%, 76.7% 30%);
+        background-color: #C32719;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(72.7% 35.2%, 78.8% 37.3%, 76.7% 30%);
+        background-color: #E5483C;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(22.75% 90.625%, 39.75% 90.5%, 22.625% 85.375%);
+        background-color: #636B24;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(14.35% 90.625%, 29.75% 90.5%, 13.825% 85.375%);
+        background-color: #636B24;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(67.2% 36.8%, 65.2% 38.6%, 62.4% 93.6%);
+        background-color: #6B8C7C;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(67.2% 36.8%, 65.2% 38.6%, 62.4% 93.6%);
+        background-color: #6B8C7C;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(51.24999% 41.95%, 40.29999% 39.55%, 38.34999% 58.79999%);
+        background-color: #CAD094;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(51.24999% 41.95%, 40.29999% 39.55%, 38.34999% 58.79999%);
+        background-color: #CAD094;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(72.33332% 18.83333%, 69.16665% 66.33333%, 66.49999% 67.33333%);
+        background-color: #596807;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(72.33332% 18.83333%, 81.6111% 65.88889%, 79.83333% 66.66667%);
+        background-color: #596807;
+    }
+
+    .shuishan .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(30% 41.2%, 25.2% 43.4%, 34% 41.4%);
+        background-color: #99CEB6;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(29.77778% 43.42222%, 26.97778% 46.06666%, 35.11111% 43.62222%);
+        background-color: #3E8244;
+    }
+
+    .suoluo .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(52.7% 39.4%, 53% 38.8%, 71% 45.4%);
+        background-color: #000000;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(52.7% 39.4%, 53% 38.8%, 71% 45.4%);
+        background-color: #000000;
+    }
+
+    .xishu .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(34% 35.2%, 33.8% 45.8%, 16.4% 36.2%);
+        background-color: #9BBA50;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(34% 35.2%, 33.8% 45.8%, 16.4% 36.2%);
+        background-color: #7DA74E;
+    }
+
+    .yinshan .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(75.96666% 44%, 80.16666% 45.3%, 86.83333% 33.36667%);
+        background-color: #54B859;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(24) .shard {
+        -webkit-clip-path: polygon(75.96666% 44%, 80.16666% 45.3%, 83.72222% 29.81111%);
+        background-color: #37853A;
+    }
+
+    .shard-wrap:nth-child(25) .shard {
+        transition-delay: 1s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(54.4% 19.066664%, 73.06666% 20%, 61.46666% 33.46666%);
+        background-color: #FC68BE;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(53% 19.266664%, 73.86666% 20%, 61.46666% 33.46666%);
+        background-color: #FDA0D6;
+    }
+
+    .boleshu .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(55.6% 17.8%, 59.4% 4.8%, 68.6% 15.2%);
+        background-color: #5A9443;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(55.6% 17.8%, 54.73334% 5.966666%, 65.43333% 12.53333%);
+        background-color: #92C37D;
+    }
+
+    .changruimulan .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(52.49999% 36.125%, 60.24999% 22.375%, 61.24999% 23.5%);
+        background-color: #C09955;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(52.49999% 36.125%, 60.04999% 20.175%, 61.04999% 22.1%);
+        background-color: #816331;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(45.87499% 53.55%, 51.99999% 58.625%, 51.74999% 44.375%);
+        background-color: #A2B088;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(45.87499% 53.55%, 51.99999% 58.625%, 51.74999% 44.375%);
+        background-color: #90A172;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(47.66667% 50.83332%, 51.33334% 64%, 48.66667% 65.99999%);
+        background-color: #A0C067;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(47.66667% 50.83332%, 48.73334% 64.6%, 45.86667% 66.19999%);
+        background-color: #B5CD88;
+    }
+
+    .gongtong .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(18.3% 37.5%, 13.6% 55.8%, 9.7% 45.3%);
+        background-color: #2A7705;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(18.3% 37.5%, 13.6% 55.8%, 9.7% 45.3%);
+        background-color: #58AD2E;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(72.7% 35.23333%, 72.03334% 41.56667%, 78.86667% 37.33333%);
+        background-color: #D8453F;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(72.7% 35.23333%, 72.03334% 41.56667%, 78.86667% 37.33333%);
+        background-color: #E13731;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(22.625% 90.75%, 31.75% 81.5%, 39.125% 90.375%);
+        background-color: #666A1E;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(17.225% 90.75%, 24.35% 81.5%, 31.125% 90.375%);
+        background-color: #666A1E;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(66.6% 43.175%, 62.6% 92%, 80.25% 51.175%);
+        background-color: #263713;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(66.6% 43.175%, 62.6% 92%, 80.25% 51.175%);
+        background-color: #22360B;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(45.74999% 43%, 56.54999% 42.85%, 51.94999% 66.59999%);
+        background-color: #DDE4B1;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(45.74999% 43%, 56.54999% 42.85%, 51.94999% 66.59999%);
+        background-color: #BCC774;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(25.83332% 36.83333%, 27.41666% 34.70833%, 23.91666% 46.33333%);
+        background-color: #574A10;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(25.83332% 36.83333%, 27.41666% 34.70833%, 23.91666% 46.33333%);
+        background-color: #574A10;
+    }
+
+    .shuishan .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(45.6% 55%, 28.8% 72.2%, 40.6% 57%);
+        background-color: #3F8E47;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(45.37778% 51%, 34.57778% 71.53334%, 40.6% 57%);
+        background-color: #80C687;
+    }
+
+    .suoluo .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(68.8% 44.6%, 74.8% 64.4%, 73.2% 55.4%);
+        background-color: #5E5038;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(68.8% 44.6%, 74.8% 64.4%, 73.2% 55.4%);
+        background-color: #5E5038;
+    }
+
+    .xishu .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(34.2% 36.6%, 44.2% 42.2%, 50.8% 24.8%);
+        background-color: #C2D56D;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(34.2% 36.6%, 44.2% 42.2%, 50.8% 24.8%);
+        background-color: #7DA74E;
+    }
+
+    .yinshan .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(51.2% 52%, 72.6% 52.2%, 72.4% 56.8%);
+        background-color: #3A8645;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(25) .shard {
+        -webkit-clip-path: polygon(51.2% 52%, 72.6% 52.2%, 72.4% 56.8%);
+        background-color: #4DB15B;
+    }
+
+    .shard-wrap:nth-child(26) .shard {
+        transition-delay: 1.04s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(44.13332% 39.06666%, 37.2% 31.86666%, 42.93332% 40.4%);
+        background-color: #73666B;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(44.13332% 39.06666%, 34.6% 32.46666%, 42.93332% 40.4%);
+        background-color: #423C3F;
+    }
+
+    .boleshu .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(68.4% 15.2%, 77% 2.2%, 59.4% 4.95%);
+        background-color: #6DA444;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(64.56667% 12.86667%, 67.16666% 0.8666668%, 54.90001% 6.116666%);
+        background-color: #96C472;
+    }
+
+    .changruimulan .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(52.49999% 36%, 60.55356% 24.5%, 62.37499% 25.625%);
+        background-color: #D3A96C;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(52.49999% 36%, 60.15356% 22.7%, 61.17499% 24.225%);
+        background-color: #E5A54C;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(59.74999% 61.5%, 61.49999% 52.375%, 58.87499% 44%);
+        background-color: #637C42;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(59.74999% 61.5%, 61.49999% 52.375%, 58.87499% 44%);
+        background-color: #7D9B53;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(46.16666% 51.33332%, 27.16666% 47.99999%, 27.16667% 44%);
+        background-color: #A0C067;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(46.16666% 51.33332%, 27.96666% 44.99999%, 27.96667% 41%);
+        background-color: #BBD689;
+    }
+
+    .gongtong .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(19.3% 35.4%, 9.6% 37.9%, 9.7% 45.3%);
+        background-color: #438E02;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(19.3% 35.4%, 9.6% 37.9%, 9.7% 45.3%);
+        background-color: #73B738;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(72.6% 35.3%, 66.6% 37.4%, 72.2% 41.5%);
+        background-color: #CD3D3A;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(72.6% 35.3%, 66.6% 37.4%, 72.2% 41.5%);
+        background-color: #DA2C29;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(67.74999% 20.75%, 59.52499% 17.9%, 69.62499% 10.65%);
+        background-color: #5E8E37;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(67.74999% 20.75%, 59.52499% 17.9%, 69.62499% 10.65%);
+        background-color: #5E8E37;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(62.6% 91.8%, 65% 43.3%, 53.4% 48.05%);
+        background-color: #0D1C01;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(62.6% 91.8%, 65% 43.3%, 53.4% 48.05%);
+        background-color: #1E3C05;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(48.69999% 42.75%, 59.59999% 40.75%, 62.14999% 62.34999%);
+        background-color: #E1E7BA;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(48.69999% 42.75%, 59.59999% 40.75%, 62.14999% 62.34999%);
+        background-color: #B4C355;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(27.16666% 34.49999%, 28.33332% 35.66666%, 26.33332% 45.16666%);
+        background-color: #7D7631;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(27.16666% 34.49999%, 28.33332% 35.66666%, 26.33332% 45.16666%);
+        background-color: #7D7631;
+    }
+
+    .shuishan .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(34.8% 53.2%, 34.2% 68.8%, 33.2% 64.4%);
+        background-color: #8BC791;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(34.8% 53.2%, 34.2% 68.8%, 33.2% 64.4%);
+        background-color: #3E824B;
+    }
+
+    .suoluo .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(52.6% 37.2%, 50.4% 37.4%, 87.8% 17.05%);
+        background-color: #7F7165;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(52.6% 37.2%, 50.4% 37.4%, 87.8% 17.05%);
+        background-color: #7F7165;
+    }
+
+    .xishu .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(43.4% 39.2%, 32.2% 40.6%, 37.2% 19.2%);
+        background-color: #CAE375;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(43.4% 39.2%, 32.2% 40.6%, 37.2% 19.2%);
+        background-color: #99BC50;
+    }
+
+    .yinshan .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(72.3% 52.3%, 72.2% 56.8%, 98.6% 47%);
+        background-color: #3A8645;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(26) .shard {
+        -webkit-clip-path: polygon(72.3% 52.3%, 72.2% 56.8%, 97.04445% 45%);
+        background-color: #4DB15B;
+    }
+
+    .shard-wrap:nth-child(27) .shard {
+        transition-delay: 1.08s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(37.2% 31.86666%, 39.46666% 34.4%, 37.73332% 24.66666%);
+        background-color: #504A57;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(35.4% 33.06666%, 39.06666% 36.4%, 33.33332% 26.26666%);
+        background-color: #504A57;
+    }
+
+    .boleshu .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(39.2% 73%, 34.2% 64.8%, 16% 61.6%);
+        background-color: #7BA75F;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(39.2% 73%, 27.7% 69.05%, 13.75% 76.35%);
+        background-color: #A3C18F;
+    }
+
+    .changruimulan .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(52.49999% 36.125%, 65.62499% 24.625%, 66.24999% 26.5%);
+        background-color: #D3A96C;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(52.49999% 36.125%, 65.42499% 23.825%, 65.64999% 27.3%);
+        background-color: #FCD49B;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(33.625% 43.125%, 32.5% 61.875%, 31.375% 51.375%);
+        background-color: #9DC597;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(33.625% 43.125%, 32.5% 61.875%, 31.375% 51.375%);
+        background-color: #768B59;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(47.49999% 50.83333%, 62.99999% 46.83333%, 66.33333% 50%);
+        background-color: #A0C067;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(47.49999% 50.83333%, 64.79999% 51.03333%, 66.93333% 54.8%);
+        background-color: #9FCD88;
+    }
+
+    .gongtong .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(19.4% 35.4%, 14.6% 33.7%, 9.6% 37.9%);
+        background-color: #639D09;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(19.4% 35.4%, 14.6% 33.7%, 9.6% 37.9%);
+        background-color: #8AB643;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(72.7% 35.4%, 69.2% 30.1%, 66.66667% 37.5%);
+        background-color: #D93F34;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(72.7% 35.4%, 69.2% 30.1%, 66.66667% 37.5%);
+        background-color: #C02F24;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(60.49999% 28.75%, 63.99999% 31.625%, 58.12499% 30.775%);
+        background-color: #9F6138;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(60.49999% 28.75%, 64.79999% 30.825%, 58.12499% 30.775%);
+        background-color: #9F6138;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(66.7% 43.3%, 80.3% 51.3%, 74.8% 45.4%);
+        background-color: #274224;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(66.7% 43.3%, 80.3% 51.3%, 74.8% 45.4%);
+        background-color: #3E6939;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(50.09999% 21.2%, 49.64999% 31.15%, 70.04999% 26.1%);
+        background-color: #DAE29A;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(50.09999% 21.2%, 49.64999% 31.15%, 70.27221% 24.98889%);
+        background-color: #C3CE58;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(58.49999% 26.33333%, 60.66665% 26%, 55.49999% 36.33333%);
+        background-color: #695D18;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(58.49999% 26.33333%, 60.66665% 26%, 55.49999% 36.33333%);
+        background-color: #695D18;
+    }
+
+    .shuishan .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(10.6% 67.2%, 42.8% 67.4%, 17.2% 69%);
+        background-color: #ADC2A9;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(10.82222% 65.64445%, 40.57778% 70.95555%, 17.2% 69%);
+        background-color: #659A5A;
+    }
+
+    .suoluo .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(51.4% 38.4%, 50% 38.4%, 56.2% 11%);
+        background-color: #53351D;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(51.4% 38.4%, 50% 38.4%, 56.2% 11%);
+        background-color: #53351D;
+    }
+
+    .xishu .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(21.8% 26.8%, 34.8% 43.4%, 36.2% 33%);
+        background-color: #AEC764;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(21.8% 26.8%, 34.8% 43.4%, 36.2% 33%);
+        background-color: #AEC764;
+    }
+
+    .yinshan .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(50.4% 51%, 78% 66.6%, 76.2% 70.6%);
+        background-color: #529E65;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(27) .shard {
+        -webkit-clip-path: polygon(50.4% 51%, 78% 66.6%, 76.2% 70.6%);
+        background-color: #3A6E47;
+    }
+
+    .shard-wrap:nth-child(28) .shard {
+        transition-delay: 1.12s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(37.6% 25.06666%, 38.73332% 21.46666%, 36.13332% 22%);
+        background-color: #586519;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(33.4% 26.66666%, 35.53332% 22.06666%, 32.93332% 22.6%);
+        background-color: #586519;
+    }
+
+    .boleshu .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(39.1% 72.95%, 27.8% 73.4%, 16.05% 61.65%);
+        background-color: #9ECB85;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(39.1% 72.95%, 29.3% 78.9%, 13.3% 76.15%);
+        background-color: #74BF49;
+    }
+
+    .changruimulan .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(51.4% 35.4%, 31% 14.2%, 35% 27.1%);
+        background-color: #DEDD99;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(51.4% 35.4%, 31% 14.2%, 35% 27.1%);
+        background-color: #DEDD99;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(51.74999% 44.625%, 51.99999% 59%, 53.87499% 51.375%);
+        background-color: #9FB98C;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(51.74999% 44.625%, 51.99999% 59%, 53.87499% 51.375%);
+        background-color: #789A5E;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(46.99999% 51.83333%, 40.83333% 65.83333%, 36.33333% 65.66666%);
+        background-color: #A0C067;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(46.99999% 51.83333%, 38.03333% 64.23333%, 33.53333% 63.86666%);
+        background-color: #BFD990;
+    }
+
+    .gongtong .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(73.225% 38.725%, 81.475% 44.025%, 88.725% 42.15%);
+        background-color: #DAE7C9;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(73.225% 38.725%, 81.475% 44.025%, 88.125% 45.75%);
+        background-color: #DAE7C9;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(73% 34%, 71.2% 36.1%, 73.9% 36.5%);
+        background-color: #202111;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(73.8% 34%, 70.8% 34.7%, 72.7% 36.7%);
+        background-color: #202111;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(26.9% 25.5%, 21.8% 22%, 15% 28.1%);
+        background-color: #659530;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(26.9% 25.5%, 20% 20.8%, 16.2% 29.9%);
+        background-color: #659530;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(57.6% 44.2%, 53.225% 48.25%, 65.075% 43.475%);
+        background-color: #18280D;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(57.6% 44.2%, 53.225% 48.25%, 65.075% 43.475%);
+        background-color: #31501A;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(1.749988% 22.5%, 45.24999% 96.99999%, 37.49999% 95.49999%);
+        background-color: #231804;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(1.749988% 22.5%, 45.24999% 96.99999%, 37.49999% 95.49999%);
+        background-color: #231804;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(84.49998% 15.83333%, 86.33332% 15.16666%, 82.41665% 26.58333%);
+        background-color: #836F53;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(84.49998% 15.83333%, 86.33332% 15.16666%, 82.41665% 26.58333%);
+        background-color: #836F53;
+    }
+
+    .shuishan .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(31.4% 66.2%, 26.4% 55.4%, 26.6% 58.8%);
+        background-color: #63955F;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(31.4% 66.2%, 26.4% 55.4%, 26.6% 58.8%);
+        background-color: #96BA97;
+    }
+
+    .suoluo .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(50.8% 38.2%, 49.4% 38%, 29.6% 13%);
+        background-color: #5A4129;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(50.8% 38.2%, 49.4% 38%, 29.6% 13%);
+        background-color: #5A4129;
+    }
+
+    .xishu .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(43.2% 39%, 35.2% 46.4%, 54% 46.4%);
+        background-color: #A7CD3F;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(43.2% 39%, 35.2% 46.4%, 54% 46.4%);
+        background-color: #63A43B;
+    }
+
+    .yinshan .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(70.8% 65.9%, 76.4% 70.6%, 97.76666% 66.8%);
+        background-color: #529E65;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(28) .shard {
+        -webkit-clip-path: polygon(70.8% 65.9%, 76.4% 70.6%, 97.32222% 64.35556%);
+        background-color: #3A6E47;
+    }
+
+    .shard-wrap:nth-child(29) .shard {
+        transition-delay: 1.16s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(38.53332% 2.066666%, 40.8% 21.86666%, 33.06666% 9.466666%);
+        background-color: #BF69A3;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(31.13332% 3.466666%, 37.8% 22.66666%, 27.06666% 14.266666%);
+        background-color: #D8A5C8;
+    }
+
+    .boleshu .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(35.8% 29.2%, 31.2% 30.2%, 37.6% 32.2%);
+        background-color: #FC617C;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(35.8% 29.2%, 31.2% 30.2%, 37.6% 32.2%);
+        background-color: #FF2850;
+    }
+
+    .changruimulan .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(52.71428% 35.85714%, 68.99999% 37.99999%, 59.51427% 43.91429%);
+        background-color: #FFFFFF;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(52.71428% 35.85714%, 68.99999% 37.99999%, 59.51427% 43.91429%);
+        background-color: #FFFFFF;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(39.625% 45.625%, 39.25% 59.75%, 37.125% 53.25%);
+        background-color: #A2B088;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(39.625% 45.625%, 39.25% 59.75%, 37.125% 53.25%);
+        background-color: #7F8F5F;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(46.83333% 51.16666%, 32.16666% 36.66666%, 33.33333% 32.66666%);
+        background-color: #A0C067;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(46.83333% 51.16666%, 37.36666% 34.26666%, 39.93333% 30.66666%);
+        background-color: #B4D17E;
+    }
+
+    .gongtong .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(50.4% 7.6%, 78% 11.6%, 85.8% 36.6%);
+        background-color: #438E02;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(50.4% 7.6%, 78% 11.6%, 82.4% 37.2%);
+        background-color: #69B02A;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(42.2% 63.6%, 27.2% 65%, 27% 68.4%);
+        background-color: #94B81F;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(42.2% 63.6%, 29% 64.4%, 27.2% 67.6%);
+        background-color: #94B81F;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(66.2% 17.1%, 67.2% 21.9%, 75.2% 22.4%);
+        background-color: #8EAE2F;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(66.2% 17.1%, 67.2% 21.9%, 75.2% 22.4%);
+        background-color: #8EAE2F;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(78.35% 65.35%, 62.6% 91.6%, 80.125% 51.225%);
+        background-color: #314822;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(78.35% 65.35%, 62.6% 91.6%, 80.125% 51.225%);
+        background-color: #4B6E35;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(51.49999% 8.249997%, 58.74999% 3.499997%, 74.49999% 2.499997%);
+        background-color: #9EA434;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(51.49999% 8.249997%, 57.8611% 3.277775%, 73.16665% 2.277775%);
+        background-color: #9EA434;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(86% 15.4%, 89.6% 65.6%, 88.8% 14.4%);
+        background-color: #878B43;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(86% 15.4%, 98.48889% 64.04445%, 88.8% 14.4%);
+        background-color: #878B43;
+    }
+
+    .shuishan .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(18% 83.4%, 14% 81.8%, 7.4% 67.6%);
+        background-color: #A6B478;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(18% 83.4%, 14% 81.8%, 7.4% 67.6%);
+        background-color: #899F41;
+    }
+
+    .suoluo .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(48.2% 38%, 48.8% 39%, 10.8% 37.8%);
+        background-color: #4A3321;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(48.2% 38%, 48.8% 39%, 10.8% 37.8%);
+        background-color: #4A3321;
+    }
+
+    .xishu .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(32.2% 40%, 43.4% 39.4%, 36.8% 29.4%);
+        background-color: #709944;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(32.2% 40%, 43.4% 39.4%, 36.8% 29.4%);
+        background-color: #D3E973;
+    }
+
+    .yinshan .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(50.4% 46.4%, 48.4% 53.6%, 54% 52.8%);
+        background-color: #FC800D;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(29) .shard {
+        -webkit-clip-path: polygon(51.06667% 46.17778%, 48.4% 53.6%, 54% 52.8%);
+        background-color: #FC800D;
+    }
+
+    .shard-wrap:nth-child(30) .shard {
+        transition-delay: 1.2s;
+    }
+
+    .baohuayulan .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(41.59998% 22.46666%, 31.86666% 6.733332%, 33.66666% 21.46668%);
+        background-color: #582239;
+    }
+
+    /*state2*/
+    .baohuayulan.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(38.59998% 22.46666%, 22.46666% 8.333332%, 29.26666% 24.86668%);
+        background-color: #BB5280;
+    }
+
+    .boleshu .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(60% 62.8%, 59% 66.6%, 62.4% 66.2%);
+        background-color: #FC617C;
+    }
+
+    .boleshu.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(60% 62.8%, 59% 66.6%, 62.4% 66.2%);
+        background-color: #FA1942;
+    }
+
+    .changruimulan .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(39.93809% 57.10714%, 35.85714% 54.85714%, 39.48571% 61.0238%);
+        background-color: #5A793D;
+    }
+
+    .changruimulan.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(39.93809% 57.10714%, 34.25714% 57.25714%, 39.48571% 61.0238%);
+        background-color: #5A892D;
+    }
+
+    .chiguoyoushu .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(48.49999% 65.25%, 45.74999% 53.475%, 44.12499% 65.375%);
+        background-color: #77965A;
+    }
+
+    .chiguoyoushu.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(48.49999% 65.25%, 45.74999% 53.475%, 44.12499% 65.375%);
+        background-color: #5D7546;
+    }
+
+    .ezhangqiu .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(48.2% 51.4%, 59.6% 52.4%, 61.2% 56.8%);
+        background-color: #E6E9A5;
+    }
+
+    .ezhangqiu.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(48.2% 51.4%, 60% 57.2%, 60.8% 62%);
+        background-color: #BEE28C;
+    }
+
+    .gongtong .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(50.6% 7.8%, 62% 4.6%, 78.6% 11.8%);
+        background-color: #307603;
+    }
+
+    .gongtong.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(50.6% 7.8%, 62% 4.6%, 78.6% 11.8%);
+        background-color: #509323;
+    }
+
+    .hongdoushan .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(48.41665% 56.08333%, 59.12498% 64.79166%, 55.12498% 65.74999%);
+        background-color: #738F30;
+    }
+
+    .hongdoushan.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(48.41665% 56.08333%, 58.12498% 64.19166%, 56.52498% 67.54999%);
+        background-color: #91B23D;
+    }
+
+    .houmianbaoshu .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(49.66666% 20.08333%, 43.66666% 18.08333%, 55.24999% 12.75%);
+        background-color: #8EAE2F;
+    }
+
+    .houmianbaoshu.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(49.66666% 20.08333%, 43.66666% 18.08333%, 55.24999% 12.75%);
+        background-color: #8EAE2F;
+    }
+
+    .jinhuacha .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(52.375% 62.15%, 53.35% 47.5%, 62.8% 91.4%);
+        background-color: #20310F;
+    }
+
+    .jinhuacha.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(52.375% 62.15%, 53.35% 47.5%, 62.8% 91.4%);
+        background-color: #38551A;
+    }
+
+    .putuoeerli .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(51.74999% 7.999997%, 73.99999% 2.499997%, 84.24999% 15.5%);
+        background-color: #818F17;
+    }
+
+    .putuoeerli.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(51.74999% 7.999997%, 72.88888% 2.055552%, 85.80554% 11.5%);
+        background-color: #818F17;
+    }
+
+    .shuiqingshu .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(88.6% 15%, 89.2% 65%, 92% 65.8%);
+        background-color: #939A3A;
+    }
+
+    .shuiqingshu.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(88.6% 15%, 97.64445% 62.33334%, 100.8889% 63.13333%);
+        background-color: #939A3A;
+    }
+
+    .shuishan .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(7% 76.6%, 26.8% 78.2%, 9% 79.6%);
+        background-color: #7DCD88;
+    }
+
+    .shuishan.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(7% 76.6%, 26.8% 78.2%, 9% 79.6%);
+        background-color: #98D7A0;
+    }
+
+    .suoluo .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(38.6% 71%, 48.4% 39%, 49.4% 39.4%);
+        background-color: #362C24;
+    }
+
+    .suoluo.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(38.6% 71%, 48.4% 39%, 49.4% 39.4%);
+        background-color: #362C24;
+    }
+
+    .xishu .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(32% 39.8%, 43.4% 39%, 35.4% 55.6%);
+        background-color: #93B844;
+    }
+
+    .xishu.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(32% 39.8%, 43.4% 39%, 35.4% 55.6%);
+        background-color: #B0CC75;
+    }
+
+    .yinshan .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(53.4% 47.6%, 48.6% 53.8%, 53.8% 53.5%);
+        background-color: #FDB578;
+    }
+
+    .yinshan.state-two .shard-wrap:nth-child(30) .shard {
+        -webkit-clip-path: polygon(52.06666% 46.93333%, 48.6% 53.8%, 53.8% 53.5%);
+        background-color: #FDB578;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="wrap baohuayulan" id="wrap">
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+        <div class="shard-wrap">
+            <div class="shard"></div>
+        </div>
+    </div>
+</body>
+<script>
+var $plant = document.querySelector("#wrap");
+var stateInterval = 1000;
+var plantInterval = stateInterval * 3;
+var plantList = [
+    "baohuayulan",
+    "boleshu",
+    "changruimulan",
+    "chiguoyoushu",
+    "ezhangqiu",
+    "gongtong",
+    "hongdoushan",
+    "houmianbaoshu",
+    "jinhuacha",
+    "putuoeerli",
+    "shuiqingshu",
+    "shuishan",
+    "suoluo",
+    "xishu",
+    "yinshan"
+];
+var index = 0;
+
+setInterval(function() {
+    $plant.classList.toggle("state-two");
+}, stateInterval);
+
+setInterval(function() {
+    $plant.className = "wrap";
+    index = ++index === plantList.length ? 0 : index;
+    $plant.classList.add(plantList[index]);
+}, plantInterval);
+</script>
+
+</html>
