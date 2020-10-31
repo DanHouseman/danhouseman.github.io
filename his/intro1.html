@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Herb In Soil - Test Bed</title>
+    <meta name="description" content="A test bed for Herb In Soil website.">
+    <meta name="author" content="Dan Houseman">
+    <meta property="og:image" content="https://image.freepik.com/free-vector/monstera-leaf-seamless-pattern-white-background_97843-528.jpg" />
+    <meta property="og:site_name" content="Herb In Soil" />
+    <meta property="og:type" content="Shop" />
+    <meta property="og:url" content="https://www.herbinsoil.com/" />
+    <meta property="og:title" content="Herb In Soil Test Bed - Opacity Intro with Monstera Background" />
+</head>
+<style>
+    header {
+        height: 100vh;
+        background: rgba(2, 2, 2, 0.9);
+        overflow: hidden;
+        position: relative;
+        opacity: 0.5;
+    }
+
+    header h1 {
+        height: 100vh;
+        width: 100%;
+        position: fixed;
+        display: -webkit-box;
+        display: flex;
+        align-self: center;
+        -webkit-box-align: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        justify-content: center;
+        color: white;
+        font-size: 15vw;
+        letter-spacing: 5px;
+        margin: 0;
+        background-image: url("https://image.freepik.com/free-vector/monstera-leaf-seamless-pattern-white-background_97843-528.jpg");
+        -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text;
+        -webkit-text-stroke: 1px;
+    }
+
+    body {
+        background-image: url("https://image.freepik.com/free-vector/monstera-leaf-seamless-pattern-white-background_97843-528.jpg");
+        background-attachment: fixed;
+        margin: 0px;
+    }
+
+    main {
+        background: white;
+        min-height: 200vh;
+        width: 100%;
+    }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Herb In Soil</h1>
+    </header>
+    <main></main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+    $(window).scroll(function() {
+        var scroll = $(window).scrollTop();
+        $("header").css({
+            opacity: 0.5 + (scroll / 200)
+        });
+    });
+    </script>
+</body>
+
+</html>
