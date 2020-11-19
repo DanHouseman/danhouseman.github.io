@@ -1,10 +1,10 @@
 <head>
     <link rel="stylesheet" href="style.css">
-
-    <script src="//cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.18.1/babel.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/4.2.0/d3.min.js"></script>
-    <script src="//unpkg.com/midiutils@0.0.4/src/MIDIUtils.js"></script>
-    <style>
+    <script src="//danhouseman.com/babel/babel.min.js"></script>
+    <script src="//danhouseman.com/js/d3.js"></script>
+    <script src="//danhouseman.com/js/MIDIUtils.js"></script>
+</head>
+<style>
 body {
     text-align: center;
     font-family: Sans-serif;
@@ -21,7 +21,8 @@ body {
     stroke-width: 2;
 }
 
-.hex text, .legend-hex text {
+.hex text,
+.legend-hex text {
     fill: #333;
     pointer-events: none;
 }
@@ -40,9 +41,8 @@ body {
 
 .legend-hex.central-hex path {
     fill: rebeccapurple;
-}    
-    </style>
-</head>
+}
+</style>
 
 <body>
     <div>
@@ -50,258 +50,258 @@ body {
         Diagonal: <select id="diag-select"></select>
     </div>
     <svg id="canvas"></svg>
-
     <script>
     const topMargin = 35,
-    hexR = 30,
-    nLevels = 13,               // 12 semitones + octave
-    centralFreq = 261.6,        // C4
-    defaultHorizSemitones = 2,         // Major 2nd
-    defaultDiagonalSemitones = 7    // Perfect 5th
+        hexR = 30,
+        nLevels = 13, // 12 semitones + octave
+        centralFreq = 261.6, // C4
+        defaultHorizSemitones = 2, // Major 2nd
+        defaultDiagonalSemitones = 7 // Perfect 5th
 
-const noteScale = d3.scaleOrdinal(d3.schemeCategory20c)
-    .domain(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])
+    const noteScale = d3.scaleOrdinal(d3.schemeCategory20c)
+        .domain(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])
 
-// Init webaudio
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+    // Init webaudio
+    const audioCtx = new(window.AudioContext || window.webkitAudioContext)()
 
-initStatic()
-d3Digest()
-
-//
-
-function initStatic() {
-    // Build DOM
-    d3.select('svg#canvas')
-        .attr('width', window.innerWidth)
-        .attr('height', window.innerHeight - topMargin)
-        .append('g')
-            .attr('id', 'interval-legend')
-            .attr('transform', `translate(${window.innerWidth},${window.innerHeight - topMargin})`)
-
-    const horSelect = d3.select('select#hor-select')
-    const diagSelect = d3.select('select#diag-select')
-    for (let i=0; i<=12; i++) {
-        const name = getIntervalName(i).long
-        horSelect.append('option')
-            .attr('value', i)
-            .attr('selected', i === defaultHorizSemitones ? true : null)
-            .text(name)
-
-        diagSelect.append('option')
-            .attr('value', i)
-            .attr('selected', i === defaultDiagonalSemitones ? true : null)
-            .text(name)
-    }
-
-    horSelect.on('change', d3Digest)
-    diagSelect.on('change', d3Digest)
-}
-
-function d3Digest() {
-    const transitionTime = 900,
-        hexPath = getPolygonPath(hexR, 6, Math.PI / 2)
-    let gain, oscillator
-
-    let hexs = d3.select('#canvas')
-        .selectAll('.hex')
-        .data(genHexList(hexR, [window.innerWidth / 2, (window.innerHeight - topMargin) / 2], centralFreq, nLevels), d => d.id)
-
-    // Old hexs
-    hexs.exit().transition().duration(transitionTime)
-        // Shrink and fade-out
-        .attr('transform', d => `translate(${d.x},${d.y}) scale(0)`)
-        .style('opacity', 0)
-        .remove()
-
-    // New hexs
-    const newHexs = hexs.enter().append('g')
-        .attr('class', 'hex')
-        .attr('transform', d => `translate(${d.x},${d.y}) scale(0)`) // Scale/fade-in new hexs
-        .style('opacity', 0)
-
-    newHexs.append('path')
-        .attr('d', hexPath)
-        .style('fill', d => noteScale(d.name.slice(0, -1)))
-
-    newHexs.append('text')
-        .attr('text-anchor', 'middle')
-        .attr('dy', '.35em')
-        .text(d => d.name)
-
-    newHexs
-        .on('mouseenter', function(d) {
-            d3.select(this).classed('highlight', true)
-
-            gain = audioCtx.createGain()
-            gain.connect(audioCtx.destination)
-            oscillator = audioCtx.createOscillator()
-            oscillator.connect(gain)
-
-            //oscillator.type = 'sine'
-            oscillator.frequency.value = d.freq
-            oscillator.start()
-        })
-        .on('mouseleave', function() {
-            d3.select(this).classed('highlight', false)
-
-            // Fade out
-            if (gain) {
-                gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.25)
-            }
-            if (oscillator) {
-                oscillator.stop(audioCtx.currentTime + 2)
-            }
-        })
-
-    // Update all
-    hexs.merge(newHexs).transition().duration(transitionTime)
-        .attr('transform', d => `translate(${d.x},${d.y})`)
-        .style('opacity', 1)
-
-    updLegend()
+    initStatic()
+    d3Digest()
 
     //
 
-    function updLegend() {
-        const centralNoteNumber = MIDIUtils.frequencyToNoteNumber(centralFreq),
-            hexR = 12,
-            hexPath = getPolygonPath(hexR, 6, Math.PI / 2)
+    function initStatic() {
+        // Build DOM
+        d3.select('svg#canvas')
+            .attr('width', window.innerWidth)
+            .attr('height', window.innerHeight - topMargin)
+            .append('g')
+            .attr('id', 'interval-legend')
+            .attr('transform', `translate(${window.innerWidth},${window.innerHeight - topMargin})`)
 
-        let legendHex = d3.select('#interval-legend')
-            .selectAll('.legend-hex')
-            .data(genHexList(hexR, [-hexR * 7, -hexR * 7], centralFreq, 4))
+        const horSelect = d3.select('select#hor-select')
+        const diagSelect = d3.select('select#diag-select')
+        for (let i = 0; i <= 12; i++) {
+            const name = getIntervalName(i).long
+            horSelect.append('option')
+                .attr('value', i)
+                .attr('selected', i === defaultHorizSemitones ? true : null)
+                .text(name)
+
+            diagSelect.append('option')
+                .attr('value', i)
+                .attr('selected', i === defaultDiagonalSemitones ? true : null)
+                .text(name)
+        }
+
+        horSelect.on('change', d3Digest)
+        diagSelect.on('change', d3Digest)
+    }
+
+    function d3Digest() {
+        const transitionTime = 900,
+            hexPath = getPolygonPath(hexR, 6, Math.PI / 2)
+        let gain, oscillator
+
+        let hexs = d3.select('#canvas')
+            .selectAll('.hex')
+            .data(genHexList(hexR, [window.innerWidth / 2, (window.innerHeight - topMargin) / 2], centralFreq, nLevels), d => d.id)
+
+        // Old hexs
+        hexs.exit().transition().duration(transitionTime)
+            // Shrink and fade-out
+            .attr('transform', d => `translate(${d.x},${d.y}) scale(0)`)
+            .style('opacity', 0)
+            .remove()
 
         // New hexs
-        const newLegendHex = legendHex.enter()
-            .append('g')
-            .classed('legend-hex', true)
+        const newHexs = hexs.enter().append('g')
+            .attr('class', 'hex')
+            .attr('transform', d => `translate(${d.x},${d.y}) scale(0)`) // Scale/fade-in new hexs
+            .style('opacity', 0)
 
-        newLegendHex.append('path').attr('d', hexPath)
+        newHexs.append('path')
+            .attr('d', hexPath)
+            .style('fill', d => noteScale(d.name.slice(0, -1)))
 
-        newLegendHex.append('text')
+        newHexs.append('text')
             .attr('text-anchor', 'middle')
             .attr('dy', '.35em')
+            .text(d => d.name)
 
-        // Update
-        legendHex = legendHex.merge(newLegendHex)
+        newHexs
+            .on('mouseenter', function(d) {
+                d3.select(this).classed('highlight', true)
 
-        legendHex
-            .classed('central-hex', d => MIDIUtils.frequencyToNoteNumber(d.freq) === centralNoteNumber)
+                gain = audioCtx.createGain()
+                gain.connect(audioCtx.destination)
+                oscillator = audioCtx.createOscillator()
+                oscillator.connect(gain)
+
+                //oscillator.type = 'sine'
+                oscillator.frequency.value = d.freq
+                oscillator.start()
+            })
+            .on('mouseleave', function() {
+                d3.select(this).classed('highlight', false)
+
+                // Fade out
+                if (gain) {
+                    gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.25)
+                }
+                if (oscillator) {
+                    oscillator.stop(audioCtx.currentTime + 2)
+                }
+            })
+
+        // Update all
+        hexs.merge(newHexs).transition().duration(transitionTime)
             .attr('transform', d => `translate(${d.x},${d.y})`)
-            .select('text')
+            .style('opacity', 1)
+
+        updLegend()
+
+        //
+
+        function updLegend() {
+            const centralNoteNumber = MIDIUtils.frequencyToNoteNumber(centralFreq),
+                hexR = 12,
+                hexPath = getPolygonPath(hexR, 6, Math.PI / 2)
+
+            let legendHex = d3.select('#interval-legend')
+                .selectAll('.legend-hex')
+                .data(genHexList(hexR, [-hexR * 7, -hexR * 7], centralFreq, 4))
+
+            // New hexs
+            const newLegendHex = legendHex.enter()
+                .append('g')
+                .classed('legend-hex', true)
+
+            newLegendHex.append('path').attr('d', hexPath)
+
+            newLegendHex.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('dy', '.35em')
+
+            // Update
+            legendHex = legendHex.merge(newLegendHex)
+
+            legendHex
+                .classed('central-hex', d => MIDIUtils.frequencyToNoteNumber(d.freq) === centralNoteNumber)
+                .attr('transform', d => `translate(${d.x},${d.y})`)
+                .select('text')
                 .text(d => {
                     const intervalNum = MIDIUtils.frequencyToNoteNumber(d.freq) - centralNoteNumber
                     return `${intervalNum < 0 ? '-' : ''}${getIntervalName(Math.abs(intervalNum)).short}`
                 })
-    }
+        }
 
-    function genHexList(r, centerXy, centralFreq, levels) {
-        levels += (levels % 2) ? 0 : 1 // Round up to nearest odd number
+        function genHexList(r, centerXy, centralFreq, levels) {
+            levels += (levels % 2) ? 0 : 1 // Round up to nearest odd number
 
-        const {horSemitones, diagSemitones} = getSelectedIntervals(),
-            diagonalUpSemitones = diagSemitones,
-            diagonalDownSemitones = horSemitones - diagSemitones,
-            leftFreq = centralFreq * getIntervalRatio(-horSemitones * (levels - 1) / 2),
-            leftXy = centerXy
+            const { horSemitones, diagSemitones } = getSelectedIntervals(),
+                diagonalUpSemitones = diagSemitones,
+                diagonalDownSemitones = horSemitones - diagSemitones,
+                leftFreq = centralFreq * getIntervalRatio(-horSemitones * (levels - 1) / 2),
+                leftXy = centerXy
 
-        let noteCnt = {} // Keep track of which notes are added to assign a unique ID to each
+            let noteCnt = {} // Keep track of which notes are added to assign a unique ID to each
 
-        leftXy[0] -= (levels - 1) * r // Left side of the row
+            leftXy[0] -= (levels - 1) * r // Left side of the row
 
-        // Central row
-        let hexs = buildRow(r, leftXy, leftFreq, levels)
+            // Central row
+            let hexs = buildRow(r, leftXy, leftFreq, levels)
 
-        d3.range(1, (levels - 1) / 2 + 1).forEach(i => {
-            const offset = [i * r * 2 * Math.cos(Math.PI / 3), i * r * 2 * Math.sin(Math.PI / 3)]
+            d3.range(1, (levels - 1) / 2 + 1).forEach(i => {
+                const offset = [i * r * 2 * Math.cos(Math.PI / 3), i * r * 2 * Math.sin(Math.PI / 3)]
 
-            hexs.push(
-                // Up-right
-                ...buildRow(r, [leftXy[0] + offset[0], leftXy[1] - offset[1]], leftFreq * getIntervalRatio(i * diagonalUpSemitones), levels - i),
-                // Down-right
-                ...buildRow(r, [leftXy[0] + offset[0], leftXy[1] + offset[1]], leftFreq * getIntervalRatio(i * diagonalDownSemitones), levels - i)
-            )
-        })
-
-        return hexs
-
-        //
-
-        function buildRow(r, xy, freq, levels) {
-            const hexs = [],
-                horizInterval = getIntervalRatio(horSemitones)
-
-            let carryX = xy[0],
-                    carryFreq = freq
-
-            while (levels) {
-                const noteNum = MIDIUtils.frequencyToNoteNumber(carryFreq)
-
-                if (noteNum>=12 && noteNum <= 126) { // Ignore notes below C0 (12) or above F#9 (126)
-                    const noteName = MIDIUtils.noteNumberToName(noteNum).replace(/-/, '')
-
-                    // Assign unique id (noteName + counter)
-                    if (!noteCnt.hasOwnProperty(noteName)) noteCnt[noteName] = 0
-                    noteCnt[noteName]++
-                    const id = `${noteName}-${noteCnt[noteName]}`
-
-                    hexs.push({
-                        x: carryX,
-                        y: xy[1],
-                        freq: carryFreq,
-                        name: noteName,
-                        id: id
-                    })
-                }
-
-                carryX += r * 2
-                carryFreq *= horizInterval
-                levels--
-            }
+                hexs.push(
+                    // Up-right
+                    ...buildRow(r, [leftXy[0] + offset[0], leftXy[1] - offset[1]], leftFreq * getIntervalRatio(i * diagonalUpSemitones), levels - i),
+                    // Down-right
+                    ...buildRow(r, [leftXy[0] + offset[0], leftXy[1] + offset[1]], leftFreq * getIntervalRatio(i * diagonalDownSemitones), levels - i)
+                )
+            })
 
             return hexs
+
+            //
+
+            function buildRow(r, xy, freq, levels) {
+                const hexs = [],
+                    horizInterval = getIntervalRatio(horSemitones)
+
+                let carryX = xy[0],
+                    carryFreq = freq
+
+                while (levels) {
+                    const noteNum = MIDIUtils.frequencyToNoteNumber(carryFreq)
+
+                    if (noteNum >= 12 && noteNum <= 126) { // Ignore notes below C0 (12) or above F#9 (126)
+                        const noteName = MIDIUtils.noteNumberToName(noteNum).replace(/-/, '')
+
+                        // Assign unique id (noteName + counter)
+                        if (!noteCnt.hasOwnProperty(noteName)) noteCnt[noteName] = 0
+                        noteCnt[noteName]++
+                        const id = `${noteName}-${noteCnt[noteName]}`
+
+                        hexs.push({
+                            x: carryX,
+                            y: xy[1],
+                            freq: carryFreq,
+                            name: noteName,
+                            id: id
+                        })
+                    }
+
+                    carryX += r * 2
+                    carryFreq *= horizInterval
+                    levels--
+                }
+
+                return hexs
+            }
+
+            function getIntervalRatio(numSemitones) {
+                // Equal temperament
+                return Math.pow(2, numSemitones / 12)
+            }
         }
 
-        function getIntervalRatio(numSemitones) {
-            // Equal temperament
-            return Math.pow(2, numSemitones / 12)
+        function getPolygonPath(r, nSides, startAngle) {
+            let d = ''
+
+            d3.range(nSides).map(side => {
+                const angle = startAngle + 2 * Math.PI * side / nSides
+                return [r * Math.cos(angle), r * Math.sin(angle)]
+            }).forEach(pt => {
+                d += (d.length ? 'L' : 'M') + pt.join(',')
+            })
+
+            return d + 'Z'
+        }
+
+        function getSelectedIntervals() {
+            return {
+                horSemitones: d3.select('#hor-select').node().value,
+                diagSemitones: d3.select('#diag-select').node().value
+
+            }
         }
     }
 
-    function getPolygonPath(r, nSides, startAngle) {
-        let d = ''
+    function getIntervalName(semitones) {
+        const shortNames = ['', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', 'M7',
+                'oct', 'b9', '9', 'b10', '10', '11', '#11', '12', 'b13', '13', 'b14', '14', '2-oct'
+            ],
+            longNames = ['Unisson', 'Minor 2nd', 'Major 2nd', 'Minor 3rd', 'Major 3rd', 'Perfect 4th', 'Tritone',
+                'Perfect 5th', 'Minor 6th', 'Major 6th', 'Minor 7th', 'Major 7th', 'Octave', 'Minor 9th', 'Major 9th',
+                'Minor 10th', 'Major 10th', '11', '#11th', '12', 'Minor 13', 'Major 13', 'Minor 14', 'Major 14', 'Double Octave'
+            ]
 
-        d3.range(nSides).map(side => {
-            const angle = startAngle + 2 * Math.PI * side / nSides
-            return [r * Math.cos(angle), r * Math.sin(angle)]
-        }).forEach(pt => {
-            d += (d.length ? 'L' : 'M') + pt.join(',')
-        })
-
-        return d + 'Z'
-    }
-
-    function getSelectedIntervals() {
         return {
-            horSemitones: d3.select('#hor-select').node().value,
-            diagSemitones: d3.select('#diag-select').node().value
-
+            short: shortNames[semitones],
+            long: longNames[semitones]
         }
     }
-}
-
-function getIntervalName(semitones) {
-    const shortNames = ['', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', 'M7',
-        'oct', 'b9', '9', 'b10', '10', '11', '#11', '12', 'b13', '13', 'b14', '14', '2-oct'],
-        longNames = ['Unisson', 'Minor 2nd', 'Major 2nd', 'Minor 3rd', 'Major 3rd', 'Perfect 4th', 'Tritone',
-        'Perfect 5th', 'Minor 6th', 'Major 6th', 'Minor 7th', 'Major 7th', 'Octave', 'Minor 9th', 'Major 9th',
-        'Minor 10th', 'Major 10th', '11', '#11th', '12', 'Minor 13', 'Major 13', 'Minor 14', 'Major 14', 'Double Octave']
-
-    return {
-        short: shortNames[semitones],
-        long: longNames[semitones]
-    }
-}
-    
     </script>
 </body>
