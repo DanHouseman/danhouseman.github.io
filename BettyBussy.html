@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Hey Boy... I have nothing behind my back...</title>
+    <meta name="description" content="Betty Bussy Sia Hey Boy">
+    <meta name="author" content="Dan Houseman">
+    <meta property="og:image" content="https://www.danhouseman.com/img/BettyBussyCharcoal.png" />
+    <meta property="og:site_name" content="Dan's Randomness" />
+    <meta property="og:type" content="Blog" />
+    <meta property="og:url" content="https://www.danhouseman.com/BettyBussy" />
+    <meta property="og:title" content="A lil preview of Betty Bussy" />
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: white;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: radial-gradient(circle at center, #222, #000);
+        overflow: hidden;
+    }
+
+    body.playing:after {
+        opacity: 0.75;
+    }
+
+    body.playing #wrap:before {
+        transform: translateY(50vh);
+        opacity: 0;
+    }
+
+    body.playing #wrap.spin {
+        -webkit-animation: spin 1s ease-out 1;
+        animation: spin 1s ease-out 1;
+    }
+
+    @-webkit-keyframes spin {
+        to {
+            transform: rotate(720deg);
+        }
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(720deg);
+        }
+    }
+
+    body.playing #wrap .blade:first-of-type {
+        opacity: 0.5;
+    }
+
+    body:before,
+    body:after {
+        content: "";
+        transition: 0.4s ease-in-out;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, #222, #000);
+        opacity: 0.75;
+        z-index: 1;
+    }
+
+    body:after {
+        background: url("https://www.danhouseman.com/img/BettyBussy.gif");
+        background-size: cover;
+        z-index: 0;
+        filter: blur(10px);
+        opacity: 0;
+    }
+
+    body #wrap {
+        width: 150px;
+        height: 150px;
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9;
+        -ms-interpolation-mode: nearest-neighbor;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
+    }
+
+    body #wrap:before {
+        content: "click me";
+        font-family: Futura, sans-serif;
+        position: absolute;
+        bottom: -50px;
+        color: #ccc;
+        letter-spacing: 2px;
+        transition: 0.3s ease-in-out;
+    }
+
+    body #wrap .blade {
+        display: inline-block;
+        position: absolute;
+        padding: 20px;
+        box-sizing: border-box;
+        font-size: 100px;
+        width: 100%;
+        height: 100%;
+        -ms-interpolation-mode: nearest-neighbor;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: pixelated;
+    }
+
+    body #wrap .blade:first-of-type {
+        transition: opacity 0.4s ease-in-out;
+        background: url(https://www.danhouseman.com/img/BettyBussy.gif) no-repeat;
+        background-size: 100px;
+        background-position: 85% 75%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: rgba(255, 255, 255, 0);
+        margin: 0;
+        mix-blend-mode: brighten;
+        z-index: 9;
+        -webkit-clip-path: polygon(84% 0, 100% 0, 100% 100%, -13% 100%);
+        clip-path: polygon(84% 0, 100% 0, 100% 100%, -13% 100%);
+        opacity: 0;
+    }
+
+    body canvas {
+        opacity: 0;
+        z-index: 9;
+        cursor: pointer;
+    }
+    </style>
+</head>
+
+<body>
+    <div id='wrap'>
+        <div class='blade'>
+            🔪
+        </div>
+        <div class='blade'>
+            🔪
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/addons/p5.sound.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
+    <script>
+    let level = 0;
+
+    function preload() {
+        sound = loadSound(
+            "https://www.danhouseman.com/img/Sia-Hey-Boy.mp3"
+        );
+    }
+
+    function setup() {
+        cnv = createCanvas(window.innerWidth, window.innerHeight);
+        amplitude = new p5.Amplitude();
+        cnv.mouseClicked(function() {
+            $("body").toggleClass("playing");
+            if (sound.isPlaying()) {
+                sound.stop();
+            } else {
+                sound.play();
+            }
+        });
+    }
+
+    function draw() {
+        TweenMax.to($(".blade"), 0.25, {
+            css: {
+                transform: "scale(" + (2 + level * 20) + ") rotate(" + level * -400 + "deg)"
+            },
+            ease: Expo.easeOut,
+            overwrite: "all"
+        });
+        background(0);
+        fill(255);
+        level = amplitude.getLevel();
+        if (level > 0.2) {
+            $("#wrap").addClass("spin");
+            setTimeout(function() {
+                $("#wrap").removeClass("spin");
+            }, 1000);
+        }
+    }
+    </script>
+</body>
+
+</html>
