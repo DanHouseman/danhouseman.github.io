@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Musically Induced Generative Primes</title>
+    <meta name="description" content="Music generated using iterated prime numbers mapped to a particular note.">
+    <meta name="author" content="Dan Houseman">
+    <meta property="og:image" content="https://www.danhouseman.com/img/GeneratedPrimes.png" />
+    <meta property="og:site_name" content="Dan's Randomness" />
+    <meta property="og:type" content="Blog" />
+    <meta property="og:url" content="https://www.danhouseman.com/GenerativePrimes" />
+    <meta property="og:title" content="Generative Music using Prime Numbers" />
+</head>
+<style>
+
+html, body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  font-family: "Orbitron", sans-serif;
+}
+
+.container {
+  width: 100vw;
+  min-height: 100vh;
+  background: linear-gradient(45deg, #00d200, #00d2ff);
+  display: flex;
+  justify-content: center;
+}
+
+.machine {
+  background: linear-gradient(45deg, #2C5364, #203A43, #0F2027);
+  padding: 30px 10px;
+  border-radius: 10px;
+  margin: 25px 0;
+  color: white;
+  width: 800px;
+  height: 700px;
+  border: 20px solid #417688;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: space-evenly;
+}
+.machine > * {
+  margin: 10px 0;
+}
+
+.heading {
+  flex: 0 1 100%;
+  margin: 5px 0;
+}
+
+.beatcount {
+    position: absolute;
+    right: 66%;
+    flex: 0 1 100%;
+    margin: 30px 0 35px 0;
+}
+
+
+.playbutton {
+  flex: 0 1 100%;
+}
+.playbutton button {
+        position: absolute;
+    top: 60px;
+left: 66%;
+  background: none;
+  border: 5px solid white;
+  border-radius: 3px;
+  width: 100px;
+  height: 50px;
+  color: white;
+  font-family: "Orbitron", sans-serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 0;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+.playbutton button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+.blocks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  width: 700px;
+  color: black;
+}
+
+.block {
+  flex: 0 1 135px;
+  height: 135px;
+  border-radius: 5px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+  margin-bottom: 5px;
+  background-color: red;
+  opacity: 0.2;
+  position: relative;
+}
+.block__num, .block__note {
+  position: absolute;
+  left: 50%;
+}
+.block__num {
+  transform: translate(-50%, -50%);
+  top: 50%;
+}
+.block__note {
+  transform: translateX(-50%);
+  bottom: 5px;
+}
+</style>
+
+<body>
+    <div class="container">
+        <div class="machine">
+            <h2 class="heading">
+                Generative Music Using Primes
+            </h1>
+            <div class="beatcount">
+                beat count - <span id="beatcount">0</span>
+            </div>
+            <div class="blocks" id="blocks">
+            </div>
+            <div class="playbutton">
+                <button id="play-button">start</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.8.9/Tone.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script>
+    <script>
+    /* 
+
+*/
+
+    class PitchBlock {
+        constructor(pitch, interval, color) {
+            //data
+            this.pitch = pitch;
+            this.interval = interval;
+            this.color = color;
+            this.duration = '8n';
+            this.toneInterval = Tone.Time('8n') * this.interval;
+            this.element = document.createElement('div');
+            this.parentElement = document.getElementById('blocks');
+
+            //tone js init
+            this.synth = new Tone.Synth({
+                oscillator: {
+                    type: 'triangle16'
+                }
+            }).toMaster();
+
+            this.synth.volume.value = -5;
+
+            //methods
+            this.createElement();
+            this.schedule();
+        }
+
+        schedule() {
+            this.loop = new Tone.Loop((time) => {
+                this.synth.triggerAttackRelease(this.pitch, this.duration, time);
+
+                Tone.Draw.schedule(() => {
+                    this.flash();
+                }, time);
+            }, this.toneInterval);
+
+            this.loop.start(this.toneInterval);
+        }
+
+        createElement() {
+            this.element.classList.add('block');
+            this.element.style.backgroundColor = this.color;
+            this.parentElement.appendChild(this.element);
+
+            let num = document.createElement('div');
+            num.classList.add('block__num');
+            num.innerHTML = this.interval.toString();
+            this.element.appendChild(num);
+
+            let note = document.createElement('div');
+            note.classList.add('block__note');
+            note.innerHTML = this.pitch;
+            this.element.appendChild(note);
+        }
+
+        flash() {
+            let duration = .05;
+            let decay = () => TweenLite.to(this.element, duration * 4, { opacity: .2 });
+            TweenLite.to(this.element, duration, { opacity: 1, onComplete: decay });
+        }
+    }
+
+    class Drums {
+        constructor() {
+            this.bd = new Tone.MembraneSynth().toMaster();
+            this.bd.volume.value = -7;
+
+            this.schedule();
+        }
+
+        schedule() {
+            let bdLoop = new Tone.Loop((time) => {
+                this.bd.triggerAttackRelease('C1', '8n', time);
+            }, "4n");
+
+            bdLoop.start(0);
+        }
+
+        //debug methods
+        playHat() {
+            this.hh.triggerAttackRelease('8n');
+        }
+    }
+
+    class Loop {
+        constructor() {
+            //data
+            this.pitchNames = [
+                'G#2', 'C#3', 'E4', 'G#3', 'C#2',
+                'G#3', 'C#4', 'E3', 'G#2', 'C#3',
+                'G#4', 'C#3', 'E2', 'G#3', 'C#4',
+                'G#3', 'C#2', 'E3', 'G#4', 'C#3'
+
+             ];
+            this.pitchNames2 = [
+                'G#2', 'C#3', 'E4', 'G#3', 'C#2',
+                'C#3', 'E4', 'G#3', 'C#2', 'E3',
+                'E4', 'G#3', 'C#2', 'E3', 'G#4',
+                'G#3', 'C#2', 'E3', 'G#4', 'C#3'
+            ]
+
+
+            this.primeNumbers = [
+                 2,   3,  5,  7, 11,
+                 13, 17, 19, 23, 29,
+                 31, 37, 41, 43, 47,
+                 53, 59, 61, 67, 71
+            ];
+            this.pitchBlocks = [];
+            this.playButton = document.getElementById('play-button');
+            this.beatCount = -1;
+            this.beatCountEl = document.getElementById('beatcount');
+            this.active = false;
+
+            //init methods
+            this.generatePitchBlocks();
+            this.setListeners();
+            this.schedule();
+        }
+
+        generatePitchBlocks() {
+            let pitches = this.pitchNames;
+            let nums = this.primeNumbers;
+            let blueValueIncrement = 255 / pitches.length;
+            let blueValue = blueValueIncrement;
+
+            for (let i = 0; i < pitches.length; i++) {
+                let color = `rgb(0,210,${blueValue})`;
+                blueValue += blueValueIncrement;
+                this.pitchBlocks.push(new PitchBlock(pitches[i], nums[i], color));
+            }
+        }
+
+        schedule() {
+            let loop = new Tone.Loop((time) => {
+
+                Tone.Draw.schedule(() => {
+                    this.beatCount++;
+                    this.beatCountEl.innerHTML = this.beatCount.toString();
+                }, time);
+
+            }, '8n');
+
+            loop.start(0);
+        }
+
+        togglePlayState() {
+            this.active = !this.active;
+            Tone.Transport.toggle();
+
+            if (this.active) {
+                this.playButton.innerHTML = 'stop';
+                this.beatCount = -1;
+            } else {
+                this.playButton.innerHTML = 'play';
+            }
+        }
+
+        setListeners() {
+            this.playButton.addEventListener('click', () => this.togglePlayState());
+        }
+    }
+
+    class Main {
+        constructor() {
+            this.loop = new Loop();
+            this.drums = new Drums();
+            Tone.context.latencyHint = 'playback';
+            Tone.Transport.bpm.value = 240;
+        }
+
+
+    }
+
+    let main = new Main();
+    </script>
+</body>
+
+</html>
