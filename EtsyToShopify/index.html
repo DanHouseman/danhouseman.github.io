@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-COMPATIBLE" content="IE=edge">
+    <meta name="description" content="An Etsy product listing conversion to Shopify data format.">
+    <meta name="author" content="Dan Houseman">
+    <meta name="keywords" content="Etsy to Shopify, CSV converter, Ecommerce conversion">
+    <meta http-equiv="Content-Language" content="en">
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+    <meta property="og:image" content="https://www.danhouseman.com/" />
+    <meta property="og:site_name" content="Dan Houseman" />
+    <meta property="og:type" content="Event" />
+    <meta property="og:title" content="Etsy CSV to Shopify CSV converter" />
+    <meta property="og:url" content="https://www.danhouseman.com/etsyToShopify" />
+    <title>Etsy To Shopify Converter</title>
+    <link rel="shortcut icon" href="./src/lib/images/icon.ico" type="image/x-icon">
+    <link rel="icon" href="./src/images/icon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="./src/lib/bulma/bulma.min.css"/>
+    <link rel="stylesheet" type="text/css" href="./src/css/main.css" />
+    <script type="text/javascript" src="./src/lib/bulma/all.js"></script>
+  </head>
+  <body>
+    <div id="container" class="expanded">
+      <ul class="left">
+        <li><span>Vendor:</span><input type="text" name="vendor" /></li>
+        <li><span>Type:</span><input type="text" name="type" /></li>
+        <li>
+          <span>Publish:</span>
+          <select name="publish">
+            <option value="TRUE">True</option>
+            <option value="FALSE" selected="selected">False</option>
+          </select>
+        </li>
+        <li>
+          <span>Variant SKU:</span> <input type="text" name="sku" value="" />
+        </li>
+        <li>
+          <span>Variant Grams:</span>
+          <input type="text" name="grams" value="0" />
+        </li>
+        <li>
+          <span>Variant Tracker:</span>
+          <input type="text" name="tracker" value="shopify" />
+        </li>
+        <li>
+          <span>Variant Quantity:</span>
+          <input type="text" name="quantity" value="1" />
+        </li>
+        <li>
+          <span>Variant Policy:</span>
+          <select name="policy">
+            <option value="continue">Continue</option>
+            <option value="deny" selected="selected">Deny</option>
+          </select>
+        </li>
+        <li>
+          <span>Variant Fulfillment:</span>
+          <input type="text" name="fulfillment" value="manual" />
+        </li>
+        <li>
+          <span>Variant Requires Shipping:</span>
+          <select name="requires_shipping">
+            <option value="TRUE">True</option>
+            <option value="FALSE" selected="selected">False</option>
+          </select>
+        </li>
+        <li>
+          <span>Variant Taxable:</span>
+          <select name="taxable">
+            <option value="TRUE">True</option>
+            <option value="FALSE" selected="selected">False</option>
+          </select>
+        </li>
+        <li>
+          <span>Variant Unit:</span> <input type="text" name="unit" value="kg" />
+        </li>
+        <li>
+          <span>Gift Card:</span>
+          <select name="giftcard">
+            <option value="TRUE">True</option>
+            <option value="FALSE" selected="selected">False</option>
+          </select>
+        </li>
+        <li class="file-upload-wrapper">
+          <a href="#" class="filename button is-info"> </a>
+          <a href="#" class="upload button is-link">
+            <i class="far fa-file-alt"></i>&nbsp;&nbsp;Upload a File
+          </a>
+          <input type="file" name="file" />
+        </li>
+        <li>
+          <button name="export" class="button is-success" disabled="disabled">
+            Export
+          </button>
+        </li>
+        <li class="nav">
+          <i class="fas fa-angle-double-left"></i>
+          <i class="fas fa-angle-double-right"></i>
+        </li>
+      </ul>
+      <div id="tableWrapper">
+        <div class="uploadDrag">
+          <i class="fas fa-angle-double-down"></i><br />
+          <a href="#" class="upload">Choose a file</a> or drag it here
+        </div>
+        <table id="preview"></table>
+      </div>
+    </div>
+    <script type="text/javascript" src="build.js"></script>
+  </body>
+</html>
