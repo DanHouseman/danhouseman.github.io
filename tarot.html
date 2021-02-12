@@ -1,0 +1,1337 @@
+<html>
+<head>
+ <style>
+  body,
+html,
+.container {
+  size: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  position: relative;
+  background-color: #121212;
+  width: 100%;
+  height: 100%;
+}
+
+.card {
+  cursor: -webkit-grab;
+  cursor: grab;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  box-sizing: border-box;
+  top: 2em;
+  right: 50%;
+  user-select: none;
+  background-color: white;
+  background-image: radial-gradient(circle, white, grey);
+  background-size: cover;
+  color: black;
+  padding: 1em;
+  border-radius: 5px;
+  height: 21.1em;
+  width: 12em;
+  box-shadow: 2px 5px 0px #000000cc;
+}
+.card:active,
+.card:focus {
+  cursor: move;
+  cursor: -webkit-grabbing;
+  cursor: grabbing;
+  box-shadow: 5px 20px 0px #00000033;
+}
+
+.card:hover .tooltiptext {
+  color: white;
+  visibility: visible;
+}
+.card:hover .cardoptions {
+  visibility: visible;
+}
+
+.tooltiptext {
+  visibility: hidden;
+  background-color: #111111dd;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 0.5em;
+  margin: 1em -0.5em;
+  width: 10em;
+}
+
+#buttonscontainer {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
+
+.cardoption,
+.button {
+  font-family: Helvetica, sans-serif;
+  text-align: center;
+  border-radius: 10px;
+  font-size: 2em;
+  padding: 0em;
+  margin: 0.5em;
+  height: 1.1em;
+  width: 1.1em;
+
+  background-image: radial-gradient(circle, white, grey);
+}
+
+.cardoptions {
+  visibility: hidden;
+  cursor: default;
+  position: absolute;
+  left: 10em;
+  top: -2em;
+}
+
+.cardoption {
+  background-color: black;
+}
+
+#addcard {
+  cursor: cell;
+}
+#shrink {
+  cursor: zoom-out;
+}
+#grow {
+  cursor: zoom-in;
+}
+
+.cardoption,
+.button,
+.card {
+  border: 1px solid black;
+  box-shadow: 2px 5px 0px;
+}
+
+  </style>
+  </head>
+<body>
+<div class='cardoptions'>
+  <div class='cardoption' onclick="removeCard('card1')">❌</div>
+</div>
+<div id="field" class="container">
+
+  <div id="card1" class="card" onmouseover="setActive('card1')" style="text-align: left">
+    <div class='cardoptions'>
+      <div class='cardoption' onclick="removeCard('card1')">❌</div>
+    </div> use the [+] button in the lower right to draw a card<br>
+  </div>
+
+</div>
+<div id="buttonscontainer">
+  <div id="addcard" class="button" onclick="newCard()"><b>+</b></div>
+  <div>
+</body>
+ 
+  <script>
+// most recent version moved to GitHub on 12/11/2020
+// path: https://freshalacrity.github.io/lib/v1.js
+
+{
+  function $(x) { return document.getElementById(x); }
+  function $html(idString, htmlString) { 
+     if (htmlString != undefined){ $(idString).innerHTML = htmlString; }
+     return $(idString).innerHTML;
+  }
+  const fillHtml = $html; // alias for backwards compatibility
+  function addHtml(idString,htmlString) { 
+    let existingHtml = document.getElementById(idString).innerHTML;
+    document.getElementById(idString).innerHTML = existingHtml+htmlString;
+  }
+  function makeElement(elementTemplateObject) {
+  // given an object with _element name and various properties, assemble and return HTML string
+  let elementType = elementTemplateObject["_element"];
+  if (elementType == undefined){
+    alert("error! an invalid object was passed to " + getFuncName() + ":\n" + JSON.stringify(elementTemplateObject));
+    return;
+  }
+  let htmlString = "<" + elementType;
+  let contents = "";
+  let allKeys = Object.keys(elementTemplateObject);
+  for (aspect = 0; aspect < allKeys.length; aspect++){
+    let name = allKeys[aspect];
+    if (name.charAt(0) == "_"){
+      if (name == "_contents"){
+        contents += elementTemplateObject[name];
+      }
+    } else {
+      htmlString += " " + name + "=\"";
+      htmlString += elementTemplateObject[name];
+      htmlString += "\"";
+    }
+  }
+  if (contents != ""){
+    htmlString += ">" + contents;
+    htmlString += "</" + elementType + ">";
+  } else {
+    htmlString += "/>";
+  }
+  return htmlString;
+}
+  function printMe(inputText){
+   addElement("p", `<pre>${inputText}</pre>`);
+  }
+  function addElement(type, innerHtml){
+    // todo have this play nicely with makeElement
+     let newElement = document.createElement(type);
+     document.body.appendChild(newElement);
+     if (innerHtml != undefined){
+       newElement.innerHTML = innerHtml;
+    }
+  }
+} // html
+{
+  function fix(input,maxN) {
+    let result = input+0; //make sure it's a number?
+    while(result < 0){
+      result += maxN;
+    }
+    while(result > maxN){
+      result -= maxN;
+    }
+    return result;
+  } // wraps numbers around a range
+  function smooshObjects(mainObject, overrideObject) {
+    // overrides the properties of one object with any properties that exist on another
+    // not super deep, not super shallow
+    let tempJSON = JSON.stringify(mainObject);
+    let newObject = JSON.parse(tempJSON);
+    for (let key of Object.keys(overrideObject)) {
+      newObject[key] = overrideObject[key];
+    }
+    return newObject;
+  }
+  function editValueAt(position, stringOrArray, newChar) {
+    if (position >= stringOrArray.length) { alert("the position specified is past the end of the string") }
+    if (newChar == undefined){
+      return stringOrArray.slice(0, position).concat(stringOrArray.slice(position+1, stringOrArray.length));
+    } else {
+      return stringOrArray.slice(0, position).concat(newChar).concat(stringOrArray.slice(position+1, stringOrArray.length));
+    }
+  }
+  function spliceIntoString(str, index, value) {
+    return str.slice(0, index) + value + str.slice(index + value.length);
+  }
+  function getFancyString(obj, nameStr) {
+   let beginStr = "";
+   if (nameStr != undefined){
+      beginStr = "var " + nameStr + " = ";
+   }
+   return beginStr + JSON.stringify(obj, null, 2);
+  }
+  function getRandomArrayElement(arr) {
+     return arr[Math.floor(arr.length*Math.random)];
+  }
+  function sortByKey(key, obj1, obj2) {
+   if (obj2 == undefined){
+       return obj1.sort(function(a, b)
+       {
+        var x = a[key].toLowerCase(); var y = b[key].toLowerCase();
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+       });
+   } else {
+       return obj1.sort(function(a, b)
+       {
+        var x = obj2[a][key].toLowerCase(); var y = obj2[b][key].toLowerCase();
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+       });
+   }
+}
+  function shuffle(array) {
+    /*Fisher-Yates shuffle. The idea is to walk the array in the reverse order and swap each element with a random one before it:
+https://javascript.info/task/shuffle
+*/
+    for (let i = array.length - 1; i > 0; i--) {
+      let j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
+      // swap elements array[i] and array[j]
+      // we use "destructuring assignment" syntax to achieve that
+      // you'll find more details about that syntax in later chapters
+      // same can be written as:
+      // let t = array[i]; array[i] = array[j]; array[j] = t
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+} // general
+{
+  //see https://stackoverflow.com/questions/30452263/is-there-a-mechanism-to-loop-x-times-in-es6-ecmascript-6-without-mutable-varia
+  const recur = (...args) =>
+  ({ type: recur, args })
+  
+const loop = f =>
+  {
+    let acc = f ()
+    while (acc.type === recur)
+      acc = f (...acc.args)
+    return acc
+  }
+
+const repeat = $n => f => x =>
+  loop ((n = $n, acc = x) =>
+    n === 0
+      ? acc
+      : recur (n - 1, f (acc)))
+      
+const inc = x =>
+  x + 1
+
+const fibonacci = $n =>
+  loop ((n = $n, a = 0, b = 1) =>
+    n === 0
+      ? a
+      : recur (n - 1, b, a + b))
+      
+//console.log (repeat (1e7) (inc) (0)) // 10000000
+//console.log (fibonacci (100))        // 354224848179262000000
+} // looping and recursion
+{
+function hasLocal() {
+   try {
+      if (typeof localStorage !== 'undefined') {
+         localStorage.setItem('feature_test', 'yes');
+         if (localStorage.getItem('feature_test') === 'yes') {
+            localStorage.removeItem('feature_test');
+            // localStorage is enabled'
+            return true;
+         }
+      }
+   } catch(error) { 
+      console.log(error);
+   }
+   return false;
+}
+function saveLocalValue(key, IdForValue, alertBool) {
+  // local storage persists after browser is closed
+  let inputString = document.getElementById(IdForValue).value;      
+  localStorage.setItem(key, inputString);
+  if (alertBool == true){
+    alert("Input '"+inputString+"' saved locally with key '"+key+"'");
+  }
+}
+function loadLocalString(key, IdForDisplay, alertBool) {
+  let outputString = localStorage.getItem(key);
+  if (IdForDisplay != undefined){
+    document.getElementById(IdForDisplay).innerHTML = outputString;
+  }
+  if (alertBool == true){
+    alert("String loaded: '"+outputString+"' from key: '"+key+"' - updating id '"+IdForDisplay+"'");   
+  }
+}
+function saveSessionValue(key, IdForValue, alertBool) {
+  // session storage is deleted when the browser is closed
+  let inputString = document.getElementById(IdForValue).value;      
+  sessionStorage.setItem(key, inputString);
+  if (alertBool == true){
+    alert("Input '"+inputString+"' saved for session with key '"+key+"'");
+  }
+}
+function loadSessionString(key, IdForDisplay, alertBool) {
+  let outputString = sessionStorage.getItem(key);
+  if (IdForDisplay != undefined){
+    document.getElementById(IdForDisplay).innerHTML = outputString;
+  }
+  if (alertBool == true){
+  alert("String loaded: '"+outputString+"' from key: '"+key+"' - updating id '"+IdForDisplay+"'");  
+  }
+}
+} // local and session storage
+{
+  function onWindowResize(functionName) {
+  if (window.attachEvent) {
+      window.attachEvent('onresize', function() {
+        functionName();
+      });
+  } else if (window.addEventListener) {
+      window.addEventListener('resize', function() {
+          functionName();
+      }, true);
+  } else {
+      return false;
+  }
+}
+  function stopOnWindowResize(functionName) {
+    if(window.detachEvent) {
+      window.detachEvent('onresize', functionName);
+    }
+    else if(window.removeEventListener) {
+        window.removeEventListener('resize', functionName);
+    }
+    else {
+        return false;
+    }
+  }
+  function getPageWidth() {
+let width  = window.innerWidth || document.documentElement.clientWidth || 
+document.body.clientWidth;
+  return width;
+}
+  function getPageHeight(){
+let height = window.innerHeight|| document.documentElement.clientHeight|| 
+document.body.clientHeight;
+  //if(height == undefined){alert("Ack!");}
+  return height;
+}
+  function getBodyHeight(){
+ let body = document.body,
+    html = document.documentElement;
+
+ return Math.max( body.scrollHeight, body.offsetHeight, 
+                       html.clientHeight, html.scrollHeight, html.offsetHeight  );
+} //currently unused
+  function getBodyWidth(){
+ let body = document.body,
+    html = document.documentElement;
+
+ return Math.max( body.scrollWidth, body.offsetWidth, 
+                       html.clientWidth, html.scrollWidth, html.offsetWidth  );
+} //currently unused
+  function setElementWidth(elementId, width){
+    document.getElementById(elementId).style.width = width;
+  }
+  function setElementHeight(elementId, height){
+    document.getElementById(elementId).style.height = height;
+  }
+  /*
+  function makeFullscreenById(elementId,margin){
+    if(margin == undefined){margin = 0;}
+    let element = document.getElementById(elementId);
+    let offset = parseInt(window.getComputedStyle(element, null).getPropertyValue("border-width"));
+    if(isNaN(offset)){offset = 0;}
+    element.style.position = "absolute";
+    element.style.top = margin+"px";
+    element.style.left = margin+"px";
+    element.style.width = (getPageWidth()-(margin+offset)*2)+"px";
+    element.style.height = (getPageHeight()-(margin+offset)*2)+"px";
+  } //not working unless copied and pasted into pens 
+  */
+} // layout
+{
+  function getUnitCoordinatesByPercent(percent) {
+    let x = Math.cos(2 * Math.PI * percent - Math.PI / 2);
+    let y = Math.sin(2 * Math.PI * percent - Math.PI / 2);
+    return {x:x, y:y};
+  }
+  function getPointOnCircle(centerX,centerY,radius,percent){
+    let unitCoords = getUnitCoordinatesByPercent(percent/100);
+    let finalX = unitCoords.x*radius+centerX;
+    let finalY = unitCoords.y*radius+centerY;
+    return {x:finalX, y:finalY};
+  }
+  function getPieWedgeElement(centerX,centerY,radius,startPercent,endPercent,style){
+    let unitCoords1 = getUnitCoordinatesByPercent(startPercent/100);
+    let startX = unitCoords1.x*radius+centerX;
+    let startY = unitCoords1.y*radius+centerY;
+    let unitCoords2 = getUnitCoordinatesByPercent(endPercent/100);
+    let finalX = unitCoords2.x*radius+centerX;
+    let finalY = unitCoords2.y*radius+centerY;
+    let longwayFlag = Math.round((endPercent-startPercent)/100);
+    if(longwayFlag < 0){ longwayFlag = 0; } // for things that overlap the 0 point
+    //svg a [rx] [ry] [1 for circles] [go the long way?] [1 for pies] [end x] [end y]
+    return ('<path d="M '+centerX+' '+centerY+' L '+startX+' '+startY+' A '+radius+' '+radius+' 1 '+longwayFlag+' 1 '+finalX+' '+finalY+' Z" style="'+style+'" />');
+  }
+  function getArcElement(centerX,centerY,radius,startPercent,endPercent,style){
+    let unitCoords1 = getUnitCoordinatesByPercent(startPercent/100);
+    let startX = unitCoords1.x*radius+centerX;
+    let startY = unitCoords1.y*radius+centerY;
+    let unitCoords2 = getUnitCoordinatesByPercent(endPercent/100);
+    let finalX = unitCoords2.x*radius+centerX;
+    let finalY = unitCoords2.y*radius+centerY;
+    let longwayFlag = Math.round((endPercent-startPercent)/100);
+    //svg a [rx] [ry] [1 for circles] [go the long way?] [1 for pies] [end x] [end y]
+    return ('<path d="M '+startX+' '+startY+' A '+radius+' '+radius+' 1 '+longwayFlag+' 1 '+finalX+' '+finalY+' " style="'+style+'" />');
+  }
+  function findOffset(firstCoordObject,secondCoordObject,offsetDistance,rotate){
+    let xMagnitude = firstCoordObject.x-secondCoordObject.x;
+    let yMagnitude = firstCoordObject.y-secondCoordObject.y;
+    let unitVector = normalizeVector([xMagnitude,yMagnitude]);
+    let xOffset = Math.round(unitVector[0]*offsetDistance*1000)/1000;
+    let yOffset = Math.round(unitVector[1]*offsetDistance*1000)/1000;
+    if(rotate == undefined || rotate == false){
+      return {x:xOffset,y:yOffset};
+    } else {
+      return {x:yOffset,y:(xOffset*-1)};
+    }
+  }
+  function offsetTowards(firstCoordObject,secondCoordObject,offsetDistance){
+    let offset = findOffset(firstCoordObject,secondCoordObject,offsetDistance);
+    let newX = firstCoordObject.x-offset.x;
+    let newY = firstCoordObject.y-offset.y;
+    return {x:newX,y:newY};
+  }
+  function getAngle(A,B,C){
+    // where B is the center point, returns radians
+    point1 = {x:(A.x-B.x),y:(A.y-B.y)};
+    point2 = {x:(C.x-B.x),y:(C.y-B.y)};
+    let tempAngle = Math.atan2(point2.y,point2.x)-Math.atan2(point1.y,point1.x);
+    let twoPi = Math.PI*2
+    while(tempAngle < 0){
+      tempAngle += twoPi;
+    }
+    while(tempAngle > twoPi){
+      tempAngle -= twoPi;
+    }
+    return tempAngle;
+  }
+  function isSamePoint(pointA, pointB){
+    if (pointA.length != pointB.length){ return false; }
+    for (tCoord = 0; tCoord < pointA.length; tCoord++){
+      if (pointA[tCoord] != pointB[tCoord]){ return false; }
+    }
+  return true;
+}
+} // graphing
+{
+  function addDays(days, date) {
+    //see https://stackoverflow.com/questions/563406/add-days-to-javascript-date
+    if(date == undefined){
+      date = new Date();
+    }
+    var result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+  Date.prototype.getWeekOfMonth = function () {
+    let dayOfMonth = this.getDay();
+    let month = this.getMonth();
+    let year = this.getFullYear();
+    let checkDate = new Date(year, month, this.getDate());
+    let checkDateTime = checkDate.getTime();
+    let currentWeek = 0;
+
+    for (var i = 1; i < 32; i++) {
+        var loopDate = new Date(year, month, i);
+
+        if (loopDate.getDay() == dayOfMonth) {
+            currentWeek++;
+        }
+
+        if (loopDate.getTime() == checkDateTime) {
+            return currentWeek;
+        }
+    }
+}; // returns week of the month starting with 0
+
+} // dates
+{
+  function lerp(left,right,amount) {
+    var result = ((right*amount)+(left*(1-amount)));
+    return result;
+  }
+  function randBetween(l,h){
+    //gives a random whole number between the numbers given or a number between one number and 0, inclusive of the top and bottom numbers
+    var ln = parseFloat(l);
+    var hn = parseFloat(h);
+
+    if(isNaN(ln) && isNaN(hn)){return undefined;}
+    if(isNaN(ln)){ln = 0;}
+    if(isNaN(hn)){hn = 0;}
+
+    if(hn > ln){
+        hn = hn+1;
+        return Math.floor(hn + (ln - hn)*Math.random());
+    } else if(hn < ln){
+        ln = ln+1;
+        return Math.floor(ln + (hn - ln)*Math.random());
+    } else if(hn == ln){
+        return hn;
+    } else {
+        return undefined;
+    }
+  }
+  function normalizeVector(vectorArray){
+    let magnitude = findVectorMagnitude(vectorArray);
+    let newVectorArray = [];
+    for(thisInput=0;thisInput<vectorArray.length;thisInput++){
+      let thisValue = vectorArray[thisInput];
+      newVectorArray.push(thisValue/magnitude);
+    }
+    return newVectorArray
+  } // aka find unit vector
+  function findVectorMagnitude(vectorArray){
+    let isZero = true; // to add special case for 0
+    let sumOfSquares = 0;
+    for(thisInput=0;thisInput<vectorArray.length;thisInput++){
+      let thisValue = vectorArray[thisInput];
+      if(thisValue != 0){
+        isZero = false;
+      }
+      sumOfSquares += thisValue*thisValue;
+    }
+    if(isZero == true){
+      return 0;
+    } else {
+      return Math.sqrt(sumOfSquares);
+    }
+  }
+  function testVectorNormalizingFunction(){
+    let testResult = normalizeVector([1,2,3]);
+    alert(testResult);
+  }
+} // math
+{
+function newFile(elementId) {
+  console.log("Attempting to load file from element " + elementId);
+  let x = document.getElementById(elementId);
+
+  if ('files' in x) {
+    console.log("File object detected.");
+    thisFile = x.files[0];
+    settings.fileName = thisFile.name.split(".")[0];
+    settings.dateSaved = thisFile.lastModified;
+    // lastModified is in Number of milliseconds since midnight January 1, 1970
+    // Files without a known last modified date return the current date
+
+    console.log("Loading file...");
+    var fileReader = new FileReader();
+    fileReader.onload = function(fileLoadedEvent) {
+        // update the global variable that holds the document's plain text version
+        plainText = fileLoadedEvent.target.result;
+        console.log("plainText loaded from file: " + JSON.stringify(plainText).slice(0, maxPreviewLength) + '...');
+        updateDocumentView();
+
+        console.log("Checking to see if this file has been loaded before...");
+        if (!(settings.fileName in settings.filesList)){
+          // todo load last modified time and check against new version
+          console.log("No version of this document saved locally, saving now...");
+          saveCurrentDocument();
+        }
+    };
+    fileReader.readAsText(thisFile, "UTF-8");
+
+  } else if (x[0].value == "") {
+    console.log("No file selected");
+
+  } else {
+    console.log("The files property is not supported by your browser!");
+    console.log("The path of the selected file: " + x.value);
+    // If the browser does not support the files property,
+    // it will return the path of the selected file instead.
+  }
+}
+function destroyClickedElement(event) {
+    document.body.removeChild(event.target);
+}
+function saveTextAsFile(textToSave) {
+    // Save the current version and update the plainText variable:
+    if (autosave != undefined){
+      autosave();
+    }
+
+    var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
+    var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
+    var fileNameToSaveAs = settings.fileName; // todo add file extension
+
+    var downloadLink = document.createElement("a");
+    downloadLink.download = fileNameToSaveAs;
+    downloadLink.innerHTML = "Download File";
+    downloadLink.href = textToSaveAsURL;
+    downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+
+    downloadLink.click();
+}
+} // file management
+{
+  function LevenshteinDistance(a, b){
+  if(a.length == 0) return b.length; 
+  if(b.length == 0) return a.length; 
+
+  var matrix = [];
+
+  // increment along the first column of each row
+  var i;
+  for(i = 0; i <= b.length; i++){
+    matrix[i] = [i];
+  }
+
+  // increment each column in the first row
+  var j;
+  for(j = 0; j <= a.length; j++){
+    matrix[0][j] = j;
+  }
+
+  // Fill in the rest of the matrix
+  for(i = 1; i <= b.length; i++){
+    for(j = 1; j <= a.length; j++){
+      if(b.charAt(i-1) == a.charAt(j-1)){
+        matrix[i][j] = matrix[i-1][j-1];
+      } else {
+        matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
+                                Math.min(matrix[i][j-1] + 1, // insertion
+                                         matrix[i-1][j] + 1)); // deletion
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+} // misc/search
+{
+// v1 as of Nov 30, 2020:
+function runTest(testResult, expectedResult, alertFlag) {
+  let result = (testResult == expectedResult);
+  let readout = "Actual result: " + testResult + "\n\nExpected result: " + expectedResult + "";
+  if (alertFlag != undefined){
+    alert(result + readout);
+  }
+  if (result != true){
+    console.log(readout);
+  }
+  return result;
+}
+function runAllTests(functionsList) {
+  let numTests = functionsList.length;
+  let successNum = 0;
+  for (testNum = 0; testNum < numTests; testNum++){
+    let thisFunc = functionsList[testNum];
+    try {
+      console.log("Running test " + testNum + ": " + thisFunc.name + "()");
+      let result = thisFunc();
+      console.log("   Test success: " + result);
+      if (result == true){
+        successNum++;
+      }
+    } catch(error) {
+      console.log("   Test resulted in error - " + error);
+    }
+  }
+  console.log(successNum + " of " + numTests + " passed");
+}
+function getFuncName() {
+    return getFuncName.caller.name;
+}
+} // diagnostics
+{
+function getFreqFromNote(noteString, a4) {
+  let arr = noteString.split("");
+  let notes = {
+    "C":9,
+    "D":7,
+    "E":5,
+    "F":4,
+    "G":2,
+    "A":0,
+    "B":-2,
+  }
+  let nn = notes[arr.shift().toUpperCase()];
+  if (arr[0] == "b" || arr[0] == "♭"){ nn += 1; arr.shift(); }
+  if (arr[0] == "#"                 ){ nn -= 1; arr.shift(); }
+  let num = parseInt(arr.join(""));
+  nn = ((num - 4) * 12) - nn;
+  
+  // Concert:     440 Hz
+  // Baroque:     415 Hz
+  // Classical:   427–430 Hz
+  // Chorton:     466 Hz
+  // European:    444 Hz
+  // Alternative: 432 Hz
+  let startA = 440;
+  if (a4 && a4 > 400 && a4 < 500){
+    startA = a4;
+  }
+
+  return startA * Math.pow(2, nn/12);
+  //alternative: startA * Math.pow(1.059463094359, nn);
+}
+} // sound
+
+var cardNames = [
+  "The Fool",
+  "The Magician",
+  "The High Priestess",
+  "The Empress",
+  "The Emperor",
+  "The Hierophant",
+  "The Lovers",
+  "The Chariot",
+  "Strength",
+  "The Hermit",
+  "The Wheel of Fortune",
+  "Justice",
+  "The Hanged Man",
+  "Death",
+  "Temperance",
+  "The Devil",
+  "The Tower",
+  "The Star",
+  "The Moon",
+  "The Sun",
+  "Judgement",
+  "The World",
+  "Ace of Wands",
+  "Two of Wands",
+  "Three of Wands",
+  "Four of Wands",
+  "Five of Wands",
+  "Six of Wands",
+  "Seven of Wands",
+  "Eight of Wands",
+  "Nine of Wands",
+  "Ten of Wands",
+  "Page of Wands",
+  "Knight of Wands",
+  "King of Wands",
+  "Queen of Wands",
+  "Ace of Cups",
+  "Two of Cups",
+  "Three of Cups",
+  "Four of Cups",
+  "Five of Cups",
+  "Six of Cups",
+  "Seven of Cups",
+  "Eight of Cups",
+  "Nine of Cups",
+  "Ten of Cups",
+  "Page of Cups",
+  "Knight of Cups",
+  "King of Cups",
+  "Queen of Cups",
+  "Ace of Swords",
+  "Two of Swords",
+  "Three of Swords",
+  "Four of Swords",
+  "Five of Swords",
+  "Six of Swords",
+  "Seven of Swords",
+  "Eight of Swords",
+  "Nine of Swords",
+  "Ten of Swords",
+  "Page of Swords",
+  "Knight of Swords",
+  "King of Swords",
+  "Queen of Swords",
+  "Ace of Pentacles",
+  "Two of Pentacles",
+  "Three of Pentacles",
+  "Four of Pentacles",
+  "Five of Pentacles",
+  "Six of Pentacles",
+  "Seven of Pentacles",
+  "Eight of Pentacles",
+  "Nine of Pentacles",
+  "Ten of Pentacles",
+  "Page of Pentacles",
+  "Knight of Pentacles",
+  "King of Pentacles",
+  "Queen of Pentacles"
+];
+// keywords from labyrinthos.co
+var uprightKeywords = [
+  "innocence, new beginnings, free spirit",
+  "willpower, desire, creation, manifestation",
+  "intuitive, unconscious, inner voice",
+  "motherhood, fertility, nature",
+  "authority, structure, control, fatherhood",
+  "tradition, conformity, morality, ethics",
+  "partnerships, duality, union",
+  "direction, control, willpower",
+  "inner strength, bravery, compassion, focus",
+  "contemplation, search for truth, inner guidance",
+  "change, cycles, inevitable fate",
+  "cause and effect, clarity, truth",
+  "sacrifice, release, martyrdom",
+  "end of cycle, beginnings, change, metamorphosis",
+  "middle path, patience, finding meaning",
+  "addiction, materialism, playfulness",
+  "sudden upheaval, broken pride, disaster",
+  "hope, faith, rejuvenation",
+  "unconscious, illusions, intuition",
+  "joy, success, celebration, positivity",
+  "reflection, reckoning, awakening",
+  "fulfillment, harmony, completion",
+  "creation, willpower, inspiration, desire",
+  "planning, making decisions, leaving home",
+  "looking ahead, expansion, rapid growth",
+  "community, home, celebration",
+  "competition, rivalry, conflict",
+  "victory, success, public reward",
+  "perseverance, defensive, maintaining control",
+  "rapid action, movement, quick decisions",
+  "resilience, grit, last stand",
+  "accomplishment, responsibility, burden",
+  "exploration, excitement, freedom",
+  "action, adventure, fearlessness",
+  "big picture, leader, overcoming challenges",
+  "courage, determination, joy",
+  "new feelings, spirituality, intuition",
+  "unity, partnership, connection",
+  "friendship, community, happiness",
+  "apathy, contemplation, disconnectedness",
+  "loss, grief, self-pity",
+  "familiarity, happy memories, healing",
+  "searching for purpose, choices, daydreaming",
+  "walking away, disillusionment, leaving behind",
+  "satisfaction, emotional stability, luxury",
+  "inner happiness, fulfillment, dreams coming true",
+  "happy surprise, dreamer, sensitivity",
+  "following the heart, idealist, romantic",
+  "compassion, control, balance",
+  "compassion, calm, comfort",
+  "breakthrough, clarity, sharp mind",
+  "difficult choices, indecision, stalemate",
+  "heartbreak, suffering, grief",
+  "rest, restoration, contemplation",
+  "unbridled ambition, win at all costs, sneakiness",
+  "transition, leaving behind, moving on",
+  "deception, trickery, tactics and strategy",
+  "imprisonment, entrapment, self-victimization",
+  "anxiety, hopelessness, trauma",
+  "failure, collapse, defeat",
+  "curiosity, restlessness, mental energy",
+  "action, impulsiveness, defending beliefs",
+  "head over heart, discipline, truth",
+  "complexity, perceptiveness, clear mindedness",
+  "opportunity, prosperity, new venture",
+  "balancing decisions, priorities, adapting to change",
+  "teamwork, collaboration, building",
+  "conservation, frugality, security",
+  "need, poverty, insecurity",
+  "charity, generosity, sharing",
+  "hard work, perseverance, diligence",
+  "apprenticeship, passion, high standards",
+  "fruits of labor, rewards, luxury",
+  "legacy, culmination, inheritance",
+  "ambition, desire, diligence",
+  "efficiency, hard work, responsibility",
+  "abundance, prosperity, security",
+  "practicality, creature comforts, financial security"
+];
+var reversedKeywords = [
+  "recklessness, taken advantage of, inconsideration",
+  "trickery, illusions, out of touch",
+  "lack of center, lost inner voice, repressed feelings",
+  "dependence, smothering, emptiness, nosiness",
+  "tyranny, rigidity, coldness",
+  "rebellion, subversiveness, new approaches",
+  "loss of balance, one-sidedness, disharmony",
+  "lack of control, lack of direction, aggression",
+  "self doubt, weakness, insecurity",
+  "loneliness, isolation, lost your way",
+  "no control, clinging to control, bad luck",
+  "dishonesty, unaccountability, unfairness",
+  "stalling, needless sacrifice, fear of sacrifice",
+  "fear of change, holding on, stagnation, decay",
+  "extremes, excess, lack of balance",
+  "freedom, release, restoring control",
+  "disaster avoided, delayed disaster, fear of suffering",
+  "faithlessness, discouragement, insecurity",
+  "confusion, fear, misinterpretation",
+  "negativity, depression, sadness",
+  "lack of self awareness, doubt, self loathing",
+  "incompletion, no closure",
+  "lack of energy, lack of passion, boredom",
+  "fear of change, playing safe, bad planning",
+  "obstacles, delays, frustration",
+  "lack of support, transience, home conflicts",
+  "avoiding conflict, respecting differences",
+  "excess pride, lack of recognition, punishment",
+  "give up, destroyed confidence, overwhelmed",
+  "panic, waiting, slowdown",
+  "exhaustion, fatigue, questioning motivations",
+  "inability to delegate, overstressed, burnt out",
+  "lack of direction, procrastination, creating conflict",
+  "anger, impulsiveness, recklessness",
+  "impulsive, overbearing, unachievable expectations",
+  "selfishness, jealousy, insecurities",
+  "emotional loss, blocked creativity, emptiness",
+  "imbalance, broken communication, tension",
+  "overindulgence, gossip, isolation",
+  "sudden awareness, choosing happiness, acceptance",
+  "acceptance, moving on, finding peace",
+  "moving forward, leaving home, independence",
+  "lack of purpose, diversion, confusion",
+  "avoidance, fear of change, fear of loss",
+  "lack of inner joy, smugness, dissatisfaction",
+  "shattered dreams, broken family, domestic disharmony",
+  "emotional immaturity, insecurity, disappointment",
+  "moodiness, disappointment",
+  "coldness, moodiness, bad advice",
+  "martyrdom, insecurity, dependence",
+  "confusion, brutality, chaos",
+  "lesser of two evils, no right choice, confusion",
+  "recovery, forgiveness, moving on",
+  "restlessness, burnout, stress",
+  "lingering resentment, desire to reconcile, forgiveness",
+  "emotional baggage, unresolved issues, resisting transition",
+  "coming clean, rethinking approach, deception",
+  "self acceptance, new perspective, freedom",
+  "hope, reaching out, despair",
+  "can't get worse, only upwards, inevitable end",
+  "deception, manipulation, all talk",
+  "no direction, disregard for consequences, unpredictability",
+  "manipulative, cruel, weakness",
+  "cold hearted, cruel, bitterness",
+  "lost opportunity, missed chance, bad investment",
+  "loss of balance, disorganized, overwhelmed",
+  "lack of teamwork, disorganized, group conflict",
+  "greediness, stinginess, possessiveness",
+  "recovery, charity, improvement",
+  "strings attached, stinginess, power and domination",
+  "work without results, distractions, lack of rewards",
+  "lack of passion, uninspired, no motivation",
+  "reckless spending, living beyond means, false success",
+  "fleeting success, lack of stability, lack of resources",
+  "lack of commitment, greediness, laziness",
+  "laziness, obsessiveness, work without reward",
+  "greed, indulgence, sensuality",
+  "self-centeredness, jealousy, smothering"
+];
+var imageUrl = [
+  "https://upload.wikimedia.org/wikipedia/en/9/90/RWS_Tarot_00_Fool.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/d/de/RWS_Tarot_01_Magician.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/8/88/RWS_Tarot_02_High_Priestess.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/d/d2/RWS_Tarot_03_Empress.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/c/c3/RWS_Tarot_04_Emperor.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/8/8d/RWS_Tarot_05_Hierophant.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/d/db/RWS_Tarot_06_Lovers.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/9/9b/RWS_Tarot_07_Chariot.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/f/f5/RWS_Tarot_08_Strength.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/4/4d/RWS_Tarot_09_Hermit.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/e/e0/RWS_Tarot_11_Justice.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/2/2b/RWS_Tarot_12_Hanged_Man.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/d/d7/RWS_Tarot_13_Death.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/f/f8/RWS_Tarot_14_Temperance.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/5/55/RWS_Tarot_15_Devil.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/5/53/RWS_Tarot_16_Tower.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/d/db/RWS_Tarot_17_Star.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/7/7f/RWS_Tarot_18_Moon.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/1/17/RWS_Tarot_19_Sun.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/d/dd/RWS_Tarot_20_Judgement.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/f/ff/RWS_Tarot_21_World.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/1/11/Wands01.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/0/0f/Wands02.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/f/ff/Wands03.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/a/a4/Wands04.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/9/9d/Wands05.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/3/3b/Wands06.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/e/e4/Wands07.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/6/6b/Wands08.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/e/e7/Wands09.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/0/0b/Wands10.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/6/6a/Wands11.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/1/16/Wands12.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/c/ce/Wands14.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/0/0d/Wands13.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/3/36/Cups01.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/f/f8/Cups02.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/7/7a/Cups03.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/3/35/Cups04.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/d/d7/Cups05.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/1/17/Cups06.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/a/ae/Cups07.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/6/60/Cups08.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/2/24/Cups09.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/8/84/Cups10.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/a/ad/Cups11.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/f/fa/Cups12.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/0/04/Cups14.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/6/62/Cups13.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/1/1a/Swords01.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/9/9e/Swords02.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/0/02/Swords03.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/b/bf/Swords04.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/2/23/Swords05.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/2/29/Swords06.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/3/34/Swords07.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/a/a7/Swords08.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/2/2f/Swords09.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/d/d4/Swords10.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/4/4c/Swords11.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/b/b0/Swords12.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/3/33/Swords14.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/d/d4/Swords13.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/f/fd/Pents01.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/9/9f/Pents02.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/4/42/Pents03.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/3/35/Pents04.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/9/96/Pents05.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/a/a6/Pents06.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/6/6a/Pents07.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/4/49/Pents08.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/f/f0/Pents09.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/4/42/Pents10.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/e/ec/Pents11.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/d/d5/Pents12.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/1/1c/Pents14.jpg",
+  "https://upload.wikimedia.org/wikipedia/en/8/88/Pents13.jpg"
+];
+var moreInfo = [
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-fool-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-magician-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-high-priestess-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-empress-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-emperor-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-hierophant-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-lovers-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-chariot-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/strength-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-hermit-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-wheel-of-fortune-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/justice-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-hanged-man-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/death-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/temperance-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-devil-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-tower-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-star-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-moon-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-sun-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/judgement-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/the-world-meaning-major-arcana-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/ace-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/two-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/three-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/four-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/five-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/six-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/seven-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/eight-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/nine-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/ten-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/page-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/knight-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/king-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/queen-of-wands-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/ace-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/two-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/three-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/four-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/five-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/six-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/seven-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/eight-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/nine-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/ten-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/page-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/knight-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/king-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/queen-of-cups-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/ace-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/two-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/three-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/four-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/five-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/six-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/seven-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/eight-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/nine-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/ten-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/page-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/knight-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/king-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/queen-of-swords-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/ace-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/two-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/three-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/four-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/five-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/six-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/seven-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/eight-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/nine-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/ten-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/page-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/knight-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/king-of-pentacles-meaning-tarot-card-meanings",
+  "https://labyrinthos.co/blogs/tarot-card-meanings-list/queen-of-pentacles-meaning-tarot-card-meanings"
+];
+let diffY,
+  diffX,
+  elmHeight,
+  elmWidth,
+  containerHeight,
+  containerWidth,
+  outOfBoundsCounter,
+  isMouseDown = false;
+var numCards = 1;
+var currentCards = [];
+var textSize = 12; //change if I change the default size
+
+function setActive(id) {
+  if (isMouseDown == false) {
+    moveMe = document.getElementById(id);
+    moveMe.addEventListener("mousedown", mouseDown);
+  }
+}
+
+function drawCard(cardNum) {
+  let cardNumber = randBetween(0, 77);
+  if (cardNum == undefined) {
+    cardNum = numCards + 1;
+    numCards = numCards + 1;
+  }
+  card = {
+    number: cardNumber,
+    name: cardNames[cardNumber],
+    upright: uprightKeywords[cardNumber],
+    reversed: reversedKeywords[cardNumber],
+    image: imageUrl[cardNumber],
+    link: moreInfo[cardNumber],
+    xpos: 0,
+    ypos: 0,
+    angle: 0,
+    id: "card" + cardNum
+  };
+  return card;
+}
+function newCard() {
+  var thisCard = drawCard();
+  addHtml(
+    //draggable='true'
+    "field",
+    "<div id='" +
+      thisCard.id +
+      "' class='card' onmouseover=\"setActive('" +
+      thisCard.id +
+      "')\" style='background-image: url(\"" +
+      thisCard.image +
+      "\");'><div class='tooltiptext'>" +
+      thisCard.name +
+      "<br><br>" +
+      thisCard.upright +
+      "</div><div class='cardoptions'><div class='cardoption' onclick=\"removeCard('" +
+      thisCard.id +
+      "')\">❌</div></div></div>"
+  ); //fillHtml vs. addHtml
+  setActive(thisCard.id);
+}
+function removeCard(cardID) {
+  var myobj = document.getElementById(cardID);
+  myobj.remove();
+}
+
+//var moveMe = document.getElementById("card1");
+//moveMe.addEventListener("mousedown", mouseDown);
+document.addEventListener("mousemove", mouseMove);
+document.addEventListener("mouseup", mouseUp);
+
+function mouseDown(e) {
+  isMouseDown = true;
+  outOfBoundsCounter = 0;
+  // get initial mousedown coordinated
+  const mouseY = e.clientY;
+  const mouseX = e.clientX;
+
+  // get element top and left positions
+  const elm = moveMe;
+  const elmY = elm.offsetTop;
+  const elmX = elm.offsetLeft;
+
+  // get elm dimensions
+  elmWidth = elm.offsetWidth;
+  elmHeight = elm.offsetHeight;
+
+  // get container dimensions
+  const container = elm.offsetParent;
+  containerWidth = container.offsetWidth;
+  containerHeight = container.offsetHeight;
+
+  // get diff from (0,0) to mousedown point
+  diffY = mouseY - elmY;
+  diffX = mouseX - elmX;
+}
+function mouseMove(e) {
+  if (!isMouseDown) return;
+  const elm = moveMe;
+  // get new mouse coordinates
+  const newMouseY = e.clientY;
+  const newMouseX = e.clientX;
+
+  // calc new top, left pos of elm
+  let newElmTop = newMouseY - diffY,
+    newElmLeft = newMouseX - diffX;
+
+  // calc new bottom, right pos of elm
+  let newElmBottom = newElmTop + elmHeight,
+    newElmRight = newElmLeft + elmWidth;
+
+  /*
+  if (
+    newElmTop < 0 ||
+    newElmLeft < 0 ||
+    newElmTop + elmHeight > containerHeight ||
+    newElmLeft + elmWidth > containerWidth
+  ) {
+    // if elm is being dragged off top of the container...
+    if (newElmTop < 0) {
+      newElmTop = 0;
+    }
+
+    // if elm is being dragged off left of the container...
+    if (newElmLeft < 0) {
+      newElmLeft = 0;
+    }
+
+    // if elm is being dragged off bottom of the container...
+    if (newElmBottom > containerHeight) {
+      newElmTop = containerHeight - elmHeight;
+    }
+
+    // if elm is being dragged off right of the container...
+    if (newElmRight > containerWidth) {
+      newElmLeft = containerWidth - elmWidth;
+    }
+    //out of bounds
+  } else {
+    //in bounds
+  }
+  */
+  moveElm(elm, newElmTop, newElmLeft);
+}
+function moveElm(elm, yPos, xPos) {
+  elm.style.top = yPos + "px";
+  elm.style.left = xPos + "px";
+}
+function mouseUp() {
+  isMouseDown = false;
+}
+
+// Options
+function shrink() {
+  //alert("smaller now!");
+  textSize = textSize - 2;
+  changeFontSize(textSize);
+}
+function grow() {
+  //alert("bigger now!");
+  textSize = textSize + 2;
+  changeFontSize(textSize);
+}
+function changeFontSize(newSize) {
+  document.getElementById("field").style.fontSize = newSize + "px";
+}
+
+//changeFontSize();
+
+// currently unused:
+function generateRotString(degrees) {
+  var rotString =
+    "-webkit-transform: rotate(" +
+    degrees +
+    "deg);" +
+    "-moz-transform: rotate(" +
+    degrees +
+    "deg);" +
+    "-ms-transform: rotate(" +
+    degrees +
+    "deg);" +
+    "-o-transform: rotate(" +
+    degrees +
+    "deg);" +
+    "transform: rotate(" +
+    degrees +
+    "deg);";
+  return rotStrong;
+}
+
+  </script>
+  </html>
