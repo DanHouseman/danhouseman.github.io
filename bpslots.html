@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Bunny Paige Slot Machine!</title>
+
+<style>
+  /* * Base CSS */
+body {
+  background-color: #b7c7d6;
+  background-image: url('https://cdn.shopify.com/s/files/1/0250/2833/products/image_b7ca7ef2-10a1-40e5-887b-9e290c5c69ec_2048x.jpg?v=1585590591');
+  background-repeat: repeat;
+  background-position: center;
+  font-family: 'Montserrat', sans-serif;
+  color: #fff;
+  overflow-x:hidden;
+}
+.container {
+  width: 510px;
+  max-width: 100%;
+  margin: 25px auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  border-radius: 3px;
+  
+}
+/* * Slot Machine */
+.slot-machine {
+  text-align: center;
+  /* background-image: linear-gradient(#faf3a2, #bf8c30, #faf3a2); */
+  background-image: linear-gradient(#fbf4b4, #6046b5, #160513);
+}
+
+.slot-machine .sm-main {
+  position: relative;
+  padding-top: 40px;
+}
+.slot-machine .sm-main .slot-handle {
+  position: absolute;
+  height: 25px;
+  width: 30px;
+  background-color: #acacac;
+  border: 3px solid #acacac;
+  left: 510px;
+  top: 140px;
+}
+.slot-machine .sm-main .slot-handle .slot-gear {
+  position: absolute;
+  height: 80px;
+  width: 20px;
+  background-color: #b8bcc5;
+  border: 3px solid #b8bcc5;
+  top: -58px;
+  left: 25px;
+  border-bottom-right-radius: 5px;
+}
+.slot-machine .sm-main .slot-handle .slot-gear .slot-knob {
+  position: absolute;
+  background: radial-gradient(#4177a1, #1f4b8e);
+  border-color: #fde381;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  top: -30px;
+  left: -15px;
+  transition: top 0.5s ease-out;
+}
+.slot-machine .sm-main .slot-handle .slot-gear .slot-knob:hover {
+  cursor: pointer;
+  top: -20px;
+}
+.slot-machine .slot {
+  background-color: #172540;
+  background-size: 100px;
+  background-repeat: repeat-y;
+  background-position-y: -4px;
+  height: 100px;
+  width: 100px;
+  display: inline-block;
+  border-radius: 10px;
+  border: 3px solid #fde381;
+}
+.slot-machine .slot:nth-of-type(1) {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  background-image: url(index.png);
+}
+.slot-machine .slot:nth-of-type(1).motion {
+  background-image: url(index.png);
+}
+.slot-machine .slot:nth-of-type(2) {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  background-image: url(index.png);
+  background-position-y: 119px;
+}
+.slot-machine .slot:nth-of-type(2).motion {
+  background-image: url(index.png);
+}
+.slot-machine .slot:nth-of-type(3) {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  background-image: url(index.png);
+  background-position-y: 232px;
+}
+.slot-machine .slot:nth-of-type(3).motion {
+  background-image: url(index.png);
+}
+.slot-machine .motion {
+  animation: animated 3s linear infinite;
+}
+.slot-machine .sm-action {
+  margin-bottom: 40px;
+}
+.slot-machine .sm-action button {
+  width: 326px;
+  max-width: 80%;
+  min-height: 60px;
+  color: #b7c7d6;
+  background: #1f4b8e;
+  padding: 12px 17px;
+  font-family: 'Montserrat', sans-serif;
+  border: 2px solid #1f4b8e;
+  font-size: 18px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  margin-top: 20px;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  -webkit-transition: all ease 0.5s;
+  -moz-transition: all ease 0.5s;
+  transition: all ease 0.5s;
+}
+.slot-machine .sm-action button:hover {
+  box-shadow: inset 326px 0 0 0 #172540;
+  color: #fff;
+}
+.slot-machine .sm-messages {
+  background-color: #fff;
+}
+.slot-machine .sm-messages .sm-result {
+  background-color: #5a1e91;
+  opacity: 0;
+  visibility: hidden;
+  max-height: 0px;
+  overflow: hidden;
+  transition: max-height 3s ease-in, opacity 0.5s ease-in;
+}
+.slot-machine .sm-messages .sm-result.show {
+  opacity: 1;
+  visibility: visible;
+  padding-bottom: 20px;
+  max-height: 600px;
+}
+.slot-machine .sm-messages .sm-result.show h1 {
+  padding-top: 40px;
+}
+.slot-machine .sm-messages .sm-result h1 {
+  margin: 0;
+  padding: 0px 50px 0px 50px;
+  font-weight: normal;
+  color: #fff;
+  font-size: 1.4em;
+  letter-spacing: 1px;
+}
+.slot-machine .sm-messages .sm-result h1 span {
+  font-weight: bold;
+}
+.slot-machine .sm-legend {
+  background-color: #172540;
+  text-align: center;
+  padding: 20px 0;
+
+}
+.slot-machine .sm-legend ul {
+  list-style: none;
+  padding: 0;
+  margin: 0px;
+}
+.slot-machine .sm-legend li {
+  padding: 0;
+  margin: 0px 0px 10px 0px;
+  color: #b7c7d6;
+  display: inline-block;
+  width:30%;
+}
+.slot-machine .sm-legend li span[class$="option"] {
+  display: inline-block;
+  background-size: 40px;
+  background-repeat: no-repeat;
+  height: 40px;
+  width: 40px;
+}
+.slot-machine .sm-legend li span.equation {
+  display: inline-block;
+  text-align: center;
+  /*   margin-top: 20px; */
+  height: auto;
+  letter-spacing: 1px;
+  vertical-align:middle;
+}
+.slot-machine .sm-legend li span.equation:last-of-type {
+  /*   margin-left: 10px; */
+}
+.slot-machine .sm-legend li:nth-of-type(1) {
+  letter-spacing: 2px;
+  height: auto;
+  width:100% !important;
+}
+
+.slot-machine .sm-legend li:nth-of-type(3) {
+  border-left:1px solid rgba(255,255,255,.25);
+  border-right:1px solid rgba(255,255,255,.25);
+}
+.slot-machine .sm-legend li:nth-of-type(2) span.first-option {
+  background-image: url(index.png);
+}
+.slot-machine .sm-legend li:nth-of-type(2) span.second-option {
+  background-image: url(index.png);
+}
+.slot-machine .sm-legend li:nth-of-type(2) span.third-option {
+  background-image: url(index.png);
+}
+.slot-machine .sm-legend li:nth-of-type(3) span.first-option {
+  background-position-y: -42px;
+  background-image: url(index.png);
+}
+.slot-machine .sm-legend li:nth-of-type(3) span.second-option {
+  background-position-y: -42px;
+  background-image: url(index.png);
+}
+.slot-machine .sm-legend li:nth-of-type(3) span.third-option {
+  background-position-y: -42px;
+  background-image: url(index.png);
+}
+.slot-machine .sm-legend li:nth-of-type(4) span.first-option {
+  background-position-y: -88px;
+  background-image: url(index.png);
+}
+.slot-machine .sm-legend li:nth-of-type(4) span.second-option {
+  background-position-y: -88px;
+  background-image: url(index.png);
+}
+.slot-machine .sm-legend li:nth-of-type(4) span.third-option {
+  background-position-y: -88px;
+  background-image: url(index.png);
+}
+.btn a {
+  font-family: 'Montserrat', sans-serif;
+  color: #1f4b8e;
+  background: #b7c7d6;
+  padding: 15px;
+  max-width: 80%;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+}
+.btn a:hover {
+  text-decoration: underline;
+}
+/* * Animations */
+@keyframes animated {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 1000%;
+  }
+}
+
+@media screen and (max-width:500px) {
+  .slot-machine .sm-legend li {
+    padding: 0;
+    margin: 0px 0px 20px 0px;
+    color: #b7c7d6;
+    display: inline-block;
+    width:75%;
+  }  
+  .slot-machine .sm-legend li:nth-of-type(3) {
+    border:0;
+    border-top:1px solid rgba(255,255,255,.25);
+    border-bottom:1px solid rgba(255,255,255,.25);
+    padding:10px 0 15px 0;
+  }
+}
+</style>
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div class="container">
+  <!-- Slot Machine: Header -->
+  <!-- Slot Machine -->
+  <div class="slot-machine" >
+    <!-- Slot Machine: Main -->
+    <div class="sm-main">
+      <div id="Slot1" class="slot"></div>
+      <div id="Slot2" class="slot"></div>
+      <div id="Slot3" class="slot"></div>
+
+      <div class="slot-handle">
+        <div class="slot-gear">
+          <!-- Slot Machine: Optional CTA -->
+          <div class="slot-knob cta-btn"></div>
+        </div> 
+        </di>  
+    </div>
+
+    <!-- Slot Machine: Action Container -->
+    <div class="sm-action">
+      <button class="cta-btn">Play ►</button>
+    </div>
+
+    <!-- Slot Machine: Messages View -->
+    <div class="sm-messages">
+      <div id="ResultBanner" class="sm-result">
+        <h1 id="Result"></h1>  
+        <div class="btn" style="padding:20px 0px;"><a href="#">CLAIM YOUR PRIZE!</a></div>
+      </div>  
+
+      <!-- Slot machine: Legend/Winning Combinations -->
+      <div class="sm-legend">
+        <ul>
+          <li>Rules & Combinations</li><br>
+          <li>
+            <span class="first-option"></span>
+<!--             <span class="equation">+</span> -->
+            <span class="second-option"></span>
+<!--             <span class="equation">+</span> -->
+            <span class="third-option"></span><br>
+<!--             <span class="equation">=</span> -->
+            <span class="equation">$5 Off</span>
+          </li>
+          <li>
+            <span class="first-option"></span>
+<!--             <span class="equation">+</span> -->
+            <span class="second-option"></span>
+<!--             <span class="equation">+</span> -->
+            <span class="third-option"></span><br>
+<!--             <span class="equation">=</span> -->
+            <span class="equation">$10 Off Classics</span>
+          </li>
+          <li>
+            <span class="first-option"></span>
+<!--             <span class="equation">+</span> -->
+            <span class="second-option"></span>
+<!--             <span class="equation">+</span> -->
+            <span class="third-option"></span><br>
+<!--             <span class="equation">=</span> -->
+            <span class="equation">$15 Off 100+</span>
+          </li>
+        </ul>  
+
+      </div>
+    </div>
+  </div>
+</div>  
+</div>
+<!-- partial -->
+  <script>
+    var loses = 0
+class SlotMachine {
+  constructor (args) {
+    this.start = args;
+    this.positions = [ '-10px', '-110px', '114px' ];
+    this.winningCombinations = [
+      { id: 1, name: '$5 Off!' },
+      { id: 2, name: '$10 Off Classics' },
+      { id: 3, name: '$15 Off $100 or more '}
+    ];
+  }
+
+  init () {
+    const startBtns = document.getElementsByClassName(this.start);
+
+    for (let i = 0; i<startBtns.length; i++) {
+      startBtns[i].addEventListener('click', function () {
+        this.playSlots();
+      }.bind(this), false);
+    }
+  }
+
+  playSlots () {
+    if (document.getElementById('ResultBanner').classList.contains('show')) {
+      document.getElementById('ResultBanner').style.transition = 'none';
+      document.getElementById('ResultBanner').classList.remove('show');
+    }
+
+    // current odds are: $5-80%, $10-30%, $15-10%, Lose-20%
+    var chance = Math.random()  //gives a number between 0-1
+    if(chance < .8) {
+      var win = 0
+      } 
+    if(chance < .3) {
+      var win = 1
+      }
+    if(chance < .1) {
+      var win = 2
+      }
+    if(chance > .8) {
+      var reelOne = 2;
+      var reelTwo = 0;
+      var reelThree = 1;
+    } else {
+      var reelOne = win;
+      var reelTwo = win;
+      var reelThree = win;
+    }
+
+    this.setReels(reelOne, 'Slot1');
+    this.setReels(reelTwo, 'Slot2');
+    this.setReels(reelThree, 'Slot3');
+
+    this.delay(4000).then(function () {
+      this.stopReels(reelOne, 'Slot1');
+      this.stopReels(reelTwo, 'Slot2');
+      this.stopReels(reelThree, 'Slot3'); 
+    }.bind(this)).then(function () {
+      // Winner Winner
+      if (reelOne === reelTwo && reelOne === reelThree) {
+        document.getElementById('ResultBanner').style.transition = 'max-height 3s ease-in, opacity .5s ease-in';
+        document.getElementById('ResultBanner').className += ' show';
+        document.getElementById('Result').innerHTML = `You win  ${this.winningCombinations[reelOne].name}!`;
+      }
+      else {
+        document.getElementById('ResultBanner').style.transition = 'max-height 3s ease-in, opacity .5s ease-in';
+        document.getElementById('ResultBanner').className += ' show';
+        document.getElementById('Result').innerHTML = 'Better luck next time!';
+      }
+    }.bind(this));
+  }
+
+  setReels (rand, slot) {
+    setTimeout(function () {
+      document.getElementById(slot).className += ' motion';
+    }, rand*200);
+  }
+
+  stopReels (rand, slot) {
+    document.getElementById(slot).style.backgroundPositionY = this.positions[rand];
+    document.getElementById(slot).style.transition = 'background-position ease-out 5s';
+    document.getElementById(slot).classList.remove('motion');
+  }
+
+  delay (ms){
+    let ctr,
+        rej,
+        promise = new Promise(function (resolve, reject) {
+          ctr = setTimeout(resolve, ms);
+        });
+
+    promise.cancel = function () {
+      clearTimeout(ctr);
+      rej(Error('Delay Cancelled'));
+    }
+
+    return promise; 
+  }
+
+}
+
+// App Init
+(function () {
+  let newSlotsGame = new SlotMachine('cta-btn');
+  newSlotsGame.init();
+})();
+  </script>
+
+</body>
+</html>
