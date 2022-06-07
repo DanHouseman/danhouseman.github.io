@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Generative Beats</title>
+  
+  <style>
+    html,
+body,
+#container {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(0.25turn, #000, #2d034a, #440046, #2d034a,#000);
+  color: #f3f3f3;
+  font-family: sans-serif;
+}
+
+#container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+}
+#vis {
+  width: 95vmin;
+  height: 95vmin;
+  overflow: visible;
+}
+
+.halo {
+  opacity: 0;
+}
+.note {
+  stroke-width: 0.5;
+  stroke: #151515;
+  fill: rgba(255, 255, 255, 1);
+  opacity: 0.4;
+  animation: animate 1s linear infinite;
+}
+.hover .note {
+  opacity: 0.7;
+}
+.on .note {
+  fill: #e91e63;
+  opacity: 1;
+}
+
+.pointer-area {
+  stroke: none;
+  opacity: 0;
+}
+
+.controls {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+.control-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.controls button {
+  width: 100%;
+  min-width: 7vw;
+  height: 4vh;
+  margin: 2px;
+  background: none;
+  color: white;
+  border: 1px solid white;
+}
+.controls button:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+.controls button.active {
+  background: white;
+  color: black;
+}
+
+#output-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.output-control {
+  padding: 10px;
+}
+.output-control label {
+  padding: 0 5px;
+  font-size: 14px;
+}
+#tempo-label {
+  display: inline-block;
+  width: 30px;
+}
+.midi-required {
+  display: none;
+}
+
+#generating,
+#loading {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 32px;
+}
+@keyframes animate {
+  from {
+    filter: hue-rotate(0deg);
+  }
+ 
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+  </style>
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div id="container">
+  <div class="controls">
+    <div class="control-group">
+      <button class="tonic-left active" data-tonic="0">C</button>
+      <button class="tonic-left" data-tonic="1">C&#x266F; / D&#x266d;</button>
+      <button class="tonic-left" data-tonic="2">D</button>
+      <button class="tonic-left" data-tonic="3">E&#x266F; / E&#x266d;</button>
+      <button class="tonic-left" data-tonic="4">E</button>
+      <button class="tonic-left" data-tonic="5">F</button>
+      <button class="tonic-left" data-tonic="6">F&#x266F; / G&#x266d;</button>
+      <button class="tonic-left" data-tonic="7">G</button>
+      <button class="tonic-left" data-tonic="8">G&#x266F; / A&#x266d;</button>
+      <button class="tonic-left" data-tonic="9">A</button>
+      <button class="tonic-left" data-tonic="10">A&#x266F; / B&#x266d;</button>
+      <button class="tonic-left" data-tonic="11">B</button>
+    </div>
+    <div class="control-group">
+      <button class="chord-left active" data-chord="major">Major</button>
+      <button class="chord-left" data-chord="minor">Minor</button>
+      <button class="chord-left" data-chord="major7th">Major 7th</button>
+      <button class="chord-left" data-chord="minor7th">Minor 7th</button>
+      <button class="chord-left" data-chord="dominant7th">Dominant 7th</button>
+      <button class="chord-left" data-chord="sus2">Sus2</button>
+      <button class="chord-left" data-chord="sus4">Sus4</button>
+    </div>
+  </div>
+  <svg id="vis" viewBox="0 0 1000 1000">
+    <defs>
+      <radialGradient id="halo">
+        <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)" />
+        <stop offset="95%" stop-color="rgba(255, 255, 255, 0.5)" />
+        <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
+      </radialGradient>
+    </defs>
+    <g id="vis-halos"></g>
+    <g id="vis-elements"></g>
+  </svg>
+  <div class="controls">
+    <div class="control-group">
+      <button class="tonic-right active" data-tonic="0">C</button>
+      <button class="tonic-right" data-tonic="1">C&#x266F; / D&#x266d;</button>
+      <button class="tonic-right" data-tonic="2">D</button>
+      <button class="tonic-right" data-tonic="3">E&#x266F; / E&#x266d;</button>
+      <button class="tonic-right" data-tonic="4">E</button>
+      <button class="tonic-right" data-tonic="5">F</button>
+      <button class="tonic-right" data-tonic="6">F&#x266F; / G&#x266d;</button>
+      <button class="tonic-right" data-tonic="7">G</button>
+      <button class="tonic-right" data-tonic="8">G&#x266F; / A&#x266d;</button>
+      <button class="tonic-right" data-tonic="9">A</button>
+      <button class="tonic-right" data-tonic="10">A&#x266F; / B&#x266d;</button>
+      <button class="tonic-right" data-tonic="11">B</button>
+    </div>
+    <div class="control-group">
+      <button class="chord-right active" data-chord="major">Major</button>
+      <button class="chord-right" data-chord="minor">Minor</button>
+      <button class="chord-right" data-chord="major7th">Major 7th</button>
+      <button class="chord-right" data-chord="minor7th">Minor 7th</button>
+      <button class="chord-right" data-chord="dominant7th">Dominant 7th</button>
+      <button class="chord-right" data-chord="sus2">Sus2</button>
+      <button class="chord-right" data-chord="sus4">Sus4</button>
+    </div>
+  </div>
+</div>
+<div id="output-controls">
+  <div class="output-control midi-required">
+    <label for="output-selector">Output</label>
+    <select id="output-selector"></select>
+  </div>
+  <div class="output-control">
+    <label for="tempo-source-selector">Tempo</label>
+    <select id="tempo-source-selector" class="midi-required"></select>
+    <input id="tempo-selector" type="range" min="10" max="200" step="1" value="90">
+    <span id="tempo-label">90</span>
+  </div>
+</div>
+<div id="loading">Loading models&hellip;</div>
+<div id="generating" style="display: none">Generating&hellip;</div>
+<!-- partial -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/@magenta/music@1.1.11/dist/magentamusic.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/webmidi@2.0.0/webmidi.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/web-animations-js@2.3.1/web-animations.min.js'></script>
+<script src='https://cdn.rawgit.com/tambien/StartAudioContext/8da8637e/StartAudioContext.js'></script>
+<script src='https://cdn.rawgit.com/danigb/tonal/9b6b1663/dist/tonal.min.js'></script>
+<script>
+const MIN_NOTE = 48;
+const MAX_NOTE = 83;
+const SEQ_LENGTH = 32;
+const HUMANIZE_TIMING = 0.0085;
+const N_INTERPOLATIONS = 10;
+const CHORD_SYMBOLS = {
+  major: 'M',
+  minor: 'm',
+  major7th: 'M7',
+  minor7th: 'm7',
+  dominant7th: '7',
+  sus2: 'Msus2',
+  sus4: 'Msus4' };
+
+const SAMPLE_SCALE = [
+'C3',
+'D#3',
+'F#3',
+'A3',
+'C4',
+'D#4',
+'F#4',
+'A4',
+'C5',
+'D#5',
+'F#5',
+'A5'];
+
+
+let Tone = mm.Player.tone;
+
+Tone.Transport.bpm.value = 90;
+
+let vae = new mm.MusicVAE(
+'https://storage.googleapis.com/download.magenta.tensorflow.org/tfjs_checkpoints/music_vae/mel_2bar_small');
+
+let rnn = new mm.MusicRNN(
+'https://storage.googleapis.com/download.magenta.tensorflow.org/tfjs_checkpoints/music_rnn/chord_pitches_improv');
+
+
+let reverb = new Tone.Convolver(
+'https://s3-us-west-2.amazonaws.com/s.cdpn.io/969699/hm2_000_ortf_48k.mp3').
+toMaster();
+reverb.wet.value = 0.15;
+let samplers = [
+{
+  high: buildSampler(
+  'https://s3-us-west-2.amazonaws.com/s.cdpn.io/969699/marimba-classic-').
+  connect(new Tone.Panner(-0.4).connect(reverb)),
+  mid: buildSampler(
+  'https://s3-us-west-2.amazonaws.com/s.cdpn.io/969699/marimba-classic-mid-').
+  connect(new Tone.Panner(-0.4).connect(reverb)),
+  low: buildSampler(
+  'https://s3-us-west-2.amazonaws.com/s.cdpn.io/969699/marimba-classic-low-').
+  connect(new Tone.Panner(-0.4).connect(reverb)) },
+
+{
+  high: buildSampler(
+  'https://s3-us-west-2.amazonaws.com/s.cdpn.io/969699/xylophone-dark-').
+  connect(new Tone.Panner(0.4).connect(reverb)),
+  mid: buildSampler(
+  'https://s3-us-west-2.amazonaws.com/s.cdpn.io/969699/xylophone-dark-mid-').
+  connect(new Tone.Panner(0.4).connect(reverb)),
+  low: buildSampler(
+  'https://s3-us-west-2.amazonaws.com/s.cdpn.io/969699/xylophone-dark-low-').
+  connect(new Tone.Panner(0.4).connect(reverb)) }];
+
+
+
+let sixteenth = Tone.Time('16n').toSeconds();
+let quarter = Tone.Time('4n').toSeconds();
+let temperature = 1.1;
+let loadingIndicator = document.querySelector('#loading');
+let generatingIndicator = document.querySelector('#generating');
+let container = document.querySelector('#vis-elements');
+let haloContainer = document.querySelector('#vis-halos');
+let tonicLeftButtons = document.querySelectorAll('.tonic-left');
+let tonicRightButtons = document.querySelectorAll('.tonic-right');
+let chordLeftButtons = document.querySelectorAll('.chord-left');
+let chordRightButtons = document.querySelectorAll('.chord-right');
+let tempoSelector = document.querySelector('#tempo-selector');
+let tempoLabel = document.querySelector('#tempo-label');
+let midiRequiredStuff = Array.from(document.querySelectorAll('.midi-required'));
+let outputSelector = document.querySelector('#output-selector');
+let tempoSourceSelector = document.querySelector('#tempo-source-selector');
+
+let currentStep = 0;
+let sequences = [];
+let mouseDown = false;
+let chordLeft = CHORD_SYMBOLS['major'],
+chordRight = CHORD_SYMBOLS['major'];
+let tonicLeft = 0,
+tonicRight = 0;
+let currentMidiOutput;
+let transportPlayerId = null;
+
+function buildSampler(urlPrefix) {
+  return new Tone.Sampler(
+  _.fromPairs(
+  SAMPLE_SCALE.map(n => [
+  n,
+  new Tone.Buffer(`${urlPrefix}${n.toLowerCase().replace('#', 's')}.mp3`)])));
+
+
+
+}
+
+function generateSeq(chord, startNotes) {
+  let seedSeq = toNoteSequence(startNotes);
+  return rnn.continueSequence(seedSeq, SEQ_LENGTH, temperature, [chord]);
+}
+
+function toNoteSequence(seq) {
+  let notes = [];
+  for (let i = 0; i < seq.length; i++) {
+    if (seq[i] === -1 && notes.length) {
+      _.last(notes).endTime = i * 0.5;
+    } else if (seq[i] !== -2 && seq[i] !== -1) {
+      if (notes.length && !_.last(notes).endTime) {
+        _.last(notes).endTime = i * 0.5;
+      }
+      notes.push({
+        pitch: seq[i],
+        startTime: i * 0.5 });
+
+    }
+  }
+  if (notes.length && !_.last(notes).endTime) {
+    _.last(notes).endTime = seq.length * 0.5;
+  }
+  return mm.sequences.quantizeNoteSequence(
+  {
+    ticksPerQuarter: 220,
+    totalTime: seq.length * 0.5,
+    quantizationInfo: {
+      stepsPerQuarter: 1 },
+
+    timeSignatures: [
+    {
+      time: 0,
+      numerator: 4,
+      denominator: 4 }],
+
+
+    tempos: [
+    {
+      time: 0,
+      qpm: 120 }],
+
+
+    notes },
+
+  1);
+
+}
+
+function isValidNote(note, forgive = 0) {
+  return note <= MAX_NOTE + forgive && note >= MIN_NOTE - forgive;
+}
+
+function octaveShift(note) {
+  let shift = MAX_NOTE - note > note - MIN_NOTE ? 12 : -12;
+  let delta = 0;
+  while (isValidNote(note + delta + shift)) {
+    delta += shift;
+  }
+  return note + delta;
+}
+
+function transposeIntoRange(note) {
+  while (note > MAX_NOTE) {
+    note -= 12;
+  }
+  while (note < MIN_NOTE) {
+    note += 12;
+  }
+  return note;
+}
+
+function mountChord(tonic, chord) {
+  return Tone.Frequency(tonic, 'midi').toNote() + chord;
+}
+
+function restPad(note) {
+  if (Math.random() < 0.6) {
+    return [note, -2];
+  } else if (Math.random() < 0.8) {
+    return [note];
+  } else {
+    return [note, -2, -2];
+  }
+}
+
+function playStep(time = Tone.now() - Tone.context.lookAhead) {
+  let notesToPlay = distributeNotesToPlay(
+  collectNotesToPlay(currentStep % SEQ_LENGTH));
+
+  for (let { delay, notes } of notesToPlay) {
+    let voice = 0;
+    let stepSamplers = _.shuffle(samplers);
+    for (let { pitch, path, halo } of notes) {
+      let freq = Tone.Frequency(pitch, 'midi');
+      let playTime = time + delay + HUMANIZE_TIMING * Math.random();
+      let velocity;
+      if (delay === 0) velocity = 'high';else
+      if (delay === sixteenth / 2) velocity = 'mid';else
+      velocity = 'low';
+
+      if (currentMidiOutput) {
+        let delay = (playTime - Tone.now() + Tone.context.lookAhead) * 1000;
+        let duration = Tone.Time('16n').toMilliseconds();
+        let midiVelocity = { high: 1, mid: 0.75, low: 0.5 }[velocity];
+        currentMidiOutput.playNote(freq.toNote(), 'all', {
+          time: delay > 0 ? `+${delay}` : WebMidi.now,
+          velocity: midiVelocity,
+          duration });
+
+      } else {
+        stepSamplers[voice++ % stepSamplers.length][velocity].triggerAttack(
+        freq,
+        playTime);
+
+      }
+      Tone.Draw.schedule(() => animatePlay(path, halo), playTime);
+    }
+  }
+  currentStep++;
+}
+
+function collectNotesToPlay(step) {
+  let notesToPlay = [];
+  for (let seq of sequences) {
+    if (!seq.on) continue;
+    if (seq.notes.has(step)) {
+      notesToPlay.push(seq.notes.get(step));
+    }
+  }
+  return _.shuffle(notesToPlay);
+}
+
+function distributeNotesToPlay(notes) {
+  let subdivisions = [
+  { delay: 0, notes: [] },
+  { delay: sixteenth / 2, notes: [] },
+  { delay: sixteenth, notes: [] },
+  { delay: sixteenth * 3 / 2, notes: [] }];
+
+  if (notes.length) {
+    subdivisions[0].notes.push(notes.pop());
+  }
+  if (notes.length) {
+    subdivisions[2].notes.push(notes.pop());
+  }
+  while (notes.length && Math.random() < Math.min(notes.length, 6) / 10) {
+    let rnd = Math.random();
+    let subdivision;
+    if (rnd < 0.4) {
+      subdivision = 0;
+    } else if (rnd < 0.6) {
+      subdivision = 1;
+    } else if (rnd < 0.8) {
+      subdivision = 2;
+    } else {
+      subdivision = 3;
+    }
+    subdivisions[subdivision].notes.push(notes.pop());
+  }
+  return subdivisions;
+}
+
+function animatePlay(pathEl, haloEl) {
+  pathEl.animate([{ fill: 'white' }, { fill: '#e91e63' }], {
+    duration: quarter * 1000,
+    easing: 'ease-out' });
+
+  haloEl.animate([{ opacity: 1 }, { opacity: 0 }], {
+    duration: quarter * 1000,
+    easing: 'ease-out' });
+
+}
+
+function toggleSeq(seqObj) {
+  if (seqObj.on) {
+    seqObj.on = false;
+    seqObj.group.setAttribute('class', '');
+  } else {
+    seqObj.on = true;
+    seqObj.group.setAttribute('class', 'on');
+  }
+}
+
+function toggleHover(seqObj, on) {
+  let cls = seqObj.group.getAttribute('class') || '';
+  if (on && cls.indexOf('hover') < 0) {
+    seqObj.group.setAttribute('class', cls + ' hover');
+  } else if (!on && cls.indexOf('hover') >= 0) {
+    seqObj.group.setAttribute('class', cls.replace('hover', ''));
+  }
+}
+
+function buildSlice(centerX, centerY, startAngle, endAngle, radius) {
+  let startX = centerX + Math.cos(startAngle) * radius;
+  let startY = centerY + Math.sin(startAngle) * radius;
+  let endX = centerX + Math.cos(endAngle) * radius;
+  let endY = centerY + Math.sin(endAngle) * radius;
+  let pathString = `M ${centerX} ${centerY} L ${startX} ${startY} A ${radius} ${radius} 0 0 1 ${endX} ${endY} Z`;
+  let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', pathString);
+  path.setAttribute('style', `transform-origin: ${centerX}px ${centerY}px`);
+  return path;
+}
+
+function buildSeed(chord) {
+  let notes = Tonal.Chord.notes(chord).
+  map(n => Tonal.Note.midi(n)).
+  map(transposeIntoRange);
+  return _.flatMap(_.shuffle(notes), restPad);
+}
+
+function generateSpace() {
+  let previouslyOn = _.fromPairs(sequences.map((s, idx) => [idx, s.on]));
+  let chords = [
+  mountChord(octaveShift(MIN_NOTE + tonicLeft), chordLeft),
+  mountChord(MIN_NOTE + tonicLeft, chordLeft),
+  mountChord(octaveShift(MIN_NOTE + tonicRight), chordRight),
+  mountChord(MIN_NOTE + tonicRight, chordRight)];
+
+  return Promise.all([
+  generateSeq(chords[0], buildSeed(chords[0])),
+  generateSeq(chords[1], buildSeed(chords[1])),
+  generateSeq(chords[2], buildSeed(chords[2])),
+  generateSeq(chords[3], buildSeed(chords[3]))]).
+
+  then(noteSeqs => vae.interpolate(noteSeqs, N_INTERPOLATIONS)).
+  then(res => {
+    while (container.firstChild) {
+      container.firstChild.remove();
+    }
+    while (haloContainer.firstChild) {
+      haloContainer.firstChild.remove();
+    }
+    let cellSize = 1000 / N_INTERPOLATIONS;
+    let margin = cellSize / 30;
+
+    sequences = res.map((noteSeq, idx) => {
+      let row = Math.floor(idx / N_INTERPOLATIONS);
+      let col = idx - row * N_INTERPOLATIONS;
+      let centerX = (col + 0.5) * cellSize + margin;
+      let centerY = (row + 0.5) * cellSize + margin;
+      let maxInterval = MAX_NOTE;
+      let maxRadius = cellSize / 2 - 2 * margin;
+
+      let group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      if (previouslyOn[idx]) {
+        group.setAttribute('class', 'on');
+      }
+      group.style.transformOrigin = `${centerX}px ${centerY}px`;
+      group.style.transform = 'scale(0)';
+      group.animate([{ transform: 'scale(0)' }, { transform: 'scale(1)' }], {
+        duration: 200,
+        delay:
+        (N_INTERPOLATIONS / 2 - Math.abs(row - N_INTERPOLATIONS / 2)) * 25 +
+        (N_INTERPOLATIONS / 2 - Math.abs(col - N_INTERPOLATIONS / 2)) * 25,
+        fill: 'forwards' });
+
+      container.appendChild(group);
+
+      let halo = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'circle');
+
+      halo.setAttribute('class', 'halo');
+      halo.setAttribute('fill', 'url(#halo');
+      halo.setAttribute('cx', centerX);
+      halo.setAttribute('cy', centerY);
+      halo.setAttribute('r', maxRadius + 2);
+      haloContainer.appendChild(halo);
+
+      let notes = new Map();
+      for ({ pitch, quantizedStartStep, quantizedEndStep } of noteSeq.notes) {
+        if (!isValidNote(pitch, 4)) {
+          continue;
+        }
+        let relPitch = (maxInterval - (pitch - MIN_NOTE)) / maxInterval;
+        let radius = relPitch * maxRadius;
+        let startAngle = quantizedStartStep / SEQ_LENGTH * Math.PI * 2;
+        let endAngle = quantizedEndStep / SEQ_LENGTH * Math.PI * 2;
+
+        let path = buildSlice(centerX, centerY, startAngle, endAngle, radius);
+        path.setAttribute('class', 'note');
+        group.appendChild(path);
+        notes.set(quantizedStartStep, {
+          pitch,
+          path,
+          halo });
+
+      }
+
+      let pointerArea = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'rect');
+
+      pointerArea.setAttribute('x', col * cellSize);
+      pointerArea.setAttribute('y', row * cellSize);
+      pointerArea.setAttribute('width', cellSize);
+      pointerArea.setAttribute('height', cellSize);
+      pointerArea.setAttribute('class', 'pointer-area');
+      group.appendChild(pointerArea);
+
+      let seqObj = { notes, group, on: previouslyOn[idx] };
+
+      pointerArea.addEventListener('mousedown', () => toggleSeq(seqObj));
+      pointerArea.addEventListener('mouseover', () => {
+        toggleHover(seqObj, true);
+        mouseDown && toggleSeq(seqObj);
+      });
+      pointerArea.addEventListener('mouseout', () =>
+      toggleHover(seqObj, false));
+
+      return seqObj;
+    });
+  });
+}
+
+function regenerateSpace() {
+  // Pause Tone timeline while regenerating so events don't pile up if it's laggy.
+  Tone.Transport.pause();
+  generatingIndicator.style.display = 'flex';
+  setTimeout(() => {
+    generateSpace().then(() => {
+      generatingIndicator.style.display = 'none';
+      setTimeout(() => Tone.Transport.start(), 0);
+    });
+  }, 0);
+}
+
+function startTransportPlay() {
+  if (_.isNull(transportPlayerId)) {
+    transportPlayerId = Tone.Transport.scheduleRepeat(playStep, '16n');
+  }
+}
+
+function stopTransportPlay() {
+  if (!_.isNull(transportPlayerId)) {
+    Tone.Transport.clear(transportPlayerId);
+    transportPlayerId = null;
+  }
+}
+
+Promise.all([
+rnn.initialize(),
+vae.initialize(),
+new Promise(res => Tone.Buffer.on('load', res))]).
+
+then(generateSpace).
+then(() => loadingIndicator.style.display = 'none').
+then(() => {
+  startTransportPlay();
+  Tone.Transport.start();
+});
+
+document.documentElement.addEventListener(
+'mousedown',
+() => mouseDown = true);
+
+document.documentElement.addEventListener('mouseup', () => mouseDown = false);
+
+tonicLeftButtons.forEach((el) =>
+el.addEventListener('click', evt => {
+  tonicLeft = +evt.target.dataset.tonic;
+  tonicLeftButtons.forEach((b) =>
+  b.classList.toggle('active', b === evt.target));
+
+  regenerateSpace();
+}));
+
+tonicRightButtons.forEach((el) =>
+el.addEventListener('click', evt => {
+  tonicRight = +evt.target.dataset.tonic;
+  tonicRightButtons.forEach((b) =>
+  b.classList.toggle('active', b === evt.target));
+
+  regenerateSpace();
+}));
+
+chordLeftButtons.forEach((el) =>
+el.addEventListener('click', evt => {
+  chordLeft = CHORD_SYMBOLS[evt.target.dataset.chord];
+  chordLeftButtons.forEach((b) =>
+  b.classList.toggle('active', b === evt.target));
+
+  regenerateSpace();
+}));
+
+chordRightButtons.forEach((el) =>
+el.addEventListener('click', evt => {
+  chordRight = CHORD_SYMBOLS[evt.target.dataset.chord];
+  chordRightButtons.forEach((b) =>
+  b.classList.toggle('active', b === evt.target));
+
+  regenerateSpace();
+}));
+
+
+tempoSelector.addEventListener('input', () => {
+  Tone.Transport.bpm.value = +tempoSelector.value;
+  tempoLabel.innerText = tempoSelector.value;
+});
+
+WebMidi.enable(err => {
+  if (err) {
+    console.log(err);
+  } else {
+    midiRequiredStuff.forEach(el => el.classList.remove('midi-required'));
+
+    function updateSelectors() {
+      while (outputSelector.firstChild) {
+        outputSelector.firstChild.remove();
+      }
+
+      let internalOutputOption = document.createElement('option');
+      internalOutputOption.value = 'internal';
+      internalOutputOption.textContent = 'Internal';
+      internalOutputOption.checked = true;
+      outputSelector.appendChild(internalOutputOption);
+      for (let output of WebMidi.outputs) {
+        let outputOption = document.createElement('option');
+        outputOption.value = output.id;
+        outputOption.textContent = output.name;
+        outputSelector.appendChild(outputOption);
+      }
+      onOutputChange();
+
+      while (tempoSourceSelector.firstChild) {
+        tempoSourceSelector.firstChild.remove();
+      }
+      let internalTempoSourceOption = document.createElement('option');
+      internalTempoSourceOption.value = 'internal';
+      internalTempoSourceOption.textContent = 'Internal';
+      tempoSourceSelector.appendChild(internalTempoSourceOption);
+      for (let input of WebMidi.inputs) {
+        let tempoSourceOption = document.createElement('option');
+        tempoSourceOption.value = input.id;
+        tempoSourceOption.textContent = `MIDI clock from ${input.name}`;
+        tempoSourceSelector.appendChild(tempoSourceOption);
+      }
+      onTempoSourceChange();
+    }
+
+    function onOutputChange() {
+      let outputId = outputSelector.value;
+      if (outputId === 'internal') {
+        currentMidiOutput = null;
+      } else {
+        currentMidiOutput = WebMidi.getOutputById(outputId);
+      }
+    }
+
+    let midiClockTick = 0;
+
+    function incomingMidiClockStart() {
+      currentStep = 0;
+      midiClockTick = 0;
+    }
+
+    function incomingMidiClockStop() {
+      currentStep = 0;
+      midiClockTick = 0;
+    }
+
+    function incomingMidiClockTick() {
+      if (midiClockTick++ % 6 === 0) {
+        playStep();
+      }
+    }
+
+    function onTempoSourceChange() {
+      let inputId = tempoSourceSelector.value;
+      if (inputId === 'internal') {
+        for (let input of WebMidi.inputs) {
+          input.removeListener('start', 'all', incomingMidiClockStart);
+          input.removeListener('stop', 'all', incomingMidiClockStop);
+          input.removeListener('clock', 'all', incomingMidiClockTick);
+        }
+        startTransportPlay();
+
+        tempoSelector.disabled = false;
+        tempoSelector.style.opacity = 1;
+        tempoLabel.style.opacity = 1;
+      } else {
+        stopTransportPlay();
+        let input = WebMidi.getInputById(inputId);
+        input.addListener('start', 'all', incomingMidiClockStart);
+        input.addListener('stop', 'all', incomingMidiClockStop);
+        input.addListener('clock', 'all', incomingMidiClockTick);
+
+        tempoSelector.disabled = true;
+        tempoSelector.style.opacity = 0;
+        tempoLabel.style.opacity = 0;
+      }
+    }
+
+    updateSelectors();
+
+    WebMidi.addListener('connected', updateSelectors);
+    WebMidi.addListener('disconnected', updateSelectors);
+    outputSelector.addEventListener('change', onOutputChange);
+    tempoSourceSelector.addEventListener('change', onTempoSourceChange);
+  }
+});
+
+StartAudioContext(Tone.context, container);
+</script>
+</body>
+</html>
