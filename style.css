@@ -1,0 +1,104 @@
+@import url("https://fonts.googleapis.com/css?family=Montserrat:400,400i,700");
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 0;
+}
+html {
+  background: #01012a;
+  color: #33def4;
+}
+html,
+body {
+  -ms-scroll-chaining: none;
+      overscroll-behavior: none;
+  font-family: Montserrat, sans-serif;
+  overflow: hidden;
+}
+.box {
+  padding: 32px;
+}
+h1 {
+  font-size: 2.4rem;
+  padding-bottom: 16px;
+}
+.loading {
+  z-index: 9999;
+  background: #01012a;
+  color: #33def4;
+  text-align: center;
+  position: fixed;
+  width: 100%;
+  min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.8s 0.8s cubic-bezier(0.755, 0.05, 0.855, 0.06), visibility 0.8s 0.8s cubic-bezier(0.755, 0.05, 0.855, 0.06);
+}
+.loading.loaded {
+  opacity: 0;
+  visibility: hidden;
+}
+.loading .loading-container {
+  position: relative;
+  width: 40%;
+  overflow: hidden;
+}
+.loading .loading-container .counter {
+  padding: 0.8rem;
+  transform: traslate(0, 0);
+}
+.loading .loading-container .counter.loaded {
+  -webkit-animation: counter-animation 0.8s cubic-bezier(0.755, 0.05, 0.855, 0.06) 0.8s 1 normal forwards running;
+          animation: counter-animation 0.8s cubic-bezier(0.755, 0.05, 0.855, 0.06) 0.8s 1 normal forwards running;
+}
+.loading .loading-container .line {
+  position: absolute;
+  background: #03e2e7;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+}
+.loading .loading-container .line.loaded {
+  -webkit-animation: line-animation 0.8s cubic-bezier(0.755, 0.05, 0.855, 0.06) 0s 1 normal forwards running;
+          animation: line-animation 0.8s cubic-bezier(0.755, 0.05, 0.855, 0.06) 0s 1 normal forwards running;
+}
+@-webkit-keyframes counter-animation {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(0, 10%);
+  }
+}
+@keyframes counter-animation {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(0, 10%);
+  }
+}
+@-webkit-keyframes line-animation {
+  0% {
+    left: 0;
+  }
+  100% {
+    left: 100%;
+  }
+}
+@keyframes line-animation {
+  0% {
+    left: 0;
+  }
+  100% {
+    left: 100%;
+  }
+}
