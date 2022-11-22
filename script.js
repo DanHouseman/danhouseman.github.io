@@ -332,7 +332,7 @@ class Sketch {
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d');
 
-    this.canvas.ariaLabel = 'This is images gallery.';
+    this.canvas.ariaLabel = "Dan Houseman's portfolio of amazing images: ";
     this.canvas.role = 'img';
 
     this.canvas.style.position = 'fixed';
