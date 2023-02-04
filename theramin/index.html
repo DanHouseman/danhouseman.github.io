@@ -26,8 +26,9 @@ let onclicked = false;
 
     window.addEventListener('click', function(){
       if(onclicked == false) {
+onclicked = true;
         DeviceOrientationEvent.requestPermission();
-        onclicked = true;
+        
       }
     });
 
