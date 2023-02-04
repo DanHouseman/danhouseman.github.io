@@ -24,6 +24,7 @@ let phone = false;
 let playing = false;
 
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  DeviceOrientationEvent.requestPermission();
   phone = true;
 }
 
