@@ -22,6 +22,8 @@ body {
   background:url(https://danhouseman.com/img/cuttingboard.jpeg);
   background-size:cover;
   background-position:center;
+  touch-action:none;
+  user-select:none;
 }
 
 div {
@@ -33,6 +35,8 @@ div {
 
 .stage-bg {
   background:linear-gradient(rgba(0,0,0,0) 77%,rgba(0,0,0,0.5));
+  overflow: hidden;
+  touch-action:none;
 }
 
 .follower {
@@ -44,7 +48,7 @@ div {
   width:100vw;
   height:100vh;
   overflow: hidden;
-  
+  touch-action:none;
 }
 
 .score {
@@ -93,7 +97,7 @@ div {
 </style>
 </head>
 <body>
-<!-- partial:index.partial.html -->
+
 <div class="stage stage-bg"></div>
 <div class="stage stage-fg"></div>
 <div class="score"></div>
@@ -114,23 +118,7 @@ const cuttingBoard = document.querySelector(".stage-bg");
 const foreGround = document.querySelector(".stage-fg");
 const score = document.querySelector(".score");
 const timer = document.querySelector(".timer");
-const foodStuffs = [
-    "🦃",
-    "🍗",
-    "🥕",
-    "🍆",
-    "🥬",
-    "🥔",
-    "🥦",
-    "🧅",
-    "🧄",
-    "🐓",
-    "🫛",
-    "🌽",
-    "🍖",
-    "🧀",
-    "🍰"
-];
+const foodStuffs = [ "🦃","🍗","🥕","🍆","🥬", "🥔", "🥦","🧅", "🧄", "🐓", "🫛","🌽", "🍖", "🧀", "🍰"];
 const foodStuffsTLs = [];
 const props = { x: 0, dir: 1 };
 let foodStuffsNum = 0;
@@ -178,7 +166,7 @@ window.onpointerdown = (e) => {
                     }
                     pts++;
                     score.innerHTML =
-                        "Sliced " + pts + '<span class="num"> / ' + foodStuffsNum + "</span>";
+                        "Massacred: " + pts + '<span class="num"> / ' + foodStuffsNum + "</span>";
                     foreGround.append(item);
                     gsap
                         .timeline()
@@ -196,6 +184,7 @@ window.onpointerdown = (e) => {
 };
 
 window.onpointerup = (e) => {
+    e.preventDefault();
     gsap.to(".knife", { duration: 0.3, rotate: 125, xPercent: -50, scale: 1 });
     gsap.to(".follower", {
         duration: 0.3,
@@ -204,6 +193,7 @@ window.onpointerup = (e) => {
 };
 
 window.onpointermove = (e) => {
+    e.preventDefault();
     props.x = gsap.getProperty(".follower", "x");
     props.dir = e.x > props.x ? -1 : 1;
     gsap.to(".follower", { y: e.y });
@@ -223,7 +213,7 @@ window.onpointermove = (e) => {
 function addfoodStuffs() {
     foodStuffsNum++;
     score.innerHTML =
-        "Sliced " + pts + '<span class="num"> / ' + foodStuffsNum + "</span>";
+        "Massacred: " + pts + '<span class="num"> / ' + foodStuffsNum + "</span>";
     const f = document.createElement("div");
     cuttingBoard.append(f);
     foodStuffsTLs.push(
