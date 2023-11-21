@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Kungfu Kitchen Bitch</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css?family=Playpen Sans');
+
+html, body {
+  margin:0;
+  padding:0;
+  width:100;
+  height:100%;
+}
+
+body {
+  overflow:hidden;
+  background:url(https://danhouseman.com/img/cuttingboard.jpeg);
+  background-size:cover;
+  background-position:center;
+}
+
+div {
+  position:absolute;
+  left:0;
+  top:0;
+  user-select:none;
+}
+
+.stage-bg {
+  background:linear-gradient(rgba(0,0,0,0) 77%,rgba(0,0,0,0.5));
+}
+
+.follower {
+  font-size:150px;
+  pointer-events:none;
+}
+
+.stage {
+  width:100%;
+  height:100%;
+}
+
+.score {
+  font-size:40px;
+  left:20px;
+  top:10px;
+  font-family: 'Playpen Sans', sans-serif;
+  color:#fff;
+}
+
+.score .num {
+  font-size:0.65em;
+  color:#ccc;
+}
+
+.timer {
+  font-size:85px;
+  top:unset;
+  bottom:115px;
+  left:15px;
+  display:flex;
+}
+
+.timer .face {
+  overflow:hidden;
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  left:10px;
+  top:22px;
+}
+
+.timer .face .inner {
+  left:-10px;
+  top:-22px;
+}
+
+.replay {
+  font-size:25px;
+  width:200px;
+  left:105px;
+  top:35px;
+  font-family: 'Playpen Sans', sans-serif;
+  color:#fff;
+}
+</style>
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div class="stage stage-bg"></div>
+<div class="stage stage-fg"></div>
+<div class="score"></div>
+<div class="timer">
+  <div class="replay"></div>
+  <div class="outter">⏲️</div>
+  <div class="face">
+    <div class="inner">⏲️</div>
+  </div>
+</div>
+<div class="follower">
+  <div class="knife">🔪</div>
+</div>
+<!-- partial -->
+  <script src='https://unpkg.co/gsap@3/dist/gsap.min.js'></script>
+  <script>
+const cuttingBoard = document.querySelector(".stage-bg");
+const foreGround = document.querySelector(".stage-fg");
+const score = document.querySelector(".score");
+const timer = document.querySelector(".timer");
+const foodStuffs = [
+    "🦃",
+    "🍗",
+    "🥕",
+    "🍆",
+    "🥬",
+    "🥔",
+    "🥦",
+    "🧅",
+    "🧄",
+    "🐓",
+    "🫛",
+    "🌽",
+    "🍖",
+    "🧀",
+    "🍰"
+];
+const foodStuffsTLs = [];
+const props = { x: 0, dir: 1 };
+let foodStuffsNum = 0;
+let pts = 0;
+let timeScale = 1;
+
+gsap.set(".follower", { filter: "drop-shadow(30px 30px 4px rgba(0,0,0,0.1))" });
+gsap.set(".knife", { rotate: -90, xPercent: -50, yPercent: -55 });
+
+window.onpointerdown = (e) => {
+    gsap
+        .timeline({ defaults: { duration: 0.3, ease: "back.out(4)" } })
+        .to(".knife", { rotate: 200, xPercent: -30, scale: 0.8 }, 0)
+        .to(".follower", { filter: "drop-shadow(5px 7px 2px rgba(0,0,0,0.3))" }, 0)
+        .add(() => {
+            //check distance between foodStuffs and knife
+            const mark = document.createElement("div");
+            foreGround.append(mark);
+            gsap.fromTo(
+                mark, { innerHTML: "🗯️", x: e.x + 84, y: e.y - 20, rotate: "random(0,360)" }, {
+                    scale: 4,
+                    duration: 0.1,
+                    opacity: 0.5,
+                    onComplete: () => mark.remove()
+                }
+            );
+            for (const item of cuttingBoard.children) {
+                const dX = Math.abs(gsap.getProperty(item, "x") - (e.x + 84));
+                const dY = Math.abs(gsap.getProperty(item, "y") - (e.y - 25));
+                const dist = (dX + dY) / 2;
+                if (dist < 60) {
+                    if (item.innerHTML == "⏱️") {
+                        timeScale = 0.2;
+                        gsap.to(foodStuffsTLs, { timeScale: timeScale });
+                        gsap.to(".stage-bg", {
+                            background: "linear-gradient(rgba(0,120,230,0.5) 77%,rgba(0,100,255,0.9))"
+                        });
+                        gsap.delayedCall(5, () => {
+                            timeScale = 1;
+                            gsap.set(foodStuffsTLs, { timeScale: 1 });
+                            gsap.to(".stage-bg", {
+                                background: "linear-gradient(rgba(0,0,0,0) 77%,rgba(0,0,0,0.5))"
+                            });
+                        });
+                    }
+                    pts++;
+                    score.innerHTML =
+                        "Sliced " + pts + '<span class="num"> / ' + foodStuffsNum + "</span>";
+                    foreGround.append(item);
+                    gsap
+                        .timeline()
+                        .set(mark, { autoAlpha: 0 })
+                        .set(item, {
+                            innerHTML: "💥",
+                            rotate: "random(0,200,0)",
+                            filter: "drop-shadow(0px 0px 0px rgba(0,0,0,0))"
+                        })
+                        .to(item, { duration: 0.1, scale: 2 })
+                        .to(item, { duration: 0.1, scale: 0, ease: "expo.inOut" });
+                }
+            }
+        }, 0.15);
+};
+
+window.onpointerup = (e) => {
+    gsap.to(".knife", { duration: 0.3, rotate: 125, xPercent: -50, scale: 1 });
+    gsap.to(".follower", {
+        duration: 0.3,
+        filter: "drop-shadow(30px 30px 4px rgba(0,0,0,0.1))"
+    });
+};
+
+window.onpointermove = (e) => {
+    props.x = gsap.getProperty(".follower", "x");
+    props.dir = e.x > props.x ? -1 : 1;
+    gsap.to(".follower", { y: e.y });
+    gsap.to(".follower", {
+        x: e.x,
+        duration: 1,
+        ease: "expo",
+        onUpdate: () => {
+            const rot = Math.abs(e.x - gsap.getProperty(".follower", "x")) / 6;
+            gsap.set(".follower", {
+                rotate: gsap.utils.clamp(0, 33, rot) * props.dir
+            });
+        }
+    });
+};
+
+function addfoodStuffs() {
+    foodStuffsNum++;
+    score.innerHTML =
+        "Sliced " + pts + '<span class="num"> / ' + foodStuffsNum + "</span>";
+    const f = document.createElement("div");
+    cuttingBoard.append(f);
+    foodStuffsTLs.push(
+        gsap
+        .timeline({
+            onComplete: () => {
+                f.remove();
+                foodStuffsTLs.shift();
+            }
+        })
+        .fromTo(
+            f, {
+                innerHTML: foodStuffsNum == 8 || foodStuffsNum == 36 ?
+                    "⏱️" : foodStuffs[gsap.utils.random(0, foodStuffs.length - 1, 1)],
+                fontSize: 99,
+                xPercent: -50,
+                yPercent: -50,
+                y: innerHeight + 99,
+                x: gsap.utils.random(200, innerWidth - 100, 1),
+                rotate: foodStuffsNum % 2 == 0 ? 10 : -10,
+                filter: "drop-shadow(20px -10px 4px rgba(0,0,0,0.2))"
+            }, {
+                duration: 3,
+                x: "+=" + "random(-200,200)",
+                rotate: foodStuffsNum % 2 == 0 ? -10 : 10
+            }
+        )
+        .to(
+            f, {
+                y: gsap.utils.random(0, innerHeight / 2, 1),
+                filter: "drop-shadow(30px 30px 4px rgba(0,0,0,0.1))",
+                duration: 1.5,
+                yoyo: true,
+                repeat: 1
+            },
+            0
+        )
+        .timeScale(timeScale)
+    );
+}
+
+const foodStuffsTL = gsap.to(window, { duration: 1, repeat: 50, onRepeat: addfoodStuffs });
+
+const timerTL = gsap
+    .timeline({ onComplete: gameEnd })
+    .to(".timer .face", { rotate: -50, ease: "power1.in" })
+    .to(".timer .face", {
+        rotate: 0,
+        ease: "none",
+        duration: foodStuffsTL.totalDuration()
+    });
+
+function gameEnd() {
+    gsap.timeline().fromTo(
+        ".replay", {
+            innerHTML: "⬅️ Replay?",
+            opacity: 0,
+            x: 100
+        }, {
+            ease: "back.out(3)",
+            opacity: 1,
+            x: 0
+        }
+    );
+
+    timer.onclick = () => {
+        timer.onclick = null;
+        pts = foodStuffsNum = 0;
+        score.innerHTML = "Score: 0";
+        gsap.to(".replay", { opacity: 0 });
+        foodStuffsTL.play(0);
+        timerTL.play(0);
+    };
+}    
+  </script>
+
+</body>
+</html>
