@@ -129,7 +129,7 @@ gsap.set(".follower", { filter: "drop-shadow(30px 30px 4px rgba(0,0,0,0.1))" });
 gsap.set(".knife", { rotate: -90, xPercent: -50, yPercent: -55 });
 
 window.onpointerdown = (e) => {
-  e.preventDefault();
+  
     gsap
         .timeline({ defaults: { duration: 0.3, ease: "back.out(4)" } })
         .to(".knife", { rotate: 200, xPercent: -30, scale: 0.8 }, 0)
@@ -184,7 +184,7 @@ window.onpointerdown = (e) => {
 };
 
 window.onpointerup = (e) => {
-    e.preventDefault();
+    
     gsap.to(".knife", { duration: 0.3, rotate: 125, xPercent: -50, scale: 1 });
     gsap.to(".follower", {
         duration: 0.3,
