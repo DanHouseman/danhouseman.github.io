@@ -129,7 +129,6 @@ gsap.set(".follower", { filter: "drop-shadow(30px 30px 4px rgba(0,0,0,0.1))" });
 gsap.set(".knife", { rotate: -90, xPercent: -50, yPercent: -55 });
 
 window.onpointerdown = (e) => {
-  
     gsap
         .timeline({ defaults: { duration: 0.3, ease: "back.out(4)" } })
         .to(".knife", { rotate: 200, xPercent: -30, scale: 0.8 }, 0)
@@ -149,7 +148,7 @@ window.onpointerdown = (e) => {
                 const dX = Math.abs(gsap.getProperty(item, "x") - (e.x + 84));
                 const dY = Math.abs(gsap.getProperty(item, "y") - (e.y - 25));
                 const dist = (dX + dY) / 2;
-                if (dist < 60) {
+                if (dist < 80) {
                     if (item.innerHTML == "⏱️") {
                         timeScale = 0.2;
                         gsap.to(foodStuffsTLs, { timeScale: timeScale });
@@ -184,7 +183,6 @@ window.onpointerdown = (e) => {
 };
 
 window.onpointerup = (e) => {
-    
     gsap.to(".knife", { duration: 0.3, rotate: 125, xPercent: -50, scale: 1 });
     gsap.to(".follower", {
         duration: 0.3,
@@ -193,7 +191,6 @@ window.onpointerup = (e) => {
 };
 
 window.onpointermove = (e) => {
-   
     props.x = gsap.getProperty(".follower", "x");
     props.dir = e.x > props.x ? -1 : 1;
     gsap.to(".follower", { y: e.y });
