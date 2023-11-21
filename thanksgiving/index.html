@@ -193,7 +193,7 @@ window.onpointerup = (e) => {
 };
 
 window.onpointermove = (e) => {
-    e.preventDefault();
+   
     props.x = gsap.getProperty(".follower", "x");
     props.dir = e.x > props.x ? -1 : 1;
     gsap.to(".follower", { y: e.y });
