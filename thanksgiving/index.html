@@ -2,7 +2,7 @@
 <html lang="en" >
 <head>
   <meta charset="UTF-8">
-  <title>Kungfu Kitchen Bitch</title>
+  <title>Thanksgiving Day: A Massacre of Epic Emojis</title>
 
 <style>
   @import url('https://fonts.googleapis.com/css?family=Playpen Sans');
@@ -10,8 +10,11 @@
 html, body {
   margin:0;
   padding:0;
-  width:100;
-  height:100%;
+  width:100vw;
+  height:100vh;
+  overflow: hidden;
+  touch-action:none;
+  
 }
 
 body {
@@ -19,17 +22,21 @@ body {
   background:url(https://danhouseman.com/img/cuttingboard.jpeg);
   background-size:cover;
   background-position:center;
+  touch-action:none;
+  user-select:none;
 }
 
 div {
   position:absolute;
   left:0;
   top:0;
-  user-select:none;
+  
 }
 
 .stage-bg {
   background:linear-gradient(rgba(0,0,0,0) 77%,rgba(0,0,0,0.5));
+  overflow: hidden;
+  
 }
 
 .follower {
@@ -38,8 +45,10 @@ div {
 }
 
 .stage {
-  width:100%;
-  height:100%;
+  width:100vw;
+  height:100vh;
+  overflow: hidden;
+  
 }
 
 .score {
@@ -88,7 +97,7 @@ div {
 </style>
 </head>
 <body>
-<!-- partial:index.partial.html -->
+
 <div class="stage stage-bg"></div>
 <div class="stage stage-fg"></div>
 <div class="score"></div>
@@ -109,23 +118,7 @@ const cuttingBoard = document.querySelector(".stage-bg");
 const foreGround = document.querySelector(".stage-fg");
 const score = document.querySelector(".score");
 const timer = document.querySelector(".timer");
-const foodStuffs = [
-    "🦃",
-    "🍗",
-    "🥕",
-    "🍆",
-    "🥬",
-    "🥔",
-    "🥦",
-    "🧅",
-    "🧄",
-    "🐓",
-    "🫛",
-    "🌽",
-    "🍖",
-    "🧀",
-    "🍰"
-];
+const foodStuffs = [ "🦃","🍗","🥕","🍆","🥬", "🥔", "🥦","🧅", "🧄", "🐓", "🫛","🌽", "🍖", "🧀", "🍰"];
 const foodStuffsTLs = [];
 const props = { x: 0, dir: 1 };
 let foodStuffsNum = 0;
@@ -141,7 +134,6 @@ window.onpointerdown = (e) => {
         .to(".knife", { rotate: 200, xPercent: -30, scale: 0.8 }, 0)
         .to(".follower", { filter: "drop-shadow(5px 7px 2px rgba(0,0,0,0.3))" }, 0)
         .add(() => {
-            //check distance between foodStuffs and knife
             const mark = document.createElement("div");
             foreGround.append(mark);
             gsap.fromTo(
@@ -156,7 +148,7 @@ window.onpointerdown = (e) => {
                 const dX = Math.abs(gsap.getProperty(item, "x") - (e.x + 84));
                 const dY = Math.abs(gsap.getProperty(item, "y") - (e.y - 25));
                 const dist = (dX + dY) / 2;
-                if (dist < 60) {
+                if (dist < 80) {
                     if (item.innerHTML == "⏱️") {
                         timeScale = 0.2;
                         gsap.to(foodStuffsTLs, { timeScale: timeScale });
@@ -173,7 +165,7 @@ window.onpointerdown = (e) => {
                     }
                     pts++;
                     score.innerHTML =
-                        "Sliced " + pts + '<span class="num"> / ' + foodStuffsNum + "</span>";
+                        "Massacred: " + pts + '<span class="num"> / ' + foodStuffsNum + "</span>";
                     foreGround.append(item);
                     gsap
                         .timeline()
@@ -218,7 +210,7 @@ window.onpointermove = (e) => {
 function addfoodStuffs() {
     foodStuffsNum++;
     score.innerHTML =
-        "Sliced " + pts + '<span class="num"> / ' + foodStuffsNum + "</span>";
+        "Massacred: " + pts + '<span class="num"> / ' + foodStuffsNum + "</span>";
     const f = document.createElement("div");
     cuttingBoard.append(f);
     foodStuffsTLs.push(
