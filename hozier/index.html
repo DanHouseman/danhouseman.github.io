@@ -617,51 +617,10 @@
         font-family: tenon, sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        overflow: hidden;
     }
 
-    .demo-2 {
-        --color-text: #a5a5a5;
-        --color-bg: #000000;
-        --color-link: #ea34a6;
-        --color-link-hover: #fff;
-        --color-font-circle: #7b7772;
-        --color-button: #ea34a6;
-        --color-text-button: #000000;
-        --color-text-circle-1: #ea34a6;
-        --color-text-circle-2: #422163;
-        --color-text-circle-3: #212044;
-        --color-text-circle-4: #292725;
-        --font-circle-1: niagara, serif;
-        --font-weight-circle-1: 300;
-        --font-circle-2: ambroise-firmin-std, serif;
-        --font-weight-circle-2: 300;
-        --font-circle-3: modesto-condensed, serif;
-        --font-weight-circle-3: 400;
-        --font-circle-4: niagara, serif;
-        --font-weight-circle-4: 300;
-    }
-
-    .demo-3 {
-        --color-text: #292725;
-        --color-bg: #dad4d1;
-        --color-link: #a99c90;
-        --color-link-hover: #292725;
-        --color-font-circle: #7b7772;
-        --color-button: #a99c90;
-        --color-text-button: #272524;
-        --color-text-circle-1: #272524;
-        --color-text-circle-2: #272524;
-        --color-text-circle-3: #272524;
-        --color-text-circle-4: #272524;
-        --font-circle-1: modesto-condensed, serif;
-        --font-weight-circle-1: 400;
-        --font-circle-2: ambroise-firmin-std, serif;
-        --font-weight-circle-2: 300;
-        --font-circle-3: modesto-condensed, serif;
-        --font-weight-circle-3: 400;
-        --font-circle-4: niagara, sans-serif;
-        --font-weight-circle-4: 300;
-    }
+  
 
     /* Page Loader */
     .js body::before,
@@ -1336,7 +1295,7 @@
                     </div>
                 </div>
             </div>
-            <audio src="https://us-tuna-sounds-files.voicemod.net/74e39fdd-9e54-4031-a1a3-6e0d3e40e6e0-1699435091966.mp3">
+            <audio stylee="hidden: true" src="https://us-tuna-sounds-files.voicemod.net/74e39fdd-9e54-4031-a1a3-6e0d3e40e6e0-1699435091966.mp3">
         </div>
         <button class="enter">
             <div class="enter__bg"></div>
@@ -7081,7 +7040,9 @@
 
                         this.enterClickEv = function() {
                             document.getElementsByTagName("audio")[0].play();
-                            return _this.enter();
+                            setTimeout(()=>{return _this.enter()}, 1800);
+                            
+                            //return _this.enter();
                         };
 
                         DOM.enterCtrl.addEventListener('mouseenter', this.enterMouseEnterEv);
