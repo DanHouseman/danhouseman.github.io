@@ -1,7 +1,7 @@
 console.clear();
 
-import * as THREE from '/three.module.js';
-import { OrbitControls } from '/orbitControls.js';
+import * as THREE from 'https://www.danhouseman.com/colorStudy/three.module.js';
+import { OrbitControls } from 'https://www.danhouseman.com/colorStudy/orbitControls.js';
 
 let cam,scene,root,renderer,controls,layers,
 objects = [],cubeSize = 100,dotSize = 1.25,
