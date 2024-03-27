@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Color Graph Visualization</title>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <style>
+        .links line {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+
+        .links line.highlight {
+            stroke-opacity: 1;
+            stroke: #000;
+            stroke-width: 2px;
+        }
+
+        .nodes circle {
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+
+        .tooltip {
+            position: absolute;
+            text-align: left;
+            width: auto;
+            height: auto;
+            padding: 10px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+<input type="text" id="search" placeholder="Search by name...">
+    <svg width="1024" height="768"></svg>
+    <div class="tooltip"></div>
+
+    <script>
+        const svg = d3.select("svg");
+        const width = +svg.attr("width");
+        const height = +svg.attr("height");
+        const tooltip = d3.select(".tooltip");
+	var gnodes;
+
+        const radiusScale = d3.scaleSqrt().range([1, 20]); // Adjust the range based on your needs
+
+        const simulation = d3.forceSimulation()
+            .force("link", d3.forceLink().id(d => d.id).distance(5))
+            .force("charge", d3.forceManyBody().strength(-5))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        d3.json("color_graph_with_hex.json").then(graph => {
+	    
+            // Compute the degree for each node for sizing and tooltip information
+            graph.nodes.forEach(node => {
+                node.degree = graph.links.reduce((acc, link) => {
+                    return acc + (link.source.id === node.id || link.target.id === node.id ? 1 : 0);
+                }, 0);
+            });
+gnodes = graph;
+makeSearch();
+            radiusScale.domain(d3.extent(graph.nodes, d => d.degree)); // Set the domain based on degree
+
+            const link = svg.append("g")
+                .attr("class", "links")
+                .selectAll("line")
+                .data(graph.links)
+                .enter().append("line")
+                .attr("stroke-width", d => Math.sqrt(d.value));
+
+            const node = svg.append("g")
+                .attr("class", "nodes")
+                .selectAll("circle")
+                .data(graph.nodes)
+                .enter().append("circle")
+                .attr("r", d => radiusScale(d.degree * 2))
+                .attr("fill", d => d.color)
+                .call(drag(simulation));
+
+            node.on("mouseover", (event, d) => {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+
+                let connectedNodes = "";
+                graph.links.forEach(link => {
+                    if (link.source.id === d.id) {
+                        connectedNodes += `<br>${link.target.id} (${link.target.color})`;
+                    } else if (link.target.id === d.id) {
+                        connectedNodes += `<br>${link.source.id} (${link.source.color})`;
+                    }
+                });
+
+                tooltip.html(`<strong>${d.id}</strong> (${d.color})<br/>Connections:${connectedNodes}`)
+                    .style("background", d.color)
+                    .style("left", (event.pageX + 5) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+
+                link.style('stroke-opacity', l => (l.source === d || l.target === d) ? 1 : 0.6)
+                    .classed('highlight', l => l.source === d || l.target === d);
+                node.style('opacity', n => (n === d || isConnected(d, n)) ? 1 : 0.1);
+            })
+            .on("mouseout", () => {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+                link.style('stroke-opacity', 0.6).classed('highlight', false);
+                node.style('opacity', 1);
+            });
+
+            simulation
+                .nodes(graph.nodes)
+                .on("tick", ticked);
+
+            simulation.force("link")
+                .links(graph.links);
+
+            const linkedByIndex = {};
+            graph.links.forEach(d => {
+                linkedByIndex[`${d.source.id},${d.target.id}`] = 1;
+            });
+
+            function isConnected(a, b) {
+                return linkedByIndex[`${a.id},${b.id}`] || linkedByIndex[`${b.id},${a.id}`] || a.id === b.id;
+            }
+
+            function ticked() {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
+            }
+
+            function drag(simulation) {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
+                }
+
+                function dragged(event) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    event.subject.fx = null;
+                    event.subject.fy = null;
+                }
+
+                return d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended);
+            }
+        });
+   
+function makeSearch() {
+
+ var nodeNames = gnodes.nodes.map(node => node.id);
+
+    $("#search").autocomplete({
+        source: nodeNames,
+        select: function(event, ui) {
+            triggerHoverState(ui.item.value);
+        }
+    });
+};
+
+function triggerHoverState(nodeName) {
+    // Find node data by name
+    const nodeData = gnodes.nodes.find(node => node.id === nodeName);
+    if (nodeData) {
+        // Programmatically apply hover effects
+        // This is highly dependent on how your hover effects are implemented.
+        // For example, you might have a function to highlight a node and its connections:
+        highlightNode(nodeData);
+    }
+}
+function highlightNode(nodeData) {
+    // Example: Change node style
+    d3.selectAll('.nodes circle')
+        .style('opacity', 0.1); // Dim all nodes
+    d3.select(`#node-${nodeData.id}`)
+        .style('opacity', 1) // Highlight the selected node
+        .attr('r', 10); // Example: Increase radius
+
+    // Example: Highlight connected links
+    d3.selectAll('.links line')
+        .style('stroke-opacity', d => d.source === nodeData || d.target === nodeData ? 1 : 0.1);
+
+    // Display tooltip or additional information
+    // Adapt this based on how your tooltip is implemented
+    d3.select('.tooltip')
+        .style('opacity', 1)
+        .html(`<strong>${nodeData.id}</strong><br>${nodeData.color}`) // Example content
+        .style('left', `${nodeData.x}px`)
+        .style('top', `${nodeData.y}px`);
+}
+
+    </script>
+<script>
+
+</script>
+</body>
+</html>
