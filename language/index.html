@@ -813,7 +813,7 @@ Simulation.prototype.drawAgents = function () {
       'px)',
     ].join('');
 
-    circle.setAttribute('r', gridPixelSize / 2 - 1);
+    circle.setAttribute('r', gridPixelSize / 2 - 2);
     circle.setAttribute('fill', agent.color);
     if (agent.borderColor) {
       circle.setAttribute('stroke', agent.borderColor);
