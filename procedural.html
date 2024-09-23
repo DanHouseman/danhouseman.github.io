@@ -4,7 +4,157 @@
   <meta charset="UTF-8">
   <title>Procedurally Generated Music</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
-<link rel="stylesheet" href="./style.css">
+<style>
+  header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 9;
+  background: rgba(0, 0, 0, 0.6);
+}
+header section {
+  position: absolute;
+  border-radius: 2px;
+  width: 90%;
+  max-width: 600px;
+  top: 50%;
+  left: 50%;
+  background: white;
+  color: #222;
+  padding: 2rem;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+header h1 {
+  margin-top: 0;
+}
+header p {
+  text-align: left;
+}
+header small {
+  margin-top: 1rem;
+  color: #CCC;
+  display: inline-block;
+}
+
+#staff-container {
+  width: 800px;
+  overflow: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0 4rem;
+  background-color: #FFF;
+  border-radius: 4px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+input, button {
+  border-radius: 2px;
+  line-height: 1.4;
+  margin: 0;
+  padding: 0.25em 0.5em;
+}
+
+input {
+  border: 1px solid #e6e6e6;
+  width: 280px;
+}
+
+button {
+  background: #444;
+  color: white;
+  border: 1px solid #2b2b2b;
+}
+
+#play, #midi {
+  position: absolute;
+  top: 1rem;
+  z-index: 8;
+}
+
+#play {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#midi {
+  right: 1rem;
+  text-align: right;
+  margin: 0;
+}
+#midi embed {
+  position: absolute;
+  top: -99999px;
+  opacity: 0;
+  pointer-events: none;
+}
+#midi a {
+  color: #444;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  letter-spacing: 0.0125em;
+}
+
+#staff {
+  height: 440px;
+}
+#staff > div {
+  box-sizing: border-box;
+  height: 220px;
+  display: flex;
+  opacity: 1;
+  transition: opacity 250ms ease-out;
+}
+#staff > div:not(:nth-child(2)) path.symbol.l0 {
+  opacity: 0;
+}
+#staff > div:not(:nth-child(2)) {
+  transition-delay: 250ms;
+}
+#staff > div.hide {
+  opacity: 0;
+}
+#staff > div:first-child {
+  border-bottom: 1px solid #F0F0F0;
+}
+#staff > div:first-child > div {
+  align-self: flex-end;
+}
+
+@media (min-height: 792px) {
+  #staff {
+    height: 660px;
+  }
+}
+@media (min-height: 1056px) {
+  #staff {
+    height: 880px;
+  }
+}
+@media (min-height: 1320px) {
+  #staff {
+    height: 1100px;
+  }
+}
+@media (min-height: 1584px) {
+  #staff {
+    height: 1320px;
+  }
+}
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: #F0F0F0;
+  color: #222;
+  line-height: 1.7;
+}
+</style>
 
 </head>
 <body>
