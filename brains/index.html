@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>brAIns!</title>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'>
+    <style>
+    :root {
+        --author: "Dan Houseman";
+        --contact: "dan.houseman@gmail.com";
+        --description: "An AI Powered Jack-O'-Lantern generator that carves pumpkins with a sprinkle of magic and a dash of mischief. I left the dropdowns a bit wide so that you can edit the prompts to your hearts content if desired. Have fun!";
+        --keywords: "ai-halloween, spook generator, ai, jackolantern, pumpkin, halloween, spooky, generator";
+        --last-modified: "2024-10-26";
+        --content-language: "en";
+        --generator: "HTML5, CSS3, JavaScript, jQuery, Pollinations AI API";
+        --title: "AI Spooky Season Creature Creator";
+    }
+
+    * {
+        font-family: "Rubik", sans-serif;
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #121212;
+        color: #ff6600;
+    }
+
+    .header-container {
+        width: 95%;
+        max-width: 1200px;
+        margin: 2rem auto;
+    }
+
+    .header-image {
+        width: 100%;
+        height: 100%;
+        object-fit: scale-down;
+        object-position: center;
+    }
+
+    .container {
+        width: 95%;
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: #1e1e1e;
+        border-radius: 20px;
+        padding: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+    }
+
+    .generator,
+    .output {
+        flex: 1;
+        min-width: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .input-group {
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        display: flex;
+        align-items: center;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+    }
+
+    label i {
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+        color: #ff6600;
+    }
+
+    select {
+        width: 100%;
+        padding: 0.75rem;
+        padding-right: 2.5rem;
+        border: 2px solid #ff6600;
+        border-radius: 10px;
+        background-color: #2a2a2a;
+        color: #ffffff;
+        appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23ff6600" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 0.7rem center;
+        background-size: 1.5em auto;
+    }
+
+    select:focus {
+        outline: none;
+        border-color: #ff9933;
+        box-shadow: 0 0 10px rgba(255, 153, 51, 0.5);
+    }
+
+    button,
+    #dlLink {
+        width: 100%;
+        background-color: #222325;
+        color: #ffffff;
+        padding: 1rem;
+        border: 2px solid #ffffff;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        margin-top: auto;
+    }
+
+    button:hover,
+    #dlLink:hover {
+        background-color: #ff9933;
+    }
+
+    button i,
+    #dlLink i {
+        margin-right: 0.5rem;
+    }
+
+    .output {
+        text-align: center;
+        position: relative;
+    }
+
+    #message {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    #image-container {
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    #image-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+
+    .loader {
+        width: 64px;
+        height: 220px;
+        border: 3px solid #ff6600;
+        border-radius: 0 0 50px 50px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0px 0px #ff3d00 inset;
+        background-image: linear-gradient(#ff3d00 100%, transparent 0);
+        background-position: 0px 220px;
+        background-size: 64px 220px;
+        background-repeat: no-repeat;
+        animation: animloader98 6s linear infinite;
+        display: none;
+    }
+
+    .loader::after {
+        content: "";
+        box-sizing: border-box;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        position: absolute;
+        border: 3px solid #ff6600;
+        border-radius: 50%;
+        width: 78px;
+        height: 16px;
+    }
+
+    .loader::before {
+        content: "";
+        box-sizing: border-box;
+        left: 0;
+        bottom: -11px;
+        border-radius: 50%;
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        animation: animloader98s 6s linear infinite;
+    }
+
+    @keyframes animloader98 {
+        0% {
+            background-position: 0 220px;
+        }
+
+        100% {
+            background-position: 0 0;
+        }
+    }
+
+    @keyframes animloader98s {
+        0% {
+            box-shadow: 8px -10px rgba(255, 102, 0, 0), 12px 0px rgba(255, 102, 0, 0),
+                16px -15px rgba(255, 102, 0, 0), 24px 0px rgba(255, 102, 0, 0);
+        }
+
+        20% {
+            box-shadow: 8px -40px rgba(255, 102, 0, 0), 12px -20px rgba(255, 102, 0, 0),
+                16px -60px rgba(255, 102, 0, 0.5), 24px -10px rgba(255, 102, 0, 0);
+        }
+
+        40% {
+            box-shadow: 4px -80px rgba(255, 102, 0, 0.5),
+                12px -60px rgba(255, 102, 0, 0.4), 16px -120px rgba(255, 102, 0, 0.5),
+                24px -30px rgba(255, 102, 0, 0.5);
+        }
+
+        60% {
+            box-shadow: 8px -120px rgba(255, 102, 0, 0.5),
+                12px -100px rgba(255, 102, 0, 0.4), 16px -180px rgba(255, 102, 0, 0.5),
+                24px -50px rgba(255, 102, 0, 0.5);
+        }
+
+        80% {
+            box-shadow: 4px -160px rgba(255, 102, 0, 0.5),
+                8px -140px rgba(255, 102, 0, 0.4), 16px -240px rgba(255, 102, 0, 0),
+                24px -70px rgba(255, 102, 0, 0.5);
+        }
+
+        100% {
+            box-shadow: 8px -200px rgba(255, 102, 0, 0),
+                12px -180px rgba(255, 102, 0, 0), 16px -240px rgba(255, 102, 0, 0),
+                24px -90px rgba(255, 102, 0, 0);
+        }
+    }
+
+    button {
+        min-height: 50px;
+        /* Adjust this value as needed */
+    }
+
+    .output {
+        min-height: 550px;
+        /* Adjust this value based on your layout */
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+
+        .generator,
+        .output {
+            width: 100%;
+        }
+    }
+    </style>
+</head>
+
+<body>
+    <!-- Header Image -->
+    <header class="header-container">
+        <img src="brains.png" alt="AI Jack o'Lantern Generator" class="header-image" />
+        <center>A Spooky Season Creature Creator w/ AI</center>
+    </header>
+    <!-- Generator Inputs -->
+    <div class="container">
+        <div class="generator">
+            <div class="input-group">
+                <label for="spook"><i class="fas fa-ghost"></i> Spook</label>
+                <select id="spook" class="input-select">
+                    <option value="JackOLantern">Jack-O-Lantern</option>
+                    <option value="witch">Witch</option>
+                    <option value="vampire">Vampire</option>
+                    <option value="mummy">Mummy</option>
+                    <option value="ghost">Ghost</option>
+                    <option value="werewolf">Werewolf</option>
+                    <option value="skeleton">Skeleton</option>
+                    <option value="zombie">Zombie</option>
+                </select>
+            </div>
+            <!-- Dynamic Input Groups -->
+            <div class="input-group" data-type="eyes">
+                <label for="eyes"><i class="fas fa-eye"></i> Eyes</label>
+                <select id="eyes" class="input-select">
+                    <option value="triangle">Triangle</option>
+                    <option value="round">Round</option>
+                    <option value="slanted">Slanted</option>
+                    <option value="starshaped">Star-shaped</option>
+                    <option value="crescent">Crescent</option>
+                    <option value="heartshaped">Heart-shaped</option>
+                    <option value="diamond">Diamond</option>
+                    <option value="spiral">Spiral</option>
+                </select>
+            </div>
+            <!-- Repeated Sections using Data Attributes -->
+            <div class="input-group" data-type="nose">
+                <label for="nose"><i class="fas fa-play" style="transform: rotate(32deg);"></i> Nose</label>
+                <select id="nose" class="input-select">
+                    <option value="triangle">Triangle</option>
+                    <option value="round">Round</option>
+                    <option value="heartshaped">Heart-shaped</option>
+                    <option value="none">No nose</option>
+                    <option value="square">Square</option>
+                    <option value="starshaped">Star-shaped</option>
+                    <option value="crescent">Crescent</option>
+                </select>
+            </div>
+            <div class="input-group" data-type="mouth">
+                <label for="mouth"><i class="fas fa-smile"></i> Mouth</label>
+                <select id="mouth" class="input-select">
+                    <option value="grin">Grin</option>
+                    <option value="frown">Frown</option>
+                    <option value="square">Square</option>
+                    <option value="jagged">Jagged</option>
+                    <option value="curved">Curved</option>
+                    <option value="stitched">Stitched</option>
+                    <option value="fanged">Fanged</option>
+                    <option value="surprised">Surprised</option>
+                    <option value="smirk">Smirk</option>
+                </select>
+            </div>
+            <div class="input-group" data-type="accessories">
+                <label for="accessories"><i class="fas fa-hat-wizard"></i> Accessories</label>
+                <select id="accessories" class="input-select">
+                    <option value="none">None</option>
+                    <option value="witchhat">Witch Hat</option>
+                    <option value="scarf">Scarf</option>
+                    <option value="fez">Fez</option>
+                    <option value="glasses">Glasses</option>
+                    <option value="sunglasses">Sunglasses</option>
+                    <option value="beanie">Beanie</option>
+                    <option value="bowtie">Bow Tie</option>
+                    <option value="earrings">Earrings</option>
+                    <option value="mustache">Mustache</option>
+                    <option value="pipe">Pipe</option>
+                    <option value="monocle">Monocle</option>
+                    <option value="crown">Crown</option>
+                    <option value="glassesandscarf">Glasses and Scarf</option>
+                    <option value="beanieandscarf">Beanie and Scarf</option>
+                    <option value="witchhatandglasses">Witch Hat and Glasses</option>
+                    <option value="sunglassesandbowtie">Sunglasses and Bow Tie</option>
+                    <option value="sunglassesandscarf">Sunglasses and Scarf</option>
+                    <option value="sunglassesandbeanie">Sunglasses and Beanie</option>
+                </select>
+            </div>
+            <div class="input-group" data-type="background">
+                <label for="background"><i class="fas fa-tree"></i> Background</label>
+                <select id="background" class="input-select">
+                    <option value="spookyforest">Spooky Forest</option>
+                    <option value="hauntedhouse">Haunted House</option>
+                    <option value="graveyard">Graveyard</option>
+                    <option value="mistynight">Misty Night</option>
+                    <option value="fullmoon">Full Moon</option>
+                    <option value="pumpkinpatch">Pumpkin Patch</option>
+                    <option value="witchscauldron">Witch's Cauldron</option>
+                    <option value="abandonedcastle">Abandoned Castle</option>
+                </select>
+            </div>
+            <div class="input-group" data-type="style">
+                <label for="style"><i class="fas fa-palette"></i> Art Style</label>
+                <select id="style" class="input-select">
+                    <option value="realistic">Realistic</option>
+                    <option value="cartoon">Cartoon</option>
+                    <option value="watercolor">Watercolor</option>
+                    <option value="oilpainting">Oil Painting</option>
+                    <option value="digitalart">Digital Art</option>
+                    <option value="sketchy">Sketchy</option>
+                    <option value="pixelart">Pixel Art</option>
+                    <option value="gothic">Gothic</option>
+                    <option value="popart">Pop Art</option>
+                    <option value="abstract">Abstract</option>
+                    <option value="linedrawing">Line Drawing</option>
+                    <option value="comicbook">Comic Book</option>
+                </select>
+            </div>
+            <!-- Generate Button -->
+            <button id="generate">
+                <i class="fas fa-magic"></i> Conjure Your Jack o'Lantern
+            </button>
+        </div>
+        <!-- Output Section -->
+        <div class="output">
+            <div id="message"></div>
+            <div id="loading-spinner" class="loader"></div>
+            <div id="image-container">
+               XXX
+            </div>
+            <div id="utilities">
+                <a id="dlLink" href="#" target="_blank" style="display: none;"></a>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const elements = {
+            generateButton: document.getElementById("generate"),
+            imageContainer: document.getElementById("image-container"),
+            loadingSpinner: document.getElementById("loading-spinner"),
+            dlLink: document.getElementById("dlLink"),
+            message: document.getElementById("message"),
+            spookInput: document.getElementById("spook"),
+            audio: new Audio('bubbles.mp3'),
+        };
+
+        const inputs = {
+            eyes: document.getElementById("eyes"),
+            nose: document.getElementById("nose"),
+            mouth: document.getElementById("mouth"),
+            accessories: document.getElementById("accessories"),
+            background: document.getElementById("background"),
+            style: document.getElementById("style"),
+        };
+
+        elements.dlLink.style.display = "none";
+
+        elements.spookInput.addEventListener("change", updateSpookText);
+
+        elements.generateButton.addEventListener("click", function() {
+            const description = encodeURIComponent(createDescription());
+            const imageUrl = `https://image.pollinations.ai/prompt/${description}?nologo=1&seed=${generateRandomSeed()}&height=512&width=512`;
+            displayLoadingState(true);
+
+            // Use a CORS proxy
+            const proxyUrl = "https://corsproxy.io/?";
+            const proxiedImageUrl = proxyUrl + encodeURIComponent(imageUrl);
+
+            fetch(proxiedImageUrl)
+                .then((response) => response.blob())
+                .then((blob) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        displayGeneratedImage(this);
+                        elements.message.textContent = `Your ${elements.spookInput.options[elements.spookInput.selectedIndex].value} has been generated!`;
+                        displayLoadingState(false);
+                    };
+                    img.onerror = function() {
+                        displayLoadingState(false);
+                        elements.message.textContent = "Failed to generate the image. Please try again.";
+                        console.error("Error: Image failed to load");
+                    };
+                    img.src = URL.createObjectURL(blob);
+                })
+                .catch((error) => {
+                    displayLoadingState(false);
+                    elements.message.textContent = "Failed to generate the image. Please try again.";
+                    console.error("Error:", error);
+                });
+        });
+
+        function updateSpookText() {
+            const spookType = elements.spookInput.options[elements.spookInput.selectedIndex].value;
+            elements.generateButton.innerHTML = `<i class="fas fa-magic"></i> Conjure Your ${spookType}`;
+            const newColor = colorMap[spookType] || "rgb(255,102,0)";
+
+            // Update all elements with color #ff6600 to the new color
+            updateColor("rgb(255,102,0)", newColor);
+
+        }
+
+        function createDescription() {
+            return `Detailed Halloween ${getSpookType(elements.spookInput.value)}, ${getEyesDescription(
+          inputs.eyes.value
+        )}, ${getNoseDescription(inputs.nose.value)}, ${getMouthDescription(inputs.mouth.value)}, ${getAccessoriesDescription(inputs.accessories.value)} in a ${getBackgroundDescription(inputs.background.value)}, ${getStyleDescription(inputs.style.value)} highly detailed`;
+        }
+
+        function generateRandomSeed() {
+            return Math.floor(Math.random() * 1e9);
+        }
+
+        function displayLoadingState(isLoading) {
+            elements.loadingSpinner.style.display = isLoading ? "block" : "none";
+            elements.generateButton.disabled = isLoading;
+            elements.audio.pause();
+            if (isLoading) {
+                elements.imageContainer.innerHTML = "";
+                elements.dlLink.style.display = "none";
+                elements.message.textContent = `Conjuring your ${elements.spookInput.options[elements.spookInput.selectedIndex].value}...`;
+                elements.audio.play();
+            }
+        }
+
+        function displayGeneratedImage(img) {
+            elements.imageContainer.innerHTML = "";
+            elements.imageContainer.appendChild(img);
+        }
+
+        function updateDownloadLink(imageUrl) {
+            elements.dlLink.style.display = "inline-block";
+            elements.dlLink.href = imageUrl;
+        }
+
+        function getSpookType(spookType) {
+            const descriptions = {
+                JackOLantern: "classic Jack-O-Lantern",
+                witch: "a spooky witch",
+                vampire: "a terrifying vampire",
+                mummy: "an ancient mummy",
+                ghost: "a ghostly apparition",
+                werewolf: "a fearsome werewolf",
+                skeleton: "a rattling skeleton",
+                zombie: "a shambling zombie"
+            };
+            return descriptions[spookType] || "mysterious Halloween creature";
+        }
+
+        function getEyesDescription(eyesType) {
+            const descriptions = {
+                triangle: "triangular-shaped glowing eyes",
+                round: "round glowing eyes",
+                slanted: "slanted menacing eyes",
+                starshaped: "star-shaped glowing eyes",
+                crescent: "crescent-shaped glowing eyes",
+                heartshaped: "heart-shaped glowing eyes",
+                diamond: "diamond-shaped glowing eyes",
+                spiral: "spiral-shaped glowing eyes",
+            };
+            return descriptions[eyesType] || "glowing eyes";
+        }
+
+        function getNoseDescription(noseType) {
+            const descriptions = {
+                triangle: "triangular-shaped nose",
+                round: "round nose",
+                heartshaped: "heart-shaped nose",
+                none: "no nose",
+                square: "square-shaped nose",
+                starshaped: "star-shaped nose",
+                crescent: "crescent-shaped nose",
+            };
+            return descriptions[noseType] || "carved nose";
+        }
+
+        function getMouthDescription(mouthType) {
+            const descriptions = {
+                grin: "wide grinning mouth with teeth",
+                frown: "frowning mouth",
+                square: "square-shaped mouth",
+                jagged: "jagged, zigzag mouth",
+                curved: "curved smiling mouth",
+                stitched: "stitched mouth",
+                fanged: "fanged grinning mouth",
+                surprised: "surprised O-shaped mouth",
+                smirk: "a mischievous smirk or smile",
+            };
+            return descriptions[mouthType] || "carved mouth";
+        }
+
+        function getAccessoriesDescription(accessoryType) {
+            const descriptions = {
+                none: "",
+                witchhat: "wearing a witch hat",
+                scarf: "wearing a cozy scarf",
+                fez: "wearing a red velvet fez",
+                glasses: "wearing glasses",
+                sunglasses: "wearing cool sunglasses",
+                beanie: "wearing a warm beanie",
+                bowtie: "wearing a dapper bow tie",
+                earrings: "with dangling earrings",
+                mustache: "with a curly mustache",
+                pipe: "with a smoking pipe",
+                monocle: "wearing a monocle",
+                crown: "wearing a regal crown",
+                glassesandscarf: "wearing glasses and a cozy scarf",
+                beanieandscarf: "wearing a warm beanie and a cozy scarf",
+                witchhatandglasses: "wearing a witch hat and glasses",
+                sunglassesandbowtie: "wearing cool sunglasses and a dapper bow tie",
+                sunglassesandscarf: "wearing cool sunglasses and a cozy scarf",
+                sunglassesandbeanie: "wearing cool sunglasses and a warm beanie",
+            };
+            return descriptions[accessoryType] || "";
+        }
+
+        function getBackgroundDescription(backgroundType) {
+            const descriptions = {
+                spookyforest: "spooky forest with twisted trees and fog",
+                hauntedhouse: "haunted house with eerie windows and a full moon",
+                graveyard: "misty graveyard with crooked tombstones",
+                mistynight: "misty night scene with a full moon",
+                fullmoon: "dramatic full moon night sky",
+                pumpkinpatch: "pumpkin patch with various sized pumpkins",
+                witchscauldron: "bubbling witch's cauldron with green smoke",
+                abandonedcastle: "looming abandoned castle on a hilltop",
+            };
+            return descriptions[backgroundType] || "spooky Halloween scene";
+        }
+
+        function getStyleDescription(styleType) {
+            const descriptions = {
+                realistic: "realistic style",
+                cartoon: "cartoon style",
+                watercolor: "watercolor painting style",
+                oilpainting: "oil painting style",
+                digitalart: "digital art style",
+                sketchy: "sketchy, hand-drawn style",
+                pixelart: "16 bit pixel art style",
+                gothic: "dark, gothic style",
+                popart: "bold, pop art style",
+                abstract: "abstract art style",
+                linedrawing: "minimalist line drawing style",
+                comicbook: "comic book style",
+            };
+            return descriptions[styleType] || "artistic style";
+        }
+
+
+
+        const colorMap = {
+            JackOLantern: "rgb(255,102,0)",
+            witch: "rgb(66,255,0)",
+            vampire: "rgb(154,0,255)",
+            werewolf: "rgb(107,43,0)",
+            ghost: "rgb(187,187,187)",
+            skeleton: "rgb(255,255,255)",
+            zombie: "rgb(255,0,0)",
+            mummy: "rgb(95,83,83)",
+        };
+
+        function rgbToHex({ r, g, b }) {
+            const toHex = (value) => value.toString(16).padStart(2, "0");
+            return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+        }
+
+        function extractRGBValues(rgbString) {
+            const regex = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/;
+            const match = rgbString.match(regex);
+            if (match) {
+                return {
+                    r: parseInt(match[1], 10),
+                    g: parseInt(match[2], 10),
+                    b: parseInt(match[3], 10),
+                };
+            }
+            return null;
+        }
+
+        function updateColor(oldColor, newColor) {
+
+            elements.spookInput.style.borderColor = newColor;
+            inputs.eyes.style.borderColor = newColor;
+            inputs.nose.style.borderColor = newColor;
+            inputs.mouth.style.borderColor = newColor;
+            inputs.accessories.style.borderColor = newColor;
+            inputs.background.style.borderColor = newColor;
+            inputs.style.style.borderColor = newColor;
+
+            var icons = document.getElementsByTagName("i");
+            for(i = 0; i< icons.length; i++){
+                icons[i].style.color = newColor;
+            }
+        };
+
+
+    });
+    </script>
+</body>
+
+</html>
