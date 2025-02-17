@@ -74,7 +74,7 @@ a:hover {
 
 
 <script>
-  function init() {
+function init() {
 
   const bunnySvg = color =>{
     return  `<svg x="0px" y="0px"
@@ -184,9 +184,14 @@ a:hover {
   },200)
  
 }
-document.addEventListener("DOMContentLoaded", function(event) {
-    init();
-});
-</script
-  </script>
-</html?
+
+  
+
+     document.addEventListener("DOMContentLoaded", init);
+    function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
+    r(function(){ init(); });
+
+
+</script>
+
+</html>
