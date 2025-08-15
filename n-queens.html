@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Interactive N-Queens visualizer with bitboard DFS</title>
+    <meta name="description" content="Interactive N-Queens visualizer with bitboard DFS, symmetry pruning, and optional logging of pruned tries. Visual step-by-step placement with gradient unsafe overlays, and exact solution counts." />
+    <meta name="keywords" content="N-Queens, backtracking, bitboard, DFS, symmetry pruning, algorithms, visualization, combinatorics, chess puzzles, constraint satisfaction"/>
+    <link rel="canonical" href="https://danhouseman.com/n-queens" />
+    <meta name="robots" content="index,follow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0ea5e9" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="N-Queens Visualizer — Bitboard DFS, Symmetry Pruning, Step Logging" />
+    <meta property="og:description" content="Explore the N-Queens problem with a fast bitboard solver with symmetry pruning. Watch placements, backtracks, and unsafe overlays on a responsive board with adjustable variables." />
+    <meta property="og:url" content="https://danhouseman.com/n-queens" />
+    <meta property="og:image" content="https://danhouseman.com/img/queens.png" />
+    <meta property="og:site_name" content="Dan Houseman Algorithm Demos" />
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="N-Queens Visualizer — Bitboard DFS, Symmetry Pruning, Step Logging" />
+    <meta name="twitter:description" content="Interactive N-Queens with bitboard DFS with symmetry pruning." />
+    <meta name="twitter:image" content="https://danhouseman.com/img/queens.png" />
+    <meta name="twitter:site" content="@TheD0C7OR" />
+    <!-- App/Feature Hints -->
+    <meta name="application-name" content="N-Queens Visualizer" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="N-Queens" />
+    <link rel="icon" href="/favicon.ico" />
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "N-Queens Visualizer",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "description": "Interactive visualization of the N-Queens problem using bitboard depth-first search with symmetry pruning and optional logging of pruned tries. Includes responsive unsafe-cell overlays and inline mathematics for state updates.",
+        "offers": { "@type": "Offer", "price": "0" },
+        "url": "https://danhouseman.com/n-queens",
+        "screenshot": "https://danhouseman.com/img/queens.png",
+        "keywords": "N-Queens, bitboard, backtracking, symmetry pruning, visualization, algorithms"
+    }
+    </script>
+    <style>
+        :root {
+      --n: 4;
+    }
+    body {
+      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 20px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .controls>* {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    button,
+    input[type="number"],
+    input[type="range"] {
+      padding: 6px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+    }
+    button {
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: .5;
+      cursor: default;
+    }
+    .active {
+      background: #0ea5e9;
+      color: #fff;
+      border-color: #0284c7;
+    }
+    /* Responsive board container: scales to viewport, preserves square cells */
+    .board-wrap {
+      width: min(92vmin, 100%);
+      margin: 0 auto;
+    }
+    #board {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(var(--n), 1fr);
+      gap: 4px;
+      user-select: none;
+    }
+    .cell {
+      aspect-ratio: 1 / 1;
+      /* stay square */
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, .08) inset;
+      background: #f6f7fb;
+      font-size: clamp(12px, calc(60vmin / var(--n)), 40px);
+      /* responsive queen size */
+    }
+    /* chessboard tint */
+    .cell:nth-child(odd) {
+      background: #eef1f7;
+    }
+    .row:nth-child(even) .cell:nth-child(odd),
+    .row:nth-child(odd) .cell:nth-child(even) {
+      background: #e2e8f0;
+    }
+    .queen {
+      text-shadow: 0 1px 0 #fff;
+    }
+    .current {
+      outline: 2px solid #2563eb;
+    }
+    .safe {
+      outline: 2px solid #10b981;
+    }
+    .solution {
+      box-shadow: 0 0 0 2px #0ea5e9 inset;
+    }
+    /* purple for pruned tries */
+    .pruned {
+      outline: 2px solid #a855f7;
+      background: #f3e8ff !important;
+    }
+    /* single unsafe class; opacity via CSS var */
+    .cell.unsafe {
+      box-shadow: inset 0 0 0 9999px rgba(239, 68, 68, var(--u, 0));
+    }
+    .desc {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+    .small {
+      font-size: 12px;
+      opacity: .75;
+    }
+    details {
+      margin-top: 16px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+    }
+    code.k {
+      background: #eef2ff;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+</style>
+</head>
+
+<body>
+    <div class="controls">
+        <label title="Board size N×N">N <input id="n" type="number" min="1" max="20" value="4" /></label>
+        <label title="Log and show unsafe attempts as purple-marked tries"><input id="pruned" type="checkbox" checked /> show pruned tries</label>
+        <label title="Stop after finding only the first valid arrangement"><input id="firstOnly" type="checkbox" checked /> stop after first solution</label>
+        <label title="Skip mirrored starts to halve the search when enumerating all"><input id="sym" type="checkbox" checked /> symmetry prune</label>
+        <label title="Playback speed for auto-play (ms per step)">speed <input id="speed" type="range" min="1" max="1500" step="50" value="700" /></label>
+        <button id="regen" title="Rebuild the log with current settings">regenerate</button>
+        <span style="flex:1"></span>
+        <button id="prev" title="Go to previous step">prev</button>
+        <button id="next" title="Go to next step">next</button>
+        <button id="auto" title="Play the steps automatically">auto-play</button>
+        <button id="reset" title="Return to the first step without regenerating">reset</button>
+    </div>
+    <div class="board-wrap">
+        <div id="board" aria-live="polite"></div>
+    </div>
+    <div id="desc" class="desc"></div>
+    <div id="meta" class="small"></div>
+    <details>
+        <summary>Mathematical formulation</summary>
+        <div class="small">
+            <p><strong>Bitboard state per row <em>r</em></strong></p>
+            <p>\[
+                \text{free}_r \;=\; \neg\big(\text{cols} \;\lor\; \text{diagL} \;\lor\; \text{diagR}\big)\;\land\; (2^N-1)
+                \]</p>
+            <p>Pick a bit \(b \subseteq \text{free}_r\). Update for next row:
+                \[
+                \text{cols}' = \text{cols} \;\lor\; b,\quad
+                \text{diagL}' = \big((\text{diagL}\;\lor\;b)\ll 1\big)\,\land\,(2^N-1),\quad
+                \text{diagR}' = (\text{diagR}\;\lor\;b)\gg 1
+                \]</p>
+            <p><strong>Symmetry pruning (counting all solutions)</strong></p>
+            <p>\[
+                Q(N)=
+                \begin{cases}
+                2\sum\limits_{c=0}^{\frac{N}{2}-1} S(N,c), & \text{if } N \text{ even} \\
+                2\sum\limits_{c=0}^{\lfloor N/2\rfloor-1} S(N,c) + S\!\left(N,\lfloor N/2\rfloor\right), & \text{if } N \text{ odd}
+                \end{cases}
+                \]</p>
+            <p>Here \(S(N,c)\) is the number of solutions with the first queen fixed at column \(c\) in row 0.</p>
+        </div>
+    </details>
+    <script>
+    (() => {
+        const $ = id => document.getElementById(id);
+        const ui = {
+            board: $('board'),
+            desc: $('desc'),
+            meta: $('meta'),
+            n: $('n'),
+            pruned: $('pruned'),
+            firstOnly: $('firstOnly'),
+            sym: $('sym'),
+            speed: $('speed'),
+            regen: $('regen'),
+            prev: $('prev'),
+            next: $('next'),
+            auto: $('auto'),
+            reset: $('reset')
+        };
+
+        // Event kinds (compact)
+        const K = { INIT: 0, TRY: 1, PLACE: 2, BACK: 3, SOL: 4, NOSOL: 5 };
+
+        // State
+        let N = 4,
+            idx = 0,
+            L = 0;
+        let logK, logR, logC, logS; // typed arrays
+        let pos = [],
+            counts, cells = [];
+        let prevCurEl = null,
+            prevPruned = [];
+        let shownSolutions = 0,
+            totalSolutions = 0;
+        let timer = null;
+
+        // Helpers
+        const at = (i, j) => i * N + j;
+
+        function buildGrid() {
+            ui.board.style.setProperty('--n', N);
+            ui.board.innerHTML = '';
+            cells.length = 0;
+            const frag = document.createDocumentFragment();
+            for (let i = 0; i < N; i++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                for (let j = 0; j < N; j++) {
+                    const d = document.createElement('div');
+                    d.className = 'cell';
+                    row.appendChild(d);
+                    cells.push(d);
+                }
+                frag.appendChild(row);
+            }
+            ui.board.appendChild(frag);
+        }
+
+        // Paint unsafe shade for a cell based on counts
+        function paintUnsafe(i, j) {
+            const el = cells[at(i, j)];
+            const v = counts[at(i, j)];
+            if (v > 0) {
+                el.classList.add('unsafe');
+                el.style.setProperty('--u', v >= 4 ? 0.30 : v === 3 ? 0.22 : v === 2 ? 0.14 : 0.08);
+            } else {
+                el.classList.remove('unsafe');
+                el.style.removeProperty('--u');
+            }
+        }
+
+        // Incremental attack-map update (row, column, both diagonals)
+        function addQueen(r, c, delta) {
+            // row ←→
+            for (let cc = 0; cc < N; cc++)
+                if (cc !== c) {
+                    counts[at(r, cc)] += delta;
+                    paintUnsafe(r, cc);
+                }
+            // column ↑↓
+            for (let rr = 0; rr < N; rr++)
+                if (rr !== r) {
+                    counts[at(rr, c)] += delta;
+                    paintUnsafe(rr, c);
+                }
+            // main diagonal ↘ (r - c const)
+            {
+                const off = r - c;
+                let rr = Math.max(0, off),
+                    cc = rr - off;
+                while (rr < N && cc < N) {
+                    if (rr !== r || cc !== c) {
+                        counts[at(rr, cc)] += delta;
+                        paintUnsafe(rr, cc);
+                    }
+                    rr++;
+                    cc++;
+                }
+            }
+            // anti-diagonal ↙ (r + c const)
+            {
+                const s = r + c;
+                let rr = Math.max(0, s - (N - 1)),
+                    cc = s - rr;
+                while (rr < N && cc >= 0) {
+                    if (rr !== r || cc !== c) {
+                        counts[at(rr, cc)] += delta;
+                        paintUnsafe(rr, cc);
+                    }
+                    rr++;
+                    cc--;
+                }
+            }
+        }
+
+        function clearPruned() {
+            for (const el of prevPruned) el.classList.remove('pruned');
+            prevPruned.length = 0;
+        }
+
+        function markCurrent(i, j, kind, isSafe) {
+            if (prevCurEl) {
+                prevCurEl.classList.remove('current', 'safe', 'pruned');
+                prevCurEl = null;
+            }
+            if (i >= 0 && j >= 0) {
+                const el = cells[at(i, j)];
+                el.classList.add('current');
+                if (kind === K.PLACE) el.classList.add('safe');
+                if (kind === K.TRY && !isSafe) el.classList.add('pruned');
+                prevCurEl = el;
+            }
+        }
+
+        // Exact total (guarded for small N)
+        function countAllExact(n, useSym) {
+            const full = n === 32 ? 0xFFFFFFFF : ((1 << n) - 1);
+
+            function dfs(row, cols, dL, dR) {
+                if (row === n) return 1;
+                let free = ~(cols | dL | dR) & full,
+                    cnt = 0;
+                while (free) {
+                    const bit = free & -free;
+                    free ^= bit;
+                    cnt += dfs(row + 1, cols | bit, ((dL | bit) << 1) & full, ((dR | bit) >>> 1));
+                }
+                return cnt;
+            }
+            if (!useSym) return dfs(0, 0, 0, 0);
+            const mid = Math.floor(n / 2);
+            let total = 0;
+            for (let c = 0; c < mid; c++) {
+                const b = 1 << c;
+                total += 2 * dfs(1, b, (b << 1) & full, (b >>> 1) & full);
+            }
+            if (n % 2 === 1) {
+                const b = 1 << mid;
+                total += dfs(1, b, (b << 1) & full, (b >>> 1) & full);
+            }
+            return total;
+        }
+
+        // Generate event log (bitboard DFS). TRY-not-safe runs are RLE-compressed.
+        function generate() {
+            stopAuto();
+            shownSolutions = 0;
+            N = Math.max(1, Math.min(20, +ui.n.value || 4));
+            document.documentElement.style.setProperty('--n', N);
+
+            // Limit heavy logging for very large boards
+            if (N >= 12 && ui.pruned.checked) ui.pruned.checked = false;
+
+            // Precompute total solutions for display (safe cutoff)
+            totalSolutions = ui.firstOnly.checked ? 1 : (N <= 14 ? countAllExact(N, ui.sym.checked) : 0);
+
+            const evK = [],
+                evR = [],
+                evC = [],
+                evS = [];
+            const emit = (k, r = 255, c = 255, s = 1) => {
+                evK.push(k);
+                evR.push(r);
+                evC.push(c);
+                evS.push(s);
+            };
+            const emitTry = (row, col, isSafe) => {
+                if (!isSafe) {
+                    const n = evK.length;
+                    if (n > 0 && evK[n - 1] === K.TRY && evS[n - 1] === 0 && evR[n - 1] === row && evC[n - 1] === col - 1) {
+                        evC[n - 1] = col;
+                        return; // extend RLE run
+                    }
+                }
+                emit(K.TRY, row, col, isSafe ? 1 : 0);
+            };
+
+            emit(K.INIT);
+
+            const full = N === 32 ? 0xFFFFFFFF : (1 << N) - 1;
+            const firstOnly = ui.firstOnly.checked;
+            const useSym = ui.sym.checked && !firstOnly;
+            let found = false;
+
+            function dfs(row, cols, dL, dR) {
+                if (firstOnly && found) return true;
+                if (row === N) {
+                    emit(K.SOL);
+                    found = true;
+                    return true;
+                }
+                const freeMask = ~(cols | dL | dR) & full;
+                for (let col = 0; col < N; col++) {
+                    const bit = 1 << col;
+                    const safe = (freeMask & bit) !== 0;
+                    if (ui.pruned.checked) emitTry(row, col, safe);
+                    if (!safe) continue;
+                    emit(K.PLACE, row, col, 1);
+                    const nc = cols | bit,
+                        nl = ((dL | bit) << 1) & full,
+                        nr = ((dR | bit) >>> 1) & full;
+                    dfs(row + 1, nc, nl, nr);
+                    if (firstOnly && found) return true;
+                    emit(K.BACK, row, col, 1);
+                }
+                return false;
+            }
+
+            if (useSym) {
+                const mid = Math.floor(N / 2);
+                for (let c = 0; c < mid; c++) {
+                    const b = 1 << c;
+                    if (ui.pruned.checked) emitTry(0, c, true);
+                    emit(K.PLACE, 0, c, 1);
+                    dfs(1, b, (b << 1) & full, (b >>> 1) & full);
+                    emit(K.BACK, 0, c, 1);
+                }
+                if (N % 2 === 1) {
+                    const c = mid,
+                        b = 1 << c;
+                    if (ui.pruned.checked) emitTry(0, c, true);
+                    emit(K.PLACE, 0, c, 1);
+                    dfs(1, b, (b << 1) & full, (b >>> 1) & full);
+                    emit(K.BACK, 0, c, 1);
+                }
+            } else {
+                dfs(0, 0, 0, 0);
+            }
+
+            // Finalize typed arrays
+            L = evK.length;
+            logK = Uint8Array.from(evK);
+            logR = Uint8Array.from(evR);
+            logC = Uint8Array.from(evC);
+            logS = Uint8Array.from(evS);
+
+            // Reset live state
+            pos = new Array(N).fill(-1);
+            counts = new Int8Array(N * N); // zeroed
+            idx = 0;
+            prevCurEl = null;
+            clearPruned();
+
+            buildGrid();
+            // Initial UI
+            ui.desc.textContent = `initialize empty ${N}×${N} board`;
+            ui.meta.textContent = `step 1 / ${L} | N=${N} | pruned=${!!ui.pruned.checked} | sym=${!!ui.sym.checked} | total=${totalSolutions || '?'}`;
+            ui.prev.disabled = true;
+            ui.next.disabled = L <= 1;
+        }
+
+        // Apply/revert one event
+        function apply(eIdx, forward) {
+            const k = logK[eIdx],
+                r = logR[eIdx],
+                c = logC[eIdx];
+
+            if (forward) {
+                if (k === K.PLACE) {
+                    // place queen
+                    pos[r] = c;
+                    const el = cells[at(r, c)];
+                    el.textContent = '♕';
+                    el.classList.add('queen');
+                    addQueen(r, c, +1);
+                } else if (k === K.BACK) {
+                    // remove queen placed earlier at (r,c)
+                    if (pos[r] === c) {
+                        addQueen(r, c, -1);
+                        pos[r] = -1;
+                        const el = cells[at(r, c)];
+                        el.textContent = '';
+                        el.classList.remove('queen');
+                    }
+                } else if (k === K.SOL) {
+                    // keep shownSolutions increment in describe(); nothing to do here
+                }
+            } else {
+                // stepping backward: invert the above
+                if (k === K.PLACE) {
+                    // undo placement
+                    addQueen(r, c, -1);
+                    pos[r] = -1;
+                    const el = cells[at(r, c)];
+                    el.textContent = '';
+                    el.classList.remove('queen');
+                } else if (k === K.BACK) {
+                    // undo a backtrack → re-place the queen
+                    pos[r] = c;
+                    const el = cells[at(r, c)];
+                    el.textContent = '♕';
+                    el.classList.add('queen');
+                    addQueen(r, c, +1);
+                } else if (k === K.SOL) {
+                    // if you decrement a running counter elsewhere, rewind it here
+                    shownSolutions = Math.max(0, shownSolutions - 1);
+                }
+            }
+        }
+
+        function describe(eIdx) {
+            const k = logK[eIdx],
+                r = logR[eIdx],
+                c = logC[eIdx],
+                s = logS[eIdx];
+            if (k === K.SOL) return ui.firstOnly.checked ? 'solution found' :
+                `solution found (${++shownSolutions}/${totalSolutions || '?'})`;
+            if (k === K.INIT) return `initialize empty ${N}×${N} board`;
+            if (k === K.TRY) return s ? `try (${r}, ${c})` : `try (${r}, ${c}) — not safe`;
+            if (k === K.PLACE) return `place at (${r}, ${c})`;
+            if (k === K.BACK) return `backtrack from (${r}, ${c})`;
+            return `no solution for N=${N}`;
+        }
+
+        // Expand a compressed TRY-not-safe run (RLE) for transient purple highlight
+        function expandTryRun(eIdx) {
+            const row = logR[eIdx],
+                col = logC[eIdx],
+                safe = logS[eIdx];
+            if (safe || row === 255) return [
+                [row, col]
+            ];
+            let start = col,
+                t = eIdx - 1;
+            while (t >= 0 && logK[t] === K.TRY && logS[t] === 0 && logR[t] === row && logC[t] === start - 1) {
+                start--;
+                t--;
+            }
+            const out = [];
+            for (let cc = start; cc <= col; cc++) out.push([row, cc]);
+            return out;
+        }
+
+        function render() {
+            const k = logK[idx],
+                s = logS[idx],
+                r = logR[idx],
+                c = logC[idx];
+            ui.desc.textContent = describe(idx);
+            ui.meta.textContent = `step ${idx+1} / ${L} | N=${N} | pruned=${!!ui.pruned.checked} | sym=${!!ui.sym.checked} | total=${totalSolutions || '?'}`;
+
+            // Clear previous markers
+            if (prevCurEl) {
+                prevCurEl.classList.remove('current', 'safe', 'pruned');
+                prevCurEl = null;
+            }
+            clearPruned();
+
+            // Mark current and any TRY-not-safe run
+            if (k === K.TRY && !s) {
+                const run = expandTryRun(idx);
+                for (const [rr, cc] of run) {
+                    const el = cells[at(rr, cc)];
+                    el.classList.add('pruned');
+                    prevPruned.push(el);
+                }
+                markCurrent(r, c, k, false);
+            } else {
+                markCurrent(r < 255 ? r : -1, c < 255 ? c : -1, k, !!s);
+            }
+
+            ui.prev.disabled = idx === 0;
+            ui.next.disabled = idx === L - 1;
+        }
+
+        // Navigation
+        function next() {
+            if (idx < L - 1) {
+                idx++;
+                apply(idx, true);
+                render();
+            }
+        }
+
+        function prev() {
+            if (idx > 0) {
+                apply(idx, false);
+                idx--;
+                render();
+            }
+        }
+
+        function startAuto() {
+            stopAuto();
+            const period = +ui.speed.value || 700;
+            ui.auto.classList.add('active');
+            ui.auto.textContent = 'stop';
+            timer = setInterval(() => {
+                if (idx < L - 1) next();
+                else stopAuto();
+            }, period);
+        }
+
+        function stopAuto() {
+            if (timer) clearInterval(timer);
+            timer = null;
+            ui.auto.classList.remove('active');
+            ui.auto.textContent = 'auto-play';
+        }
+
+        function resetToStart() {
+            stopAuto();
+            // Clear all visuals quickly
+            for (let i = 0; i < N; i++)
+                for (let j = 0; j < N; j++) {
+                    const el = cells[at(i, j)];
+                    el.textContent = '';
+                    el.className = 'cell';
+                    el.style.removeProperty('--u');
+                }
+            counts.fill(0);
+            pos.fill(-1);
+            idx = 0;
+            prevCurEl = null;
+            clearPruned();
+            shownSolutions = 0;
+            ui.desc.textContent = `initialize empty ${N}×${N} board`;
+            ui.meta.textContent = `step 1 / ${L} | N=${N} | pruned=${!!ui.pruned.checked} | sym=${!!ui.sym.checked} | total=${totalSolutions || '?'}`;
+            ui.prev.disabled = true;
+            ui.next.disabled = L <= 1;
+        }
+
+        // Wire UI
+        ui.prev.onclick = prev;
+        ui.next.onclick = next;
+        ui.auto.onclick = () => timer ? stopAuto() : startAuto();
+        ui.reset.onclick = resetToStart;
+        ui.regen.onclick = generate;
+        ui.pruned.onchange = ui.regen.onclick;
+        ui.firstOnly.onchange = ui.regen.onclick;
+        ui.sym.onchange = ui.regen.onclick;
+        ui.n.onchange = ui.regen.onclick;
+
+        // Init
+        generate();
+        render();
+    })();
+    </script>
+    <!-- MathJax for equations above -->
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+
+</html>
