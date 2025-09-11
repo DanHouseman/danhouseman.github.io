@@ -94,6 +94,9 @@
       gap: 4px;
       user-select: none;
     }
+    .p-center {
+        text-align:center;
+    }
     .cell {
       aspect-ratio: 1 / 1;
       /* stay square */
@@ -164,15 +167,15 @@
     <div class="controls">
         <label title="Board size N×N">N <input id="n" type="number" min="1" max="20" value="4" /></label>
         <label title="Log and show unsafe attempts as purple-marked tries"><input id="pruned" type="checkbox" checked /> show pruned tries</label>
-        <label title="Stop after finding only the first valid arrangement"><input id="firstOnly" type="checkbox" checked /> stop after first solution</label>
+        <label title="Stop after finding only the first valid arrangement"><input id="firstOnly" type="checkbox" checked /> stop after 1st solution</label>
         <label title="Skip mirrored starts to halve the search when enumerating all"><input id="sym" type="checkbox" checked /> symmetry prune</label>
-        <label title="Playback speed for auto-play (ms per step)">speed <input id="speed" type="range" min="1" max="1500" step="50" value="700" /></label>
-        <button id="regen" title="Rebuild the log with current settings">regenerate</button>
+        <label title="Playback speed for play (ms per step)">speed <input id="speed" type="range" min="1" max="1500" step="50" value="250" /></label>
+        <button id="regen" title="Rebuild the log with current settings">NEW</button>
         <span style="flex:1"></span>
-        <button id="prev" title="Go to previous step">prev</button>
-        <button id="next" title="Go to next step">next</button>
-        <button id="auto" title="Play the steps automatically">auto-play</button>
-        <button id="reset" title="Return to the first step without regenerating">reset</button>
+        <button id="prev" title="Go to previous step"><< <</button>
+        <button id="next" title="Go to next step">> >></button>
+        <button id="auto" title="Play the steps automatically">PLAY</button>
+        <button id="reset" title="Return to the first step without regenerating">RESET</button>
     </div>
     <div class="board-wrap">
         <div id="board" aria-live="polite"></div>
@@ -180,27 +183,27 @@
     <div id="desc" class="desc"></div>
     <div id="meta" class="small"></div>
     <details>
-        <summary>Mathematical formulation</summary>
+        <summary>Mathematical formula</summary>
         <div class="small">
-            <p><strong>Bitboard state per row <em>r</em></strong></p>
+            <p class="p-center"><strong>Bitboard state per row <em>r</em></strong></p>
             <p>\[
                 \text{free}_r \;=\; \neg\big(\text{cols} \;\lor\; \text{diagL} \;\lor\; \text{diagR}\big)\;\land\; (2^N-1)
                 \]</p>
-            <p>Pick a bit \(b \subseteq \text{free}_r\). Update for next row:
+            <p class="p-center">Pick a bit \(b \subseteq \text{free}_r\). Update for next row:
                 \[
                 \text{cols}' = \text{cols} \;\lor\; b,\quad
                 \text{diagL}' = \big((\text{diagL}\;\lor\;b)\ll 1\big)\,\land\,(2^N-1),\quad
                 \text{diagR}' = (\text{diagR}\;\lor\;b)\gg 1
                 \]</p>
-            <p><strong>Symmetry pruning (counting all solutions)</strong></p>
-            <p>\[
+            <p class="p-center"><strong>Symmetry pruning (counting all solutions)</strong></p>
+            <p class="p-center">\[
                 Q(N)=
                 \begin{cases}
                 2\sum\limits_{c=0}^{\frac{N}{2}-1} S(N,c), & \text{if } N \text{ even} \\
                 2\sum\limits_{c=0}^{\lfloor N/2\rfloor-1} S(N,c) + S\!\left(N,\lfloor N/2\rfloor\right), & \text{if } N \text{ odd}
                 \end{cases}
                 \]</p>
-            <p>Here \(S(N,c)\) is the number of solutions with the first queen fixed at column \(c\) in row 0.</p>
+            <p class="p-center">Here \(S(N,c)\) are the number of solutions with the first queen fixed at column \(c\) in row 0.</p>
         </div>
     </details>
     <script>
