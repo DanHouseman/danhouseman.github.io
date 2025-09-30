@@ -1,0 +1,313 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+svg {
+    /* border:1px solid red; */
+}
+
+body {
+
+
+    overflow: hidden;
+    margin: 0;
+}
+
+#car {
+    opacity: 0;
+}
+
+h3 {
+    text-align: center;
+    font-family: sans-serif;
+    color: #aaa;
+    font-size: 20px;
+    font-weight: normal;
+}
+
+.st0 {
+    filter: url(#Filter_1);
+}
+
+.st1 {
+    fill: url(#SVGID_1_);
+}
+
+.st2 {
+    fill: url(#SVGID_2_);
+}
+
+.st3 {
+    fill: #CC3300;
+}
+
+.st4 {
+    fill: #181818;
+}
+
+.st5 {
+    fill: #2B2B2D;
+}
+
+.st6 {
+    fill: url(#SVGID_3_);
+}
+
+.st7 {
+    fill: url(#SVGID_4_);
+}
+
+.st8 {
+    fill: url(#SVGID_5_);
+}
+
+.st9 {
+    fill: url(#SVGID_6_);
+}
+
+.st10 {
+    fill: url(#SVGID_7_);
+}
+
+.st11 {
+    fill: none;
+    stroke: #FF0000;
+    stroke-miterlimit: 3;
+    stroke-opacity: 0.8;
+}
+
+.st12 {
+    fill: none;
+    stroke: #000000;
+    stroke-width: 2;
+    stroke-miterlimit: 3;
+}
+
+.st13 {
+    fill: none;
+    stroke: #000000;
+    stroke-width: 2;
+    stroke-linecap: square;
+    stroke-miterlimit: 3;
+}
+
+.st14 {
+    fill: none;
+    stroke: #000000;
+    stroke-miterlimit: 3;
+    stroke-opacity: 0.502;
+}
+
+.st15 {
+    fill: none;
+    stroke: #000000;
+    stroke-miterlimit: 3;
+    stroke-opacity: 0.2;
+}
+
+.st16 {
+    fill: none;
+    stroke: #000000;
+    stroke-miterlimit: 3;
+    stroke-opacity: 0.302;
+}
+
+.st17 {
+    fill: url(#SVGID_8_);
+}
+
+.st18 {
+    fill: #CCCCCC;
+}
+
+.st19 {
+    fill: url(#SVGID_9_);
+}
+
+.st20 {
+    fill: #6F6F6F;
+}
+
+.st21 {
+    fill: url(#SVGID_10_);
+}
+
+.st22 {
+    fill: #666666;
+}
+
+.st23 {
+    fill: url(#SVGID_11_);
+}
+
+.st24 {
+    fill: url(#SVGID_12_);
+}
+
+.st25 {
+    fill-opacity: 0.502;
+}
+
+.st26 {
+    fill-opacity: 0.102;
+}
+
+.st27 {
+    fill: #FF0000;
+}
+
+.st28 {
+    fill: #750202;
+}
+
+.st29 {
+    fill: #B80303;
+}
+
+.st30 {
+    fill: url(#SVGID_13_);
+}
+
+.st31 {
+    fill: #A70303;
+}
+
+.st32 {
+    fill: url(#SVGID_14_);
+}
+
+.st33 {
+    fill: url(#SVGID_15_);
+}
+
+.st34 {
+    fill: url(#SVGID_16_);
+}
+
+.st35 {
+    fill: url(#SVGID_17_);
+}
+
+.st36 {
+    fill: url(#SVGID_18_);
+}
+
+.st37 {
+    fill: url(#SVGID_19_);
+}
+
+.st38 {
+    fill: #FFFFFF;
+}
+
+.st39 {
+    fill: #D0D0D0;
+}
+
+.st40 {
+    fill: url(#SVGID_20_);
+}
+
+.st41 {
+    fill: none;
+    stroke: #CCCCCC;
+    stroke-width: 5.000000e-02;
+    stroke-miterlimit: 3;
+}
+
+.st42 {
+    fill: none;
+    stroke: #CCCCCC;
+    stroke-width: 5.000000e-02;
+    stroke-linecap: square;
+    stroke-miterlimit: 3;
+}
+
+.st43 {
+    fill: none;
+    stroke: #1E1E1E;
+    stroke-width: 2;
+    stroke-linecap: square;
+    stroke-miterlimit: 3;
+}
+
+.st44 {
+    fill: none;
+    stroke: #770606;
+    stroke-width: 0.1;
+    stroke-linecap: square;
+    stroke-miterlimit: 3;
+    stroke-opacity: 0.4;
+}
+
+.st45 {
+    fill: none;
+    stroke: #770606;
+    stroke-width: 0.1;
+    stroke-linecap: square;
+    stroke-miterlimit: 3;
+}
+
+.st46 {
+    fill: none;
+    stroke: #1E1E1E;
+    stroke-width: 0.1;
+    stroke-linecap: square;
+    stroke-miterlimit: 3;
+    stroke-opacity: 0.4;
+}
+
+.st47 {
+    fill: none;
+    stroke: #1E1E1E;
+    stroke-width: 0.1;
+    stroke-linecap: square;
+    stroke-miterlimit: 3;
+    stroke-opacity: 0.2;
+}
+
+.st48 {
+    fill: url(#SVGID_21_);
+}
+
+.st49 {
+    fill: url(#SVGID_22_);
+}
+
+.st50 {
+    fill: url(#SVGID_23_);
+}
+
+.st51 {
+    fill: url(#SVGID_24_);
+}
+
+.st52 {
+    fill: url(#SVGID_25_);
+}
+
+.st53 {
+    fill: url(#SVGID_26_);
+}
+
+.st54 {
+    fill: url(#SVGID_27_);
+}
+
+.st55 {
+    fill: none;
+    stroke: #000000;
+    stroke-width: 0.1;
+    stroke-miterlimit: 3;
+    stroke-opacity: 0.3529;
+}
+
+.st56 {
+    fill: none;
+    stroke: #000000;
+    stroke-width: 0.1;
+    stroke-miterlimit: 3;
+    stroke-opacity: 0.2627;
+}
