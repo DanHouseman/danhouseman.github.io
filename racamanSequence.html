@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Optimized Animated Recamán&#39;s Sequence</title>
+    
+<style>
+  body {
+    background-color: #000000;
+  }
+</style>
+  </head>
+    
+  <body>
+  
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.min.js'></script>
+    <script>
+    /* Optimized Animated Recaman Sequence
+   original version Jacek (https://codepen.io/jacekWyroba/pen/ajyaJE)
+   
+Problems: 
+  • repeated redraw of all arcs
+  • extra allocations
+  • slow time logic
+  • no culling
+Solutions:
+  • Set membership is O(1) without sparse-array holes.
+  • Catch-up stepping keeps simulation time coherent and avoids many micro timers.
+  • Viewport culling skips off-screen arcs.
+  • Precomputed geometry reduces per-frame math.
+  • Single stroke/fill config cuts state churn.
+  • Constant-pixel stroke prevents stroke inflation when scaling.
+*/
+
+let used = new Set();
+let count = 1;
+let index = 0;
+
+let tickMS = 100; // time per new number
+let nextTickAt = 0; // in millis()
+
+let scl = 1;
+let targetScl = 1;
+let arcs = [];
+let biggest = 0;
+
+const MARGIN = 40;
+const PI_ = Math.PI;
+
+class Arc {
+  constructor(start, end, dir) {
+    // endpoints in data space
+    this.start = start;
+    this.end = end;
+    this.dir = dir & 1; // 0 top, 1 bottom
+
+    // precompute geometry
+    const a = start,
+      b = end;
+    this.min = a < b ? a : b;
+    this.max = a > b ? a : b;
+    this.cx = (a + b) * 0.5;
+    this.d = this.max - this.min; // diameter in data units
+  }
+
+  // quick viewport cull in data space
+  isOffscreen(leftBound, rightBound) {
+    return this.max < leftBound || this.min > rightBound || this.d === 0;
+  }
+
+  showFull() {
+    // full semicircle; angles do not depend on left/right travel
+    if (this.dir === 0) {
+      arc(this.cx, 0, this.d, this.d, PI_, 0);
+    } else {
+      arc(this.cx, 0, this.d, this.d, 0, PI_);
+    }
+  }
+
+  showPartial(theta) {
+    // theta in [0, PI]
+    // need to account for left/right to get the leading edge correct
+    const goingLeft = this.end < this.start;
+
+    if (this.dir === 0) {
+      // top arcs
+      if (goingLeft) {
+        // leftward: sweep from 0 -> theta (but mirrored at top)
+        arc(this.cx, 0, this.d, this.d, 0 - theta, 0);
+      } else {
+        // rightward: sweep from PI -> PI - theta
+        arc(this.cx, 0, this.d, this.d, PI_, PI_ - theta);
+      }
+    } else {
+      // bottom arcs
+      if (goingLeft) {
+        // leftward: sweep from 0 -> theta
+        arc(this.cx, 0, this.d, this.d, 0, theta);
+      } else {
+        // rightward: sweep from PI - theta -> PI
+        arc(this.cx, 0, this.d, this.d, PI_ - theta, PI_);
+      }
+    }
+  }
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  frameRate(60);
+  background(0);
+  used.add(index);
+  nextTickAt = millis(); // start immediately
+}
+
+function recamanStep() {
+  // compute next index
+  let next = index - count;
+  if (next < 0 || used.has(next)) next = index + count;
+
+  used.add(next);
+
+  // append arc
+  const a = new Arc(index, next, count);
+  arcs.push(a);
+
+  index = next;
+  if (index > biggest) biggest = index;
+  count++;
+
+  // update target scale lazily
+  targetScl = width / (Math.max(1, biggest) * 1.1);
+}
+
+function draw() {
+  // catch up on ticks if rendering lags
+  const now = millis();
+  if (now >= nextTickAt) {
+    // step at most N times per frame to cap work; tune N
+    let steps = Math.min(1000, Math.floor((now - nextTickAt) / tickMS) + 1);
+    while (steps-- > 0) recamanStep();
+    nextTickAt = now + tickMS;
+  }
+
+  // partial progress within current tick → angle in [0, PI]
+  const frac = 1 - Math.min(1, Math.max(0, (nextTickAt - now) / tickMS));
+  const theta = frac * PI_;
+
+  // camera
+  translate(0, height / 2);
+  // smooth but firm scaling
+  scl = lerp(scl, targetScl, 0.2);
+  scale(scl);
+
+  // clear
+  background(0);
+
+  // static stroke setup
+  stroke(255);
+  strokeWeight(0.5 / scl); // constant pixels
+  noFill();
+
+  // compute visible data bounds for culling
+  const leftBound = -MARGIN / scl;
+  const rightBound = (width + MARGIN) / scl;
+
+  // draw completed arcs in view
+  const N = arcs.length;
+  for (let i = 0; i < N - 1; i++) {
+    const arcObj = arcs[i];
+    if (!arcObj.isOffscreen(leftBound, rightBound)) {
+      arcObj.showFull();
+    }
+  }
+
+  // draw active arc partially
+  if (N > 0) {
+    const last = arcs[N - 1];
+    if (!last.isOffscreen(leftBound, rightBound)) {
+      last.showPartial(theta);
+    }
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  // recompute target scale on resize
+  targetScl = width / (Math.max(1, biggest) * 1.1);
+}  
+    </script>
+
+  </body>
+  
+</html>
