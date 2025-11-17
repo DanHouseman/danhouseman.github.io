@@ -753,7 +753,7 @@
             showNotification('Loading data from JSON file...', 'success');
 
             // Fetch from the analytics.json file
-            const response = await fetch('analytics.json');
+            const response = await fetch('./analytics.json');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
