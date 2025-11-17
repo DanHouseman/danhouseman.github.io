@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0JEYPCPQ2E"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0JEYPCPQ2E');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epstein Email Analysis Dashboard</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            margin: 0;
+            font-weight: 300;
+            font-size: 28px;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        .filters {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .filter-group {
+            margin-bottom: 25px;
+        }
+        
+        .filter-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-group h3 i {
+            color: var(--secondary-color);
+        }
+        
+        .filter-option {
+            margin: 10px 0;
+        }
+        
+        .filter-option label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px 0;
+            transition: all 0.2s;
+        }
+        
+        .filter-option label:hover {
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            padding-left: 5px;
+        }
+        
+        .filter-option input {
+            margin-right: 10px;
+        }
+        
+        .multiselect {
+            width: 100%;
+            position: relative;
+        }
+        
+        .select-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            background: white;
+        }
+        
+        .select-box i {
+            color: #777;
+            transition: transform 0.3s;
+        }
+        
+        .select-box.active i {
+            transform: rotate(180deg);
+        }
+        
+        .over-select {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+        
+        .checkboxes {
+            display: none;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            z-index: 100;
+            position: absolute;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .checkboxes label {
+            display: block;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .checkboxes label:last-child {
+            border-bottom: none;
+        }
+        
+        .checkboxes label:hover {
+            background-color: #f0f8ff;
+        }
+        
+        .visualizations {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .viz-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            min-height: 300px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+        
+        .viz-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        
+        .viz-container h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .wordcloud-container {
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        #wordcloud-canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .timeline-container, .beehive-container, .dag-container, .matrix-container, .wordcount-container {
+            height: 400px;
+            position: relative;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, white, #f8f9fa);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+        
+        .node {
+            cursor: pointer;
+        }
+        
+        .node:hover {
+            stroke: #000;
+            stroke-width: 2px;
+        }
+        
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+        
+        .matrix-cell {
+            stroke: #fff;
+        }
+        
+        .axis text {
+            font-size: 12px;
+        }
+        
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            pointer-events: none;
+            z-index: 100;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 300px;
+            line-height: 1.4;
+            z-index: 99999;
+        }
+        
+        .tooltip h4 {
+            margin: 0 0 8px 0;
+            color: var(--light-color);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 5px;
+        }
+        
+        .tooltip p {
+            margin: 5px 0;
+        }
+        
+        .tooltip .highlight {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #2980b9, var(--secondary-color));
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .reset-btn {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+            width: 100%;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #c0392b, var(--accent-color));
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease-out;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #7f8c8d;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #bdc3c7;
+        }
+        
+        .expand-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+        
+        .expand-btn:hover {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            height: 90%;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            margin: 0;
+            color: var(--primary-color);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #777;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-modal:hover {
+            color: var(--accent-color);
+        }
+        
+        .modal-body {
+            height: calc(100% - 60px);
+        }
+        
+             .zoom-controls {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        
+        .zoom-btn {
+          
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .zoom-btn:hover {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .brush {
+            fill: #3498db;
+            fill-opacity: 0.3;
+            stroke: #3498db;
+            stroke-width: 1;
+        }
+        
+        .zoom-rect {
+            fill: transparent;
+            stroke: #3498db;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+        } 
+        @media (max-width: 1100px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                position: static;
+            }
+            
+            .visualizations {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="notification" id="notification"></div>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> Epstein Email Analysis Dashboard</h1>
+                <div class="loading" id="loading-indicator">
+                    <div class="spinner"></div>
+                    <span>Loading data...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value" id="total-docs">0</div>
+                <div class="stat-label">Total Documents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-tokens">0</div>
+                <div class="stat-label">Total Tokens</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="unique-tokens">0</div>
+                <div class="stat-label">Unique Tokens</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-entities">0</div>
+                <div class="stat-label">Total Entities</div>
+            </div>
+        </div>
+        <div class="dashboard">
+            <div class="filters">
+                <div class="filter-group">
+                    <h3><i class="fas fa-calendar-alt"></i> Date Range</h3>
+                    <div class="filter-option">
+                        <label>Start: <input type="date" id="start-date"></label>
+                    </div>
+                    <div class="filter-option">
+                        <label>End: <input type="date" id="end-date"></label>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <h3><i class="fas fa-tags"></i> Topics</h3>
+                    <div class="multiselect">
+                        <div class="select-box" id="topic-select-box">
+                            <span id="topic-selected-count">Select topics</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="over-select" id="topic-over-select"></div>
+                        <div class="checkboxes" id="topic-checkboxes">
+                            <!-- Topic checkboxes will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <h3><i class="fas fa-users"></i> Participants</h3>
+                    <div id="participant-filters">
+                        <!-- Participant filters will be populated dynamically -->
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <h3><i class="fas fa-user-tag"></i> Entities</h3>
+                    <div class="multiselect">
+                        <div class="select-box" id="entity-select-box">
+                            <span id="entity-selected-count">Select entities</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="over-select" id="entity-over-select"></div>
+                        <div class="checkboxes" id="entity-checkboxes">
+                            <!-- Entity checkboxes will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <h3><i class="fas fa-chart-bar"></i> Token Count Range</h3>
+                    <div class="filter-option">
+                        <label>Min: <input type="number" id="min-tokens" min="0" placeholder="0"></label>
+                    </div>
+                    <div class="filter-option">
+                        <label>Max: <input type="number" id="max-tokens" placeholder="No limit"></label>
+                    </div>
+                </div>
+                <button class="reset-btn" id="reset-filters">
+                    <i class="fas fa-redo"></i> Reset All Filters
+                </button>
+            </div>
+            <div class="visualizations">
+                <div class="viz-container full-width">
+                    <h3><i class="fas fa-chart-line"></i> Document Timeline</h3>
+                    <div class="expand-btn" data-viz="timeline">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" id="zoom-in" title="Zoom In">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button class="zoom-btn" id="zoom-out" title="Zoom Out">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button class="zoom-btn" id="reset-zoom" title="Reset Zoom">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="zoom-btn" id="brush-toggle" title="Toggle Brush">
+                            <i class="fas fa-brush"></i>
+                        </button>
+                    </div>
+                    <div class="timeline-container" id="timeline"></div>
+                </div>
+                <div class="viz-container">
+                    <h3><i class="fas fa-cloud"></i> Word Cloud</h3>
+                    <div class="expand-btn" data-viz="wordcloud">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                    <div class="wordcloud-container" id="wordcloud">
+                        <canvas id="wordcloud-canvas"></canvas>
+                    </div>
+                </div>
+                <div class="viz-container">
+                    <h3><i class="fas fa-project-diagram"></i> Topic Beehive Plot</h3>
+                    <div class="expand-btn" data-viz="beehive">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                    <div class="beehive-container" id="beehive"></div>
+                </div>
+                <div class="viz-container full-width">
+                    <h3><i class="fas fa-network-wired"></i> Document-Topic Network</h3>
+                    <div class="expand-btn" data-viz="dag">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                    <div class="dag-container" id="dag"></div>
+                </div>
+                <div class="viz-container full-width">
+                    <h3><i class="fas fa-th"></i> Topic Adjacency Matrix</h3>
+                    <div class="expand-btn" data-viz="matrix">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                    <div class="matrix-container" id="matrix"></div>
+                </div>
+                <div class="viz-container full-width">
+                    <h3><i class="fas fa-chart-bar"></i> Word Frequency</h3>
+                    <div class="expand-btn" data-viz="wordcount">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                    <div class="wordcount-container" id="wordcount"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    // Global variables
+    let data = null;
+    let filteredData = [];
+    let allTopics = [];
+    let allParticipants = [];
+    let allEntities = [];
+    let selectedTopics = [];
+    let selectedEntities = [];
+
+    let timelineXScale = null;
+    let timelineYScale = null;
+    let timelineSvg = null;
+    let timelineG = null;
+    let isBrushing = false;
+    let brushStartX = null;
+    let brushRect = null;
+
+    // Load JSON data
+    async function loadData() {
+        try {
+            showNotification('Loading data from JSON file...', 'success');
+
+            // Fetch from the analytics.json file
+            const response = await fetch('analytics.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            data = await response.json();
+
+            showNotification('Data loaded successfully!', 'success');
+            document.getElementById('loading-indicator').style.display = 'none';
+
+            // Initialize the dashboard
+            initDashboard();
+
+        } catch (error) {
+            console.error('Error loading data:', error);
+            showNotification('Error loading data. Please check if analytics.json exists.', 'error');
+            document.getElementById('loading-indicator').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading data';
+        }
+    }
+
+    // Show notification
+    function showNotification(message, type) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.className = `notification ${type}`;
+        notification.classList.add('show');
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
+    // Initialize the dashboard
+    function initDashboard() {
+        // Set initial filtered data
+        filteredData = [...data.documents];
+
+        // Update summary stats
+        document.getElementById('total-docs').textContent = data.summary.num_files.toLocaleString();
+        document.getElementById('total-tokens').textContent = data.summary.total_tokens.toLocaleString();
+        document.getElementById('unique-tokens').textContent = data.summary.unique_tokens.toLocaleString();
+        document.getElementById('total-entities').textContent = data.summary.total_entities.toLocaleString();
+
+        // Extract unique topics, participants, and entities
+        extractUniqueValues();
+
+        // Initialize filters
+        initFilters();
+
+        // Create visualizations
+        createTimeline();
+        createWordCloud();
+        createBeehivePlot();
+        createDAG();
+        createAdjacencyMatrix();
+        createWordCountChart();
+
+        // Set up event listeners
+        document.getElementById('reset-filters').addEventListener('click', resetFilters);
+
+        // Set up multiselect functionality
+        setupMultiselect();
+
+        // Set up expandable panels
+        setupExpandablePanels();
+        setupZoomControls();
+    }
+
+    // NEW: Set up zoom controls for timeline
+    function setupZoomControls() {
+        document.getElementById('zoom-in').addEventListener('click', zoomIn);
+        document.getElementById('zoom-out').addEventListener('click', zoomOut);
+        document.getElementById('reset-zoom').addEventListener('click', resetZoom);
+        document.getElementById('brush-toggle').addEventListener('click', toggleBrush);
+    }
+
+    // NEW: Zoom in function
+    function zoomIn() {
+        if (timelineXScale) {
+            const currentDomain = timelineXScale.domain();
+            const range = currentDomain[1] - currentDomain[0];
+            const newRange = range * 0.7; // Zoom in by 30%
+            const center = (currentDomain[0].getTime() + currentDomain[1].getTime()) / 2;
+
+            const newDomain = [
+                new Date(center - newRange / 2),
+                new Date(center + newRange / 2)
+            ];
+
+            updateTimelineZoom(newDomain);
+        }
+    }
+
+    // NEW: Zoom out function
+    function zoomOut() {
+        if (timelineXScale) {
+            const currentDomain = timelineXScale.domain();
+            const range = currentDomain[1] - currentDomain[0];
+            const newRange = range / 0.7; // Zoom out by 30%
+            const center = (currentDomain[0].getTime() + currentDomain[1].getTime()) / 2;
+
+            const newDomain = [
+                new Date(center - newRange / 2),
+                new Date(center + newRange / 2)
+            ];
+
+            // Don't zoom out beyond original data extent
+            const allDates = getAllDates();
+            const dataExtent = d3.extent(allDates, d => d.date);
+
+            if (newDomain[0] < dataExtent[0]) newDomain[0] = dataExtent[0];
+            if (newDomain[1] > dataExtent[1]) newDomain[1] = dataExtent[1];
+
+            updateTimelineZoom(newDomain);
+        }
+    }
+
+    // NEW: Reset zoom function
+    function resetZoom() {
+        const allDates = getAllDates();
+        const dataExtent = d3.extent(allDates, d => d.date);
+        updateTimelineZoom(dataExtent);
+    }
+
+    // NEW: Toggle brush function
+    function toggleBrush() {
+        isBrushing = !isBrushing;
+        const brushBtn = document.getElementById('brush-toggle');
+
+        if (isBrushing) {
+            brushBtn.style.background = '#3498db';
+            brushBtn.style.color = 'white';
+            showNotification('Brush mode enabled. Click and drag on timeline to select area.', 'success');
+        } else {
+            brushBtn.style.background = '';
+            brushBtn.style.color = '';
+            if (brushRect) {
+                brushRect.remove();
+                brushRect = null;
+            }
+            showNotification('Brush mode disabled.', 'success');
+        }
+    }
+
+    // NEW: Update timeline zoom
+    function updateTimelineZoom(domain) {
+        if (!timelineXScale || !timelineG) return;
+
+        timelineXScale.domain(domain);
+
+        // Update axes
+        timelineG.select('.x-axis').call(d3.axisBottom(timelineXScale));
+
+        // Update points
+        timelineG.selectAll('.date-point')
+            .attr('cx', d => timelineXScale(d.date));
+
+        // Update brush if it exists
+        if (brushRect) {
+            brushRect.remove();
+            brushRect = null;
+        }
+    }
+
+    // NEW: Get all dates from filtered data
+    function getAllDates() {
+        const allDates = [];
+        filteredData.forEach(doc => {
+            if (doc.dates) {
+                doc.dates.forEach(date => {
+                    allDates.push({
+                        date: new Date(date),
+                        docId: doc.id,
+                        doc: doc
+                    });
+                });
+            }
+        });
+        return allDates;
+    }
+
+    // Extract unique topics, participants, and entities from the data
+    function extractUniqueValues() {
+        const topicSet = new Set();
+        const participantSet = new Set();
+        const entitySet = new Set();
+
+        data.documents.forEach(doc => {
+            if (doc.topic_labels) {
+                doc.topic_labels.forEach(topic => topicSet.add(topic));
+            }
+            if (doc.participants) {
+                doc.participants.forEach(participant => participantSet.add(participant));
+            }
+        });
+        data.entities.forEach(en => {
+            if (en && en.name) {
+                entitySet.add(en.name);
+            }
+        });
+
+        allTopics = Array.from(topicSet);
+        allParticipants = Array.from(participantSet);
+        allEntities = Array.from(entitySet);
+    }
+
+    // Set up multiselect functionality
+    function setupMultiselect() {
+        // Topic multiselect
+        const topicSelectBox = document.getElementById('topic-select-box');
+        const topicCheckboxes = document.getElementById('topic-checkboxes');
+        const topicOverSelect = document.getElementById('topic-over-select');
+
+        topicSelectBox.addEventListener('click', function(e) {
+            e.stopPropagation();
+            topicCheckboxes.style.display = topicCheckboxes.style.display === 'block' ? 'none' : 'block';
+            topicSelectBox.classList.toggle('active');
+        });
+
+        topicOverSelect.addEventListener('click', function(e) {
+            e.stopPropagation();
+            topicCheckboxes.style.display = topicCheckboxes.style.display === 'block' ? 'none' : 'block';
+            topicSelectBox.classList.toggle('active');
+        });
+
+        // Entity multiselect
+        const entitySelectBox = document.getElementById('entity-select-box');
+        const entityCheckboxes = document.getElementById('entity-checkboxes');
+        const entityOverSelect = document.getElementById('entity-over-select');
+
+        entitySelectBox.addEventListener('click', function(e) {
+            e.stopPropagation();
+            entityCheckboxes.style.display = entityCheckboxes.style.display === 'block' ? 'none' : 'block';
+            entitySelectBox.classList.toggle('active');
+        });
+
+        entityOverSelect.addEventListener('click', function(e) {
+            e.stopPropagation();
+            entityCheckboxes.style.display = entityCheckboxes.style.display === 'block' ? 'none' : 'block';
+            entitySelectBox.classList.toggle('active');
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function() {
+            topicCheckboxes.style.display = 'none';
+            topicSelectBox.classList.remove('active');
+            entityCheckboxes.style.display = 'none';
+            entitySelectBox.classList.remove('active');
+        });
+    }
+
+    // Set up expandable panels
+    function setupExpandablePanels() {
+        document.querySelectorAll('.expand-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const vizType = this.getAttribute('data-viz');
+                openExpandedView(vizType);
+            });
+        });
+    }
+
+    // Open expanded view for a visualization
+    function openExpandedView(vizType) {
+        // Create modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay';
+
+        // Create modal content
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
+
+        // Create modal header
+        const modalHeader = document.createElement('div');
+        modalHeader.className = 'modal-header';
+
+        const modalTitle = document.createElement('h2');
+        modalTitle.className = 'modal-title';
+        modalTitle.textContent = getVizTitle(vizType);
+
+        const closeButton = document.createElement('button');
+        closeButton.className = 'close-modal';
+        closeButton.innerHTML = '<i class="fas fa-times"></i>';
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+
+        modalHeader.appendChild(modalTitle);
+        modalHeader.appendChild(closeButton);
+
+        // Create modal body
+        const modalBody = document.createElement('div');
+        modalBody.className = 'modal-body';
+        modalBody.id = `modal-${vizType}`;
+
+        // Assemble modal
+        modalContent.appendChild(modalHeader);
+        modalContent.appendChild(modalBody);
+        modalOverlay.appendChild(modalContent);
+
+        // Add to page
+        document.body.appendChild(modalOverlay);
+
+        // Create the visualization in the modal
+        createExpandedVisualization(vizType, modalBody);
+
+        // Close modal when clicking outside content
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+    // Get visualization title
+    function getVizTitle(vizType) {
+        const titles = {
+            timeline: 'Document Timeline',
+            wordcloud: 'Word Cloud',
+            beehive: 'Topic Beehive Plot',
+            dag: 'Document-Topic Network',
+            matrix: 'Topic Adjacency Matrix',
+            wordcount: 'Word Frequency'
+        };
+        return titles[vizType] || 'Visualization';
+    }
+
+    // Create expanded visualization
+    function createExpandedVisualization(vizType, container) {
+        // Clear container
+        container.innerHTML = '';
+
+        // Create appropriate container for the visualization
+        const vizContainer = document.createElement('div');
+        vizContainer.className = `${vizType}-container`;
+        vizContainer.style.height = '100%';
+        vizContainer.style.position = 'relative';
+
+        container.appendChild(vizContainer);
+
+        // Recreate the visualization with larger dimensions
+        switch (vizType) {
+            case 'timeline':
+                createTimeline(vizContainer, true);
+                break;
+            case 'wordcloud':
+                createWordCloud(vizContainer, true);
+                break;
+            case 'beehive':
+                createBeehivePlot(vizContainer, true);
+                break;
+            case 'dag':
+                createDAG(vizContainer, true);
+                break;
+            case 'matrix':
+                createAdjacencyMatrix(vizContainer, true);
+                break;
+            case 'wordcount':
+                createWordCountChart(vizContainer, true);
+                break;
+        }
+    }
+
+    // Initialize filter controls
+    function initFilters() {
+        // Topic filters - populate the multiselect
+        const topicCheckboxesContainer = document.getElementById('topic-checkboxes');
+        allTopics.forEach(topic => {
+            const option = document.createElement('label');
+            option.innerHTML = `
+                    <input type="checkbox" class="topic-filter" value="${topic}">
+                    ${topic}
+                `;
+            topicCheckboxesContainer.appendChild(option);
+        });
+
+        // Entity filters - populate the multiselect
+        const entityCheckboxesContainer = document.getElementById('entity-checkboxes');
+        allEntities.forEach(entity => {
+            const option = document.createElement('label');
+            option.innerHTML = `
+                    <input type="checkbox" class="entity-filter" value="${entity}">
+                    ${entity}
+                `;
+            entityCheckboxesContainer.appendChild(option);
+        });
+
+        // Participant filters
+        const participantFiltersContainer = document.getElementById('participant-filters');
+        allParticipants.forEach(participant => {
+            const option = document.createElement('div');
+            option.className = 'filter-option';
+            option.innerHTML = `
+                    <label>
+                        <input type="checkbox" class="participant-filter" value="${participant}" checked>
+                        ${participant}
+                    </label>
+                `;
+            participantFiltersContainer.appendChild(option);
+        });
+
+        // Set up filter change listeners
+        document.querySelectorAll('input[type="checkbox"], input[type="date"], input[type="number"]').forEach(input => {
+            input.addEventListener('change', applyFilters);
+        });
+
+        // Update selected count displays
+        updateSelectedCounts();
+    }
+
+    // Update the selected topics and entities count displays
+    function updateSelectedCounts() {
+        // Topics
+        const selectedTopicCount = document.querySelectorAll('.topic-filter:checked').length;
+        const topicDisplay = document.getElementById('topic-selected-count');
+
+        if (selectedTopicCount === 0) {
+            topicDisplay.textContent = 'Select topics';
+        } else if (selectedTopicCount === 1) {
+            topicDisplay.textContent = '1 topic selected';
+        } else {
+            topicDisplay.textContent = `${selectedTopicCount} topics selected`;
+        }
+
+        // Entities
+        const selectedEntityCount = document.querySelectorAll('.entity-filter:checked').length;
+        const entityDisplay = document.getElementById('entity-selected-count');
+
+        if (selectedEntityCount === 0) {
+            entityDisplay.textContent = 'Select entities';
+        } else if (selectedEntityCount === 1) {
+            entityDisplay.textContent = '1 entity selected';
+        } else {
+            entityDisplay.textContent = `${selectedEntityCount} entities selected`;
+        }
+    }
+
+    // Apply filters to the data
+    function applyFilters() {
+        // Get selected topics
+        selectedTopics = Array.from(document.querySelectorAll('.topic-filter:checked'))
+            .map(checkbox => checkbox.value);
+
+        // Get selected entities
+        selectedEntities = Array.from(document.querySelectorAll('.entity-filter:checked'))
+            .map(checkbox => checkbox.value);
+
+        // Get selected participants
+        const selectedParticipants = Array.from(document.querySelectorAll('.participant-filter:checked'))
+            .map(checkbox => checkbox.value);
+
+        // Get date range
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+
+        // Get token count range
+        const minTokens = parseInt(document.getElementById('min-tokens').value) || 0;
+        const maxTokens = parseInt(document.getElementById('max-tokens').value) || Number.MAX_SAFE_INTEGER;
+
+        // Filter documents
+        filteredData = data.documents.filter(doc => {
+            // Topic filter
+            if (selectedTopics.length > 0 && doc.topic_labels) {
+                const hasTopic = doc.topic_labels.some(topic => selectedTopics.includes(topic));
+                if (!hasTopic) return false;
+            }
+
+            if (selectedEntities.length > 0 && doc.entities) {
+                const hasEntity = doc.entities.some(entity =>
+                    selectedEntities.includes(entity.entity_name)
+                );
+                if (!hasEntity) return false;
+            }
+
+            // Participant filter
+            if (selectedParticipants.length > 0 && doc.participants) {
+                const hasParticipant = doc.participants.some(participant => selectedParticipants.includes(participant));
+                if (!hasParticipant) return false;
+            }
+
+            // Date filter
+            if (startDate && doc.dates && doc.dates.length > 0) {
+                const docDates = doc.dates.map(d => new Date(d));
+                const start = new Date(startDate);
+                const hasDateInRange = docDates.some(date => date >= start);
+                if (!hasDateInRange) return false;
+            }
+
+            if (endDate && doc.dates && doc.dates.length > 0) {
+                const docDates = doc.dates.map(d => new Date(d));
+                const end = new Date(endDate);
+                const hasDateInRange = docDates.some(date => date <= end);
+                if (!hasDateInRange) return false;
+            }
+
+            // Token count filter
+            if (doc.token_count < minTokens || doc.token_count > maxTokens) return false;
+
+            return true;
+        });
+
+        // Update selected count displays
+        updateSelectedCounts();
+
+        // Update dependent filters (participants based on selected topics)
+        updateDependentFilters();
+
+        // Update visualizations with filtered data
+        updateVisualizations();
+
+        // Show notification about filtering results
+        if (filteredData.length !== data.documents.length) {
+            showNotification(`Filtered to ${filteredData.length} documents`, 'success');
+        }
+    }
+
+    // Update dependent filters based on selected topics
+    function updateDependentFilters() {
+        // Get participants that appear in documents with the selected topics
+        const availableParticipants = new Set();
+
+        filteredData.forEach(doc => {
+            if (doc.participants) {
+                doc.participants.forEach(participant => availableParticipants.add(participant));
+            }
+        });
+
+        // Update participant checkboxes
+        document.querySelectorAll('.participant-filter').forEach(checkbox => {
+            const participant = checkbox.value;
+            const isAvailable = availableParticipants.has(participant);
+
+            checkbox.disabled = !isAvailable;
+            checkbox.parentElement.style.opacity = isAvailable ? '1' : '0.5';
+
+            // If a checkbox is disabled and checked, uncheck it
+            if (!isAvailable && checkbox.checked) {
+                checkbox.checked = false;
+            }
+        });
+    }
+
+    // Reset all filters
+    function resetFilters() {
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = true;
+            checkbox.disabled = false;
+            checkbox.parentElement.style.opacity = '1';
+        });
+
+        document.getElementById('start-date').value = '';
+        document.getElementById('end-date').value = '';
+        document.getElementById('min-tokens').value = '';
+        document.getElementById('max-tokens').value = '';
+
+        applyFilters();
+        showNotification('All filters reset', 'success');
+    }
+
+    // Update all visualizations with filtered data
+    function updateVisualizations() {
+        createTimeline();
+        createWordCloud();
+        createBeehivePlot();
+        createDAG();
+        createAdjacencyMatrix();
+        createWordCountChart();
+    }
+
+    // Create timeline visualization
+    function createTimeline(container = null, isExpanded = false) {
+        const targetContainer = container || document.getElementById('timeline');
+        targetContainer.innerHTML = '';
+
+        // Show empty state if no data
+        if (filteredData.length === 0) {
+            targetContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Data Available</h3>
+                        <p>No documents match the current filters.</p>
+                    </div>
+                `;
+            return;
+        }
+
+        const margin = isExpanded ? { top: 40, right: 50, bottom: 60, left: 70 } : { top: 20, right: 30, bottom: 40, left: 50 };
+        const width = (isExpanded ? targetContainer.clientWidth : targetContainer.clientWidth) - margin.left - margin.right;
+        const height = (isExpanded ? targetContainer.clientHeight : targetContainer.clientHeight) - margin.top - margin.bottom;
+
+        timelineSvg = d3.select(targetContainer)
+            .append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom);
+
+        timelineG = timelineSvg.append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        // Extract all dates from filtered documents
+        const allDates = getAllDates();
+
+        // Set up scales
+        timelineXScale = d3.scaleTime()
+            .domain(d3.extent(allDates, d => d.date))
+            .range([0, width]);
+
+        // Group dates by month for the y-axis
+        const timeGroups = d3.rollup(allDates, v => v.length, d => d3.timeMonth(d.date));
+        timelineYScale = d3.scaleLinear()
+            .domain([0, d3.max(Array.from(timeGroups.values()))])
+            .range([height, 0]);
+
+        // Add X axis
+        timelineG.append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(timelineXScale));
+
+        // Add Y axis
+        timelineG.append('g')
+            .attr('class', 'y-axis')
+            .call(d3.axisLeft(timelineYScale));
+
+        // Add points for each date
+        timelineG.selectAll('.date-point')
+            .data(allDates)
+            .enter()
+            .append('circle')
+            .attr('class', 'date-point')
+            .attr('cx', d => timelineXScale(d.date))
+            .attr('cy', d => {
+                const month = d3.timeMonth(d.date);
+                return timelineYScale(timeGroups.get(month));
+            })
+            .attr('r', isExpanded ? 6 : 4)
+            .attr('fill', '#3498db')
+            .attr('opacity', 0.7)
+            .on('mouseover', function(event, d) {
+                const tooltip = d3.select('body')
+                    .append('div')
+                    .attr('class', 'tooltip')
+                    .style('opacity', 0);
+
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', .9);
+
+                const topicInfo = d.doc.topic_labels ?
+                    d.doc.topic_labels.map(t => `<p>• ${t}</p>`).join('') :
+                    '<p>No topics</p>';
+
+                tooltip.html(`
+                        <h4>Document ${d.docId}</h4>
+                        <p><span class="highlight">Date:</span> ${d.date.toDateString()}</p>
+                        <p><span class="highlight">Tokens:</span> ${d.doc.token_count.toLocaleString()}</p>
+                        <p><span class="highlight">Unique Tokens:</span> ${d.doc.unique_token_count.toLocaleString()}</p>
+                        <p><span class="highlight">Participants:</span> ${d.doc.participants && d.doc.participants.length > 0 ? d.doc.participants.join(', ') : 'None'}</p>
+                        <p><span class="highlight">Topics:</span></p>
+                        ${topicInfo}
+                    `)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.selectAll('.tooltip').remove();
+            });
+
+        // Add Y axis label
+        timelineG.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', 0 - margin.left)
+            .attr('x', 0 - (height / 2))
+            .attr('dy', '1em')
+            .style('text-anchor', 'middle')
+            .text('Documents per Month');
+
+        // NEW: Add brush interaction
+        timelineSvg.on('mousedown', function(event) {
+            if (!isBrushing) return;
+
+            const [x, y] = d3.pointer(event, timelineG.node());
+            brushStartX = x;
+
+            // Create brush rectangle
+            brushRect = timelineG.append('rect')
+                .attr('class', 'zoom-rect')
+                .attr('x', brushStartX)
+                .attr('y', 0)
+                .attr('width', 0)
+                .attr('height', height);
+        });
+
+        timelineSvg.on('mousemove', function(event) {
+            if (!isBrushing || !brushStartX || !brushRect) return;
+
+            const [x, y] = d3.pointer(event, timelineG.node());
+            const width = x - brushStartX;
+
+            brushRect
+                .attr('width', Math.abs(width))
+                .attr('x', width > 0 ? brushStartX : brushStartX + width);
+        });
+
+        timelineSvg.on('mouseup', function(event) {
+            if (!isBrushing || !brushStartX || !brushRect) return;
+
+            const [x, y] = d3.pointer(event, timelineG.node());
+            const minX = Math.min(brushStartX, x);
+            const maxX = Math.max(brushStartX, x);
+
+            // Convert pixel coordinates to dates
+            const minDate = timelineXScale.invert(minX);
+            const maxDate = timelineXScale.invert(maxX);
+
+            // Update zoom to the brushed area
+            updateTimelineZoom([minDate, maxDate]);
+
+            // Remove brush rectangle
+            brushRect.remove();
+            brushRect = null;
+            brushStartX = null;
+
+            showNotification(`Zoomed to selected time period: ${minDate.toDateString()} - ${maxDate.toDateString()}`, 'success');
+        });
+    }
+
+    // Create word cloud visualization
+    function createWordCloud(container = null, isExpanded = false) {
+        const targetContainer = container || document.getElementById('wordcloud');
+        const canvas = document.getElementById('wordcloud-canvas');
+
+        // If we're creating for a modal, create a new canvas
+        let targetCanvas = canvas;
+        if (isExpanded) {
+            targetCanvas = document.createElement('canvas');
+            targetCanvas.id = 'wordcloud-canvas-expanded';
+            targetContainer.innerHTML = '';
+            targetContainer.appendChild(targetCanvas);
+        }
+
+        // Clear and resize canvas
+        targetCanvas.width = targetContainer.clientWidth;
+        targetCanvas.height = targetContainer.clientHeight;
+
+        const ctx = targetCanvas.getContext('2d');
+        ctx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+
+        // Show empty state if no data
+        if (filteredData.length === 0) {
+            targetContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Data Available</h3>
+                        <p>No documents match the current filters.</p>
+                    </div>
+                `;
+            return;
+        }
+
+        // Aggregate all top words from filtered documents
+        const wordCounts = {};
+        filteredData.forEach(doc => {
+            if (doc.top_words) {
+                doc.top_words.forEach(wordObj => {
+                    if (wordCounts[wordObj.word]) {
+                        wordCounts[wordObj.word] += wordObj.count;
+                    } else {
+                        wordCounts[wordObj.word] = wordObj.count;
+                    }
+                });
+            }
+        });
+
+        // Convert to array and sort by frequency
+        const wordData = Object.keys(wordCounts).map(word => [word, wordCounts[word]]);
+        wordData.sort((a, b) => b[1] - a[1]);
+
+        // Take top words for the cloud (more if expanded)
+        const topWords = isExpanded ? wordData.slice(0, 100) : wordData.slice(0, 50);
+
+        // Create word cloud with safe dimensions
+        try {
+            WordCloud(targetCanvas, {
+                list: topWords,
+                gridSize: Math.round(16 * targetContainer.clientWidth / 1024),
+                weightFactor: function(size) {
+                    return Math.pow(size, 0.8) * targetContainer.clientWidth / 1024;
+                },
+                fontFamily: 'Times, serif',
+                color: function() {
+                    const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
+                    return colors[Math.floor(Math.random() * colors.length)];
+                },
+                rotateRatio: 0.5,
+                rotationSteps: 2,
+                backgroundColor: '#fff',
+                minSize: isExpanded ? 12 : 10
+            });
+
+            // Add interaction to word cloud
+            targetCanvas.addEventListener('mousemove', function(e) {
+                const rect = targetCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const words = topWords.slice(0, 15); // Check only top words for performance
+
+                for (let i = 0; i < words.length; i++) {
+                    const word = words[i][0];
+                    const count = words[i][1];
+
+                    // This is a simplified hit detection - in reality you'd need the actual word positions
+                    // For now, I'll just show the top word when hovering in the center area
+                    if (x > targetCanvas.width / 2 - 50 && x < targetCanvas.width / 2 + 50 &&
+                        y > targetCanvas.height / 2 - 30 && y < targetCanvas.height / 2 + 30) {
+
+                        d3.selectAll('.tooltip').remove();
+                        const tooltip = d3.select('body')
+                            .append('div')
+                            .attr('class', 'tooltip')
+                            .style('opacity', 0);
+
+                        tooltip.transition()
+                            .duration(200)
+                            .style('opacity', .9);
+
+                        tooltip.html(`
+                                <h4>Word: "${word}"</h4>
+                                <p><span class="highlight">Total Count:</span> ${count.toLocaleString()}</p>
+                                <p><span class="highlight">Appears in:</span> ${filteredData.filter(doc => 
+                                    doc.top_words && doc.top_words.some(w => w.word === word)
+                                ).length} documents</p>
+                            `)
+                            .style('left', (e.pageX + 10) + 'px')
+                            .style('top', (e.pageY - 28) + 'px');
+                        break;
+                    }
+                }
+            });
+
+            targetCanvas.addEventListener('mouseout', function() {
+                d3.selectAll('.tooltip').remove();
+            });
+
+        } catch (error) {
+            console.error('Error creating word cloud:', error);
+            targetContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Word Cloud Error</h3>
+                        <p>Could not generate word cloud visualization.</p>
+                    </div>
+                `;
+        }
+    }
+
+    // Create beehive plot for topic relationships
+    function createBeehivePlot(container = null, isExpanded = false) {
+        const targetContainer = container || document.getElementById('beehive');
+        targetContainer.innerHTML = '';
+
+        // Show empty state if no data
+        if (filteredData.length === 0) {
+            targetContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Data Available</h3>
+                        <p>No documents match the current filters.</p>
+                    </div>
+                `;
+            return;
+        }
+
+        const margin = isExpanded ? { top: 40, right: 50, bottom: 60, left: 70 } : { top: 20, right: 30, bottom: 40, left: 50 };
+        const width = (isExpanded ? targetContainer.clientWidth : targetContainer.clientWidth) - margin.left - margin.right;
+        const height = (isExpanded ? targetContainer.clientHeight : targetContainer.clientHeight) - margin.top - margin.bottom;
+
+        const svg = d3.select(targetContainer)
+            .append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        // Count documents per topic
+        const topicCounts = {};
+        filteredData.forEach(doc => {
+            if (doc.topic_labels) {
+                doc.topic_labels.forEach(topic => {
+                    if (topicCounts[topic]) {
+                        topicCounts[topic]++;
+                    } else {
+                        topicCounts[topic] = 1;
+                    }
+                });
+            }
+        });
+
+        const topics = Object.keys(topicCounts);
+
+        // Create nodes for each topic
+        const nodes = topics.map(topic => ({
+            id: topic,
+            value: topicCounts[topic],
+            radius: Math.sqrt(topicCounts[topic]) * (isExpanded ? 7 : 5),
+            count: topicCounts[topic]
+        }));
+
+        // Simple force simulation for layout
+        const simulation = d3.forceSimulation(nodes)
+            .force('charge', d3.forceManyBody().strength(-50))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collision', d3.forceCollide().radius(d => d.radius + 2))
+            .on('tick', ticked);
+
+        // Create circles for each topic
+        const node = svg.selectAll('.node')
+            .data(nodes)
+            .enter().append('g')
+            .attr('class', 'node');
+
+        node.append('circle')
+            .attr('r', d => d.radius)
+            .attr('fill', () => {
+                const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            })
+            .on('mouseover', function(event, d) {
+                const tooltip = d3.select('body')
+                    .append('div')
+                    .attr('class', 'tooltip')
+                    .style('opacity', 0);
+
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', .9);
+
+                // Find documents with this topic
+                const docsWithTopic = filteredData.filter(doc =>
+                    doc.topic_labels && doc.topic_labels.includes(d.id)
+                );
+
+                tooltip.html(`
+                        <h4>Topic: ${d.id}</h4>
+                        <p><span class="highlight">Documents:</span> ${d.count}</p>
+                        <p><span class="highlight">Avg Tokens:</span> ${Math.round(
+                            docsWithTopic.reduce((sum, doc) => sum + doc.token_count, 0) / docsWithTopic.length
+                        ).toLocaleString()}</p>
+                        <p><span class="highlight">Sample Documents:</span></p>
+                        <p>${docsWithTopic.slice(0, 3).map(doc => `• Document ${doc.id}`).join('<br>')}</p>
+                    `)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.selectAll('.tooltip').remove();
+            });
+
+        node.append('text')
+            .text(d => d.id.length > 15 ? d.id.substring(0, 15) + '...' : d.id)
+            .attr('text-anchor', 'middle')
+            .attr('dy', '.35em')
+            .style('font-size', isExpanded ? '12px' : '10px')
+            .style('pointer-events', 'none');
+
+        function ticked() {
+            node.attr('transform', d => `translate(${d.x},${d.y})`);
+        }
+    }
+
+    // Create Document-Topic Network (not linked by dates)
+    function createDAG(container = null, isExpanded = false) {
+        const targetContainer = container || document.getElementById('dag');
+        targetContainer.innerHTML = '';
+
+        // Show empty state if no data
+        if (filteredData.length === 0) {
+            targetContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Data Available</h3>
+                        <p>No documents match the current filters.</p>
+                    </div>
+                `;
+            return;
+        }
+
+        const margin = isExpanded ? { top: 40, right: 50, bottom: 60, left: 70 } : { top: 20, right: 30, bottom: 40, left: 50 };
+        const width = (isExpanded ? targetContainer.clientWidth : targetContainer.clientWidth) - margin.left - margin.right;
+        const height = (isExpanded ? targetContainer.clientHeight : targetContainer.clientHeight) - margin.top - margin.bottom;
+
+        const svg = d3.select(targetContainer)
+            .append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        // Create nodes for documents and topics
+        const documentNodes = filteredData.map(doc => ({
+            id: `doc-${doc.id}`,
+            name: `Doc ${doc.id}`,
+            type: 'document',
+            token_count: doc.token_count,
+            doc: doc
+        }));
+
+        // Get all unique topics from filtered documents
+        const topicSet = new Set();
+        filteredData.forEach(doc => {
+            if (doc.topic_labels) {
+                doc.topic_labels.forEach(topic => topicSet.add(topic));
+            }
+        });
+
+        const topicNodes = Array.from(topicSet).map(topic => ({
+            id: `topic-${topic}`,
+            name: topic,
+            type: 'topic'
+        }));
+
+        const nodes = [...documentNodes, ...topicNodes];
+
+        // Create links between documents and topics (no date-based linking)
+        const links = [];
+        filteredData.forEach(doc => {
+            if (doc.topic_labels) {
+                doc.topic_labels.forEach(topic => {
+                    links.push({
+                        source: `doc-${doc.id}`,
+                        target: `topic-${topic}`
+                    });
+                });
+            }
+        });
+
+        // Create force simulation
+        const simulation = d3.forceSimulation(nodes)
+            .force('link', d3.forceLink(links).id(d => d.id).distance(isExpanded ? 120 : 100))
+            .force('charge', d3.forceManyBody().strength(isExpanded ? -800 : -500))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .on('tick', ticked);
+
+        // Create links
+        const link = svg.append('g')
+            .attr('class', 'links')
+            .selectAll('line')
+            .data(links)
+            .enter().append('line')
+            .attr('class', 'link')
+            .attr('stroke-width', 1);
+
+        // Create nodes
+        const node = svg.append('g')
+            .attr('class', 'nodes')
+            .selectAll('g')
+            .data(nodes)
+            .enter().append('g')
+            .attr('class', 'node')
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+
+        node.append('circle')
+            .attr('r', d => d.type === 'document' ? (isExpanded ? 10 : 8) : (isExpanded ? 14 : 12))
+            .attr('fill', d => d.type === 'document' ? '#3498db' : '#e74c3c')
+            .on('mouseover', function(event, d) {
+                const tooltip = d3.select('body')
+                    .append('div')
+                    .attr('class', 'tooltip')
+                    .style('opacity', 0);
+
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', .9);
+
+                if (d.type === 'document') {
+                    const topicInfo = d.doc.topic_labels ?
+                        d.doc.topic_labels.map(t => `<p>• ${t}</p>`).join('') :
+                        '<p>No topics</p>';
+
+                    tooltip.html(`
+                            <h4>Document ${d.doc.id}</h4>
+                            <p><span class="highlight">Tokens:</span> ${d.doc.token_count.toLocaleString()}</p>
+                            <p><span class="highlight">Unique Tokens:</span> ${d.doc.unique_token_count.toLocaleString()}</p>
+                            <p><span class="highlight">Participants:</span> ${d.doc.participants && d.doc.participants.length > 0 ? d.doc.participants.join(', ') : 'None'}</p>
+                            <p><span class="highlight">Topics:</span></p>
+                            ${topicInfo}
+                        `);
+                } else {
+                    // For topic nodes
+                    const topicName = d.name;
+                    const docsWithTopic = filteredData.filter(doc =>
+                        doc.topic_labels && doc.topic_labels.includes(topicName)
+                    );
+
+                    tooltip.html(`
+                            <h4>Topic: ${topicName}</h4>
+                            <p><span class="highlight">Documents:</span> ${docsWithTopic.length}</p>
+                            <p><span class="highlight">Sample Documents:</span></p>
+                            <p>${docsWithTopic.slice(0, 3).map(doc => `• Document ${doc.id}`).join('<br>')}</p>
+                        `);
+                }
+
+                tooltip.style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.selectAll('.tooltip').remove();
+            });
+
+        node.append('text')
+            .text(d => d.name.length > 15 ? d.name.substring(0, 15) + '...' : d.name)
+            .attr('x', d => d.type === 'document' ? (isExpanded ? 12 : 10) : (isExpanded ? 17 : 15))
+            .attr('y', 3)
+            .style('font-size', isExpanded ? '12px' : '10px')
+            .style('pointer-events', 'none');
+
+        function ticked() {
+            link
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+
+            node
+                .attr('transform', d => `translate(${d.x},${d.y})`);
+        }
+
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+    }
+
+    // Create adjacency matrix for topic co-occurrence
+    function createAdjacencyMatrix(container = null, isExpanded = false) {
+        const targetContainer = container || document.getElementById('matrix');
+        targetContainer.innerHTML = '';
+
+        // Show empty state if no data
+        if (filteredData.length === 0) {
+            targetContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Data Available</h3>
+                        <p>No documents match the current filters.</p>
+                    </div>
+                `;
+            return;
+        }
+
+        const margin = isExpanded ? { top: 70, right: 70, bottom: 70, left: 70 } : { top: 50, right: 50, bottom: 50, left: 50 };
+        const width = (isExpanded ? targetContainer.clientWidth : targetContainer.clientWidth) - margin.left - margin.right;
+        const height = (isExpanded ? targetContainer.clientHeight : targetContainer.clientHeight) - margin.top - margin.bottom;
+
+        const svg = d3.select(targetContainer)
+            .append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        // Get all unique topics from filtered documents
+        const topicSet = new Set();
+        filteredData.forEach(doc => {
+            if (doc.topic_labels) {
+                doc.topic_labels.forEach(topic => topicSet.add(topic));
+            }
+        });
+
+        const topics = Array.from(topicSet);
+
+        // Create co-occurrence matrix
+        const matrix = [];
+        for (let i = 0; i < topics.length; i++) {
+            matrix[i] = [];
+            for (let j = 0; j < topics.length; j++) {
+                matrix[i][j] = 0;
+            }
+        }
+
+        // Count co-occurrences
+        filteredData.forEach(doc => {
+            if (doc.topic_labels) {
+                const docTopics = doc.topic_labels;
+                for (let i = 0; i < docTopics.length; i++) {
+                    for (let j = i + 1; j < docTopics.length; j++) {
+                        const topic1Index = topics.indexOf(docTopics[i]);
+                        const topic2Index = topics.indexOf(docTopics[j]);
+                        if (topic1Index !== -1 && topic2Index !== -1) {
+                            matrix[topic1Index][topic2Index]++;
+                            matrix[topic2Index][topic1Index]++;
+                        }
+                    }
+                }
+            }
+        });
+
+        // Set up scales
+        const xScale = d3.scaleBand()
+            .domain(topics)
+            .range([0, width]);
+
+        const yScale = d3.scaleBand()
+            .domain(topics)
+            .range([0, height]);
+
+        const colorScale = d3.scaleSequential(d3.interpolateBlues)
+            .domain([0, d3.max(matrix.flat())]);
+
+        // Create cells
+        svg.selectAll('.matrix-row')
+            .data(matrix)
+            .enter()
+            .selectAll('.matrix-cell')
+            .data((d, i) => d.map((value, j) => ({ value, x: j, y: i })))
+            .enter()
+            .append('rect')
+            .attr('class', 'matrix-cell')
+            .attr('x', d => xScale(topics[d.x]))
+            .attr('y', d => yScale(topics[d.y]))
+            .attr('width', xScale.bandwidth())
+            .attr('height', yScale.bandwidth())
+            .attr('fill', d => colorScale(d.value))
+            .on('mouseover', function(event, d) {
+                const tooltip = d3.select('body')
+                    .append('div')
+                    .attr('class', 'tooltip')
+                    .style('opacity', 0);
+
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', .9);
+
+                tooltip.html(`
+                        <h4>Topic Co-occurrence</h4>
+                        <p><span class="highlight">Topics:</span> ${topics[d.y]} & ${topics[d.x]}</p>
+                        <p><span class="highlight">Co-occurrences:</span> ${d.value}</p>
+                        <p><span class="highlight">Documents with both topics:</span> ${d.value}</p>
+                    `)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.selectAll('.tooltip').remove();
+            });
+
+        // Add X axis
+        svg.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(xScale))
+            .selectAll('text')
+            .attr('transform', 'rotate(-45)')
+            .style('text-anchor', 'end')
+            .style('font-size', isExpanded ? '12px' : '10px');
+
+        // Add Y axis
+        svg.append('g')
+            .call(d3.axisLeft(yScale))
+            .selectAll('text')
+            .style('font-size', isExpanded ? '12px' : '10px');
+    }
+
+    // Create word count chart
+    function createWordCountChart(container = null, isExpanded = false) {
+        const targetContainer = container || document.getElementById('wordcount');
+        targetContainer.innerHTML = '';
+
+        // Show empty state if no data
+        if (filteredData.length === 0) {
+            targetContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Data Available</h3>
+                        <p>No documents match the current filters.</p>
+                    </div>
+                `;
+            return;
+        }
+
+        const margin = isExpanded ? { top: 40, right: 50, bottom: 60, left: 70 } : { top: 20, right: 30, bottom: 40, left: 50 };
+        const width = (isExpanded ? targetContainer.clientWidth : targetContainer.clientWidth) - margin.left - margin.right;
+        const height = (isExpanded ? targetContainer.clientHeight : targetContainer.clientHeight) - margin.top - margin.bottom;
+
+        const svg = d3.select(targetContainer)
+            .append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        // Aggregate all top words from filtered documents
+        const wordCounts = {};
+        filteredData.forEach(doc => {
+            if (doc.top_words) {
+                doc.top_words.forEach(wordObj => {
+                    if (wordCounts[wordObj.word]) {
+                        wordCounts[wordObj.word] += wordObj.count;
+                    } else {
+                        wordCounts[wordObj.word] = wordObj.count;
+                    }
+                });
+            }
+        });
+
+        // Convert to array and sort by frequency
+        const wordData = Object.keys(wordCounts).map(word => ({
+            word: word,
+            count: wordCounts[word]
+        }));
+
+        wordData.sort((a, b) => b.count - a.count);
+
+        // Take top words for the chart (more if expanded)
+        const topWords = isExpanded ? wordData.slice(0, 30) : wordData.slice(0, 20);
+
+        // Set up scales
+        const xScale = d3.scaleBand()
+            .domain(topWords.map(d => d.word))
+            .range([0, width])
+            .padding(0.1);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(topWords, d => d.count)])
+            .range([height, 0]);
+
+        // Create bars
+        svg.selectAll('.bar')
+            .data(topWords)
+            .enter()
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('x', d => xScale(d.word))
+            .attr('y', d => yScale(d.count))
+            .attr('width', xScale.bandwidth())
+            .attr('height', d => height - yScale(d.count))
+            .attr('fill', '#3498db')
+            .on('mouseover', function(event, d) {
+                const tooltip = d3.select('body')
+                    .append('div')
+                    .attr('class', 'tooltip')
+                    .style('opacity', 0);
+
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', .9);
+
+                // Calculate in how many documents this word appears
+                const docCount = filteredData.filter(doc =>
+                    doc.top_words && doc.top_words.some(w => w.word === d.word)
+                ).length;
+
+                tooltip.html(`
+                        <h4>Word: "${d.word}"</h4>
+                        <p><span class="highlight">Total Count:</span> ${d.count.toLocaleString()}</p>
+                        <p><span class="highlight">Appears in:</span> ${docCount} documents</p>
+                        <p><span class="highlight">Percentage of documents:</span> ${((docCount / filteredData.length) * 100).toFixed(1)}%</p>
+                    `)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.selectAll('.tooltip').remove();
+            });
+
+        // Add X axis
+        svg.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(xScale))
+            .selectAll('text')
+            .attr('transform', 'rotate(-45)')
+            .style('text-anchor', 'end')
+            .style('font-size', isExpanded ? '12px' : '10px');
+
+        // Add Y axis
+        svg.append('g')
+            .call(d3.axisLeft(yScale));
+
+        // Add Y axis label
+        svg.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', 0 - margin.left)
+            .attr('x', 0 - (height / 2))
+            .attr('dy', '1em')
+            .style('text-anchor', 'middle')
+            .text('Frequency');
+    }
+
+    // Load data when the page loads
+    window.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+
+</html>
