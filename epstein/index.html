@@ -820,7 +820,7 @@
         setupZoomControls();
     }
 
-    // NEW: Set up zoom controls for timeline
+    // Set up zoom controls for timeline
     function setupZoomControls() {
         document.getElementById('zoom-in').addEventListener('click', zoomIn);
         document.getElementById('zoom-out').addEventListener('click', zoomOut);
@@ -828,7 +828,7 @@
         document.getElementById('brush-toggle').addEventListener('click', toggleBrush);
     }
 
-    // NEW: Zoom in function
+    // Zoom in function
     function zoomIn() {
         if (timelineXScale) {
             const currentDomain = timelineXScale.domain();
@@ -845,7 +845,7 @@
         }
     }
 
-    // NEW: Zoom out function
+    // Zoom out function
     function zoomOut() {
         if (timelineXScale) {
             const currentDomain = timelineXScale.domain();
@@ -869,14 +869,14 @@
         }
     }
 
-    // NEW: Reset zoom function
+    // Reset zoom function
     function resetZoom() {
         const allDates = getAllDates();
         const dataExtent = d3.extent(allDates, d => d.date);
         updateTimelineZoom(dataExtent);
     }
 
-    // NEW: Toggle brush function
+    // Toggle brush function
     function toggleBrush() {
         isBrushing = !isBrushing;
         const brushBtn = document.getElementById('brush-toggle');
@@ -896,7 +896,7 @@
         }
     }
 
-    // NEW: Update timeline zoom
+    // Update timeline zoom
     function updateTimelineZoom(domain) {
         if (!timelineXScale || !timelineG) return;
 
@@ -916,7 +916,7 @@
         }
     }
 
-    // NEW: Get all dates from filtered data
+    // Get all dates from filtered data
     function getAllDates() {
         const allDates = [];
         filteredData.forEach(doc => {
@@ -1014,56 +1014,7 @@
     }
 
     // Open expanded view for a visualization
-    function openExpandedView(vizType) {
-        // Create modal overlay
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'modal-overlay';
-
-        // Create modal content
-        const modalContent = document.createElement('div');
-        modalContent.className = 'modal-content';
-
-        // Create modal header
-        const modalHeader = document.createElement('div');
-        modalHeader.className = 'modal-header';
-
-        const modalTitle = document.createElement('h2');
-        modalTitle.className = 'modal-title';
-        modalTitle.textContent = getVizTitle(vizType);
-
-        const closeButton = document.createElement('button');
-        closeButton.className = 'close-modal';
-        closeButton.innerHTML = '<i class="fas fa-times"></i>';
-        closeButton.addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-
-        modalHeader.appendChild(modalTitle);
-        modalHeader.appendChild(closeButton);
-
-        // Create modal body
-        const modalBody = document.createElement('div');
-        modalBody.className = 'modal-body';
-        modalBody.id = `modal-${vizType}`;
-
-        // Assemble modal
-        modalContent.appendChild(modalHeader);
-        modalContent.appendChild(modalBody);
-        modalOverlay.appendChild(modalContent);
-
-        // Add to page
-        document.body.appendChild(modalOverlay);
-
-        // Create the visualization in the modal
-        createExpandedVisualization(vizType, modalBody);
-
-        // Close modal when clicking outside content
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                document.body.removeChild(modalOverlay);
-            }
-        });
-    }
+   
 
     // Get visualization title
     function getVizTitle(vizType) {
@@ -1113,7 +1064,56 @@
                 break;
         }
     }
+ function openExpandedView(vizType) {
+        // Create modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay';
 
+        // Create modal content
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
+
+        // Create modal header
+        const modalHeader = document.createElement('div');
+        modalHeader.className = 'modal-header';
+
+        const modalTitle = document.createElement('h2');
+        modalTitle.className = 'modal-title';
+        modalTitle.textContent = getVizTitle(vizType);
+
+        const closeButton = document.createElement('button');
+        closeButton.className = 'close-modal';
+        closeButton.innerHTML = '<i class="fas fa-times"></i>';
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+
+        modalHeader.appendChild(modalTitle);
+        modalHeader.appendChild(closeButton);
+
+        // Create modal body
+        const modalBody = document.createElement('div');
+        modalBody.className = 'modal-body';
+        modalBody.id = `modal-${vizType}`;
+
+        // Assemble modal
+        modalContent.appendChild(modalHeader);
+        modalContent.appendChild(modalBody);
+        modalOverlay.appendChild(modalContent);
+
+        // Add to page
+        document.body.appendChild(modalOverlay);
+
+        // Create the visualization in the modal
+        createExpandedVisualization(vizType, modalBody);
+
+        // Close modal when clicking outside content
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
     // Initialize filter controls
     function initFilters() {
         // Topic filters - populate the multiselect
@@ -1427,7 +1427,7 @@
             .style('text-anchor', 'middle')
             .text('Documents per Month');
 
-        // NEW: Add brush interaction
+        // Add brush interaction
         timelineSvg.on('mousedown', function(event) {
             if (!isBrushing) return;
 
@@ -2155,6 +2155,7 @@
 
     // Load data when the page loads
     window.addEventListener('DOMContentLoaded', loadData);
+    loadData();
     </script>
 </body>
 
