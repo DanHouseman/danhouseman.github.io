@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Natal Chart – Wheel, Tables, Aspects</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1200px;
+      margin: 1.5rem auto;
+      line-height: 1.4;
+      font-size: 14px;
+    }
+    h1, h2, h3 {
+      margin: 0.4rem 0;
+    }
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.5rem 1rem;
+      align-items: flex-end;
+      margin-bottom: 0.5rem;
+      padding: 8px;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    input, select, button {
+      padding: 0.3rem 0.4rem;
+      font-size: 0.9rem;
+      margin-top: 0.15rem;
+    }
+    button {
+      cursor: pointer;
+    }
+    #status {
+      margin: 0.35rem 0 0.7rem 0;
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+    }
+    #layout {
+      display: grid;
+      grid-template-columns: 1.3fr 1.1fr;
+      gap: 1rem;
+    }
+    #wheel-panel {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 0.5rem;
+    }
+    #tables-panel {
+      display: grid;
+      grid-template-rows: auto auto auto 1fr;
+      gap: 0.5rem;
+    }
+    .box {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 0.35rem;
+      overflow: auto;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #eee;
+      padding: 0.15rem 0.3rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+    th {
+      background: #f7f7f7;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+    .right { text-align: right; }
+    .center { text-align: center; }
+    .glyph {
+      font-family: "Segoe UI Symbol", "Apple Color Emoji", serif;
+      font-size: 1rem;
+    }
+    .small {
+      font-size: 0.8rem;
+    }
+    @media (max-width: 900px) {
+      #layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Natal Chart (Tropical, Equal Houses)</h1>
+
+<form id="form">
+  <label>
+    Birth date
+    <input type="date" id="birth-date" required>
+  </label>
+  <label>
+    Birth time (local, 24h)
+    <input type="time" id="birth-time">
+  </label>
+  <label>
+    Timezone offset from UTC (e.g. -5, +1.5)
+    <input type="number" id="tz-offset" step="0.25" value="0" required>
+  </label>
+  <label>
+    Birth city ("City, Country")
+    <input type="text" id="birth-city" required>
+  </label>
+  <label>
+    Zodiac system for points
+  <select id="zodiac-system">
+    <option value="tropical" selected>Tropical</option>
+    <option value="sidereal">Sidereal (Lahiri approx)</option>
+    <option value="both">Both</option>
+  </select>
+  </label>
+  <div>
+    <button type="submit">Compute chart</button>
+  </div>
+</form>
+
+<div id="status"></div>
+
+<div id="layout">
+  <div id="wheel-panel">
+    <h2>Wheel + Aspects</h2>
+    <svg id="wheel" viewBox="0 0 600 600" width="100%" height="100%"></svg>
+  </div>
+
+  <div id="tables-panel">
+    <div class="box">
+      <h3>Zodiac – Planets</h3>
+      <table id="planet-table">
+        <thead>
+          <tr>
+            <th> </th>
+            <th>Planet</th>
+            <th>Sign</th>
+            <th>°</th>
+            <th>R</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="box">
+      <h3>Houses (Equal from Asc)</h3>
+      <table id="house-table">
+        <thead>
+          <tr>
+            <th>House</th>
+            <th>Sign</th>
+            <th>°</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="box">
+      <h3>Planets in Houses</h3>
+      <table id="planets-houses-table">
+        <thead>
+          <tr>
+            <th>Planet</th>
+            <th>in</th>
+            <th>House</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="box">
+      <h3>Aspects (Planet – Aspect – Planet – Orb – Value)</h3>
+      <table id="aspect-table">
+        <thead>
+          <tr>
+            <th>Planet</th>
+            <th>Aspect</th>
+            <th>Planet</th>
+            <th>Orb</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <h4 class="small">Element / Modality tally (planets only)</h4>
+      <table id="quality-table" class="small">
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- astronomy-engine -->
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+
+<script>
+  // ---------- constants ----------
+
+  const DEG2RAD = Math.PI / 180;
+  const RAD2DEG = 180 / Math.PI;
+
+  const SIGNS = [
+    {name: "Aries",       glyph: "♈︎", element: "fire",   mode: "cardinal"},
+    {name: "Taurus",      glyph: "♉︎", element: "earth",  mode: "fixed"},
+    {name: "Gemini",      glyph: "♊︎", element: "air",    mode: "mutable"},
+    {name: "Cancer",      glyph: "♋︎", element: "water",  mode: "cardinal"},
+    {name: "Leo",         glyph: "♌︎", element: "fire",   mode: "fixed"},
+    {name: "Virgo",       glyph: "♍︎", element: "earth",  mode: "mutable"},
+    {name: "Libra",       glyph: "♎︎", element: "air",    mode: "cardinal"},
+    {name: "Scorpio",     glyph: "♏︎", element: "water",  mode: "fixed"},
+    {name: "Sagittarius", glyph: "♐︎", element: "fire",   mode: "mutable"},
+    {name: "Capricorn",   glyph: "♑︎", element: "earth",  mode: "cardinal"},
+    {name: "Aquarius",    glyph: "♒︎", element: "air",    mode: "fixed"},
+    {name: "Pisces",      glyph: "♓︎", element: "water",  mode: "mutable"}
+  ];
+
+  const PLANETS = [
+    {key: "Sun",     name: "Sun",     glyph: "☉", color: "#ff4dd2"},
+    {key: "Moon",    name: "Moon",    glyph: "☽", color: "#666666"},
+    {key: "Mercury", name: "Mercury", glyph: "☿", color: "#008000"},
+    {key: "Venus",   name: "Venus",   glyph: "♀", color: "#3366ff"},
+    {key: "Mars",    name: "Mars",    glyph: "♂", color: "#ff33cc"},
+    {key: "Jupiter", name: "Jupiter", glyph: "♃", color: "#00aa00"},
+    {key: "Saturn",  name: "Saturn",  glyph: "♄", color: "#aa66ff"},
+    {key: "Uranus",  name: "Uranus",  glyph: "♅", color: "#ff6633"},
+    {key: "Neptune", name: "Neptune", glyph: "♆", color: "#888888"},
+    {key: "Pluto",   name: "Pluto",   glyph: "♇", color: "#ff33aa"}
+  ];
+
+  // Cardinal angles we include in aspects.
+  const ANGLES = [
+    {key: "ASC", name: "I ASC", glyph: "AS", color: "#000000"},
+    {key: "MC",  name: "X MC",  glyph: "MC", color: "#000000"}
+  ];
+
+  const ASPECTS = [
+    {name: "Conjunction", symbol: "☌", angle: 0,   maxOrb: 8,  weight: 30, polarity: +1},
+    {name: "Opposition",  symbol: "☍", angle: 180, maxOrb: 8,  weight: 30, polarity: -1},
+    {name: "Trine",       symbol: "△", angle: 120, maxOrb: 7,  weight: 25, polarity: +1},
+    {name: "Square",      symbol: "□", angle: 90,  maxOrb: 6,  weight: 25, polarity: -1},
+    {name: "Sextile",     symbol: "✶", angle: 60,  maxOrb: 4,  weight: 20, polarity: +1}
+  ];
+
+  // ---------- helpers ----------
+
+  function norm360(d) {
+    let r = d % 360;
+    if (r < 0) r += 360;
+    return r;
+  }
+
+  function dms(deg) {
+    const d = Math.floor(deg);
+    const m = Math.floor((deg - d) * 60 + 1e-8);
+    return `${d}°${String(m).padStart(2,"0")}'`;
+  }
+
+  function signInfo(longitude) {
+    const lon = norm360(longitude);
+    const idx = Math.floor(lon / 30);
+    const sign = SIGNS[idx];
+    const degInSign = lon - idx * 30;
+    return {
+      ...sign,
+      degreesInSign: degInSign,
+      formatted: `${dms(degInSign)}`
+    };
+  }
+
+  function lahiriAyanamsa(dateUtc) {
+    // Simple linear Lahiri-ish approximation around J2000.
+    const year = dateUtc.getUTCFullYear();
+    const month = dateUtc.getUTCMonth() + 1;
+    const day = dateUtc.getUTCDate();
+    const fracYear = ((month - 1) + (day - 0.5) / 30) / 12;
+    const tYears = (year + fracYear) - 2000;
+    const base = 23.8569;
+    const rate = 0.01397;
+    return base + rate * tYears;
+  }
+
+  function makeUtcFromLocal(dateStr, timeStr, offsetHours) {
+    const [Y,M,D] = dateStr.split("-").map(Number);
+    let h = 12, m = 0;
+    if (timeStr) {
+      [h,m] = timeStr.split(":").map(Number);
+    }
+    const utcH = h - offsetHours;
+    return new Date(Date.UTC(Y, M-1, D, utcH, m, 0));
+  }
+
+  async function geocodeCity(q) {
+    const url = new URL("https://nominatim.openstreetmap.org/search");
+    url.searchParams.set("q", q);
+    url.searchParams.set("format", "json");
+    url.searchParams.set("limit", "1");
+    const res = await fetch(url.toString(), {headers:{Accept:"application/json"}});
+    if (!res.ok) throw new Error(`geocoding HTTP ${res.status}`);
+    const arr = await res.json();
+    if (!Array.isArray(arr) || !arr.length) throw new Error("no geocoding result");
+    const p = arr[0];
+    return {lat: parseFloat(p.lat), lon: parseFloat(p.lon), displayName: p.display_name};
+  }
+
+  // ---------- astronomy: longitudes, asc, mc ----------
+
+  function getEclipticLongitude(bodyKey, date) {
+    const A = Astronomy;
+    if (bodyKey === "Sun") {
+      const s = A.SunPosition(date);      // geocentric true ecliptic-of-date
+      return norm360(s.elon);
+    }
+    const body = A.Body[bodyKey];
+    const time = new A.AstroTime(date);
+    const vec = A.GeoVector(body, time, true);
+    const ecl = A.Ecliptic(vec);
+    return norm360(ecl.elon);
+  }
+
+  function computePlanetSet(dateUtc) {
+   ayanamsa = lahiriAyanamsa(dateUtc);
+  const planets = [];
+
+  for (const p of PLANETS) {
+    const lonTrop = getEclipticLongitude(p.key, dateUtc);
+    const lonSid  = norm360(lonTrop - ayanamsa);
+
+    const later = new Date(dateUtc.getTime() + 86400000);
+    const lonLater = getEclipticLongitude(p.key, later);
+    let diff = lonLater - lonTrop;
+    diff = ((diff + 540) % 360) - 180;
+    const retro = diff < 0;
+
+    planets.push({
+      key: p.key,
+      name: p.name,
+      glyph: p.glyph,
+      color: p.color,
+      tropical: lonTrop,
+      sidereal: lonSid,
+      // `longitude` will be filled per-system later
+      longitude: lonTrop,
+      signInfoTropical: signInfo(lonTrop),
+      signInfoSidereal: signInfo(lonSid),
+      retrograde: retro
+    });
+  }
+  return {planets, ayanamsa};
+}
+
+  function computeAscMcTropical(dateUtc, latDeg, lonDeg) {
+  const A = Astronomy;
+  const gstHours = A.SiderealTime(dateUtc);
+  const lstHours = gstHours + lonDeg / 15;
+  const theta = norm360(lstHours * 15);
+  const eps = 23.4392911;
+  const phi = latDeg;
+
+  const thetaRad = theta * DEG2RAD;
+  const epsRad   = eps   * DEG2RAD;
+  const phiRad   = phi   * DEG2RAD;
+
+  const yMC = Math.sin(thetaRad) / Math.cos(epsRad);
+  const xMC = Math.cos(thetaRad);
+  let lambdaMC = Math.atan2(yMC, xMC) * RAD2DEG;
+  lambdaMC = norm360(lambdaMC);
+
+  const y = -Math.cos(thetaRad);
+  const x = Math.sin(thetaRad) * Math.cos(epsRad) + Math.tan(phiRad) * Math.sin(epsRad);
+  let lambdaAsc = Math.atan2(y, x) * RAD2DEG;
+  if (lambdaAsc < 0) lambdaAsc += 360;
+  if (lambdaAsc < 180) lambdaAsc += 180; else lambdaAsc -= 180;
+  lambdaAsc = norm360(lambdaAsc);
+
+  const ayanamsa = lahiriAyanamsa(dateUtc);
+
+  return {
+    ayanamsa,
+    ascTropical: lambdaAsc,
+    mcTropical:  lambdaMC,
+    ascSidereal: norm360(lambdaAsc - ayanamsa),
+    mcSidereal:  norm360(lambdaMC  - ayanamsa)
+  };
+}
+
+  // Equal houses: cusp1=Asc, others +30°
+  function computeEqualHouseCusps(ascLon) {
+    const cusps = [];
+    for (let i=0;i<12;i++) {
+      cusps.push(norm360(ascLon + i*30));
+    }
+    return cusps;
+  }
+
+  function houseForLongitude(lon, cusps) {
+    const L = norm360(lon);
+    for (let i=0;i<12;i++) {
+      const c1 = cusps[i];
+      const c2 = cusps[(i+1)%12];
+      if (c1 < c2) {
+        if (L >= c1 && L < c2) return i+1;
+      } else {
+        // wrap
+        if (L >= c1 || L < c2) return i+1;
+      }
+    }
+    return 12;
+  }
+
+  // ---------- aspects & tallies ----------
+
+  function separation(a,b) {
+    let d = Math.abs(norm360(a) - norm360(b));
+    if (d > 180) d = 360 - d;
+    return d;
+  }
+
+  function computeAspects(points) {
+    const res = [];
+    for (let i=0;i<points.length;i++) {
+      for (let j=i+1;j<points.length;j++) {
+        const p1 = points[i], p2 = points[j];
+        const sep = separation(p1.longitude, p2.longitude);
+        for (const asp of ASPECTS) {
+          const orb = Math.abs(sep - asp.angle);
+          if (orb <= asp.maxOrb) {
+            const scoreFactor = Math.max(0, 1 - orb / asp.maxOrb);
+            const value = Math.round(asp.polarity * asp.weight * scoreFactor);
+            res.push({
+              p1, p2,
+              aspect: asp,
+              orb,
+              value,
+              separation: sep
+            });
+          }
+        }
+      }
+    }
+    res.sort((a,b)=> Math.abs(a.orb) - Math.abs(b.orb));
+    return res;
+  }
+
+  function tallyElementsModes(planets) {
+    const elem = {fire:0, earth:0, air:0, water:0};
+    const mode = {cardinal:0, fixed:0, mutable:0};
+    for (const p of planets) {
+      const s = p.signInfo;
+      elem[s.element]  = (elem[s.element]  || 0) + 1;
+      mode[s.mode]     = (mode[s.mode]     || 0) + 1;
+    }
+    return {elem, mode};
+  }
+
+  // ---------- SVG wheel with aspects ----------
+
+  function renderWheel(svg, points, aspects, cusps) {
+    const xmlns = "http://www.w3.org/2000/svg";
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    const size = 600;
+    const cx = size/2, cy = size/2;
+    const R_outer = 280;
+    const R_inner = 210;
+    const R_tick  = 265;
+    const R_planet = 170;
+    const R_aspect = 150;
+
+    function make(tag, attrs) {
+      const el = document.createElementNS(xmlns, tag);
+      for (const k in attrs) {
+        if (k === "textContent") el.textContent = attrs[k];
+        else el.setAttribute(k, attrs[k]);
+      }
+      return el;
+    }
+
+    svg.appendChild(make("circle",{cx,cy,r:R_outer,fill:"#f7f1e9",stroke:"#c5b59f","stroke-width":2}));
+    svg.appendChild(make("circle",{cx,cy,r:R_inner,fill:"#fdfaf6",stroke:"#e0d3c0","stroke-width":1}));
+
+    // 12 signs ring
+    for (let i=0;i<12;i++) {
+      const start = i*30;
+      const mid   = start + 15;
+      const rad   = (90 - mid)*DEG2RAD;
+      const x = cx + 245 * Math.cos(rad);
+      const y = cy - 245 * Math.sin(rad);
+      svg.appendChild(make("text",{
+        x, y,
+        "text-anchor":"middle",
+        "dominant-baseline":"central",
+        "font-size":"24",
+        "class":"glyph",
+        "fill":"#885533",
+        textContent: SIGNS[i].glyph
+      }));
+    }
+
+    // degree ticks
+    for (let d=0; d<360; d++) {
+      const rad = (90 - d)*DEG2RAD;
+      const r1 = (d%10===0) ? R_tick-8 : R_tick-4;
+      const r2 = R_tick;
+      const x1 = cx + r1*Math.cos(rad);
+      const y1 = cy - r1*Math.sin(rad);
+      const x2 = cx + r2*Math.cos(rad);
+      const y2 = cy - r2*Math.sin(rad);
+      svg.appendChild(make("line",{x1,y1,x2,y2,stroke:"#222", "stroke-width": (d%10===0?1.2:0.4)}));
+    }
+
+    // houses (cusps)
+    if (cusps && cusps.length===12) {
+      for (let i=0;i<12;i++) {
+        const lon = cusps[i];
+        const rad = (90 - lon)*DEG2RAD;
+        const x1 = cx + R_inner*Math.cos(rad);
+        const y1 = cy - R_inner*Math.sin(rad);
+        const x2 = cx + R_outer*Math.cos(rad);
+        const y2 = cy - R_outer*Math.sin(rad);
+        svg.appendChild(make("line",{x1,y1,x2,y2,stroke:"#333","stroke-width": i%3===0?1.2:0.6}));
+      }
+    }
+
+    // Aspect lines
+    for (const a of aspects) {
+      const rad1 = (90 - a.p1.longitude)*DEG2RAD;
+      const rad2 = (90 - a.p2.longitude)*DEG2RAD;
+      const x1 = cx + R_aspect*Math.cos(rad1);
+      const y1 = cy - R_aspect*Math.sin(rad1);
+      const x2 = cx + R_aspect*Math.cos(rad2);
+      const y2 = cy - R_aspect*Math.sin(rad2);
+
+      let col = "#666";
+      if (a.aspect.name === "Opposition" || a.aspect.name === "Square") col = "#cc0000";
+      else if (a.aspect.name === "Trine") col = "#0000aa";
+      else if (a.aspect.name === "Sextile") col = "#008800";
+
+      svg.appendChild(make("line",{
+        x1,y1,x2,y2,
+        stroke: col,
+        "stroke-width": 1,
+        "stroke-opacity": 0.7
+      }));
+    }
+
+    // points (planets + angles)
+    for (const p of points) {
+      const rad = (90 - p.longitude)*DEG2RAD;
+      const x = cx + R_planet*Math.cos(rad);
+      const y = cy - R_planet*Math.sin(rad);
+      svg.appendChild(make("circle",{cx:x,cy:y,r:11,fill:"#fdfaf6",stroke:p.color||"#000","stroke-width":1}));
+      svg.appendChild(make("text",{
+        x, y,
+        "text-anchor":"middle",
+        "dominant-baseline":"central",
+        "font-size":"14",
+        "class":"glyph",
+        "fill": p.color || "#000",
+        textContent: p.glyph
+      }));
+    }
+  }
+
+  // ---------- table renderers ----------
+
+  function renderPlanetTable(tbody, planets) {
+    tbody.innerHTML = "";
+    for (const p of planets) {
+      const tr = document.createElement("tr");
+      const s = p.signInfo;
+      const signLabel = `${s.glyph} ${s.name}`;
+      tr.innerHTML =
+        `<td class="glyph">${p.glyph}</td>` +
+        `<td>${p.name}</td>` +
+        `<td>${signLabel}</td>` +
+        `<td class="right">${s.formatted}</td>` +
+        `<td class="center">${p.retrograde ? "R" : ""}</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderHouseTable(tbody, cusps) {
+    tbody.innerHTML = "";
+    const roman = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"];
+    for (let i=0;i<12;i++) {
+      const lon = cusps[i];
+      const s = signInfo(lon);
+      const label = s.glyph + " " + s.name;
+      const house = roman[i] + (i===0?" ASC": (i===9?" MC":""));
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        `<td>${house}</td>` +
+        `<td>${label}</td>` +
+        `<td class="right">${s.formatted}</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderPlanetsInHousesTable(tbody, planets, cusps) {
+    tbody.innerHTML = "";
+    const roman = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"];
+    for (const p of planets) {
+      const house = houseForLongitude(p.longitude, cusps);
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        `<td>${p.glyph} ${p.name}</td>` +
+        `<td class="center">in</td>` +
+        `<td>${roman[house-1]}</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderAspectsTable(tbody, aspects) {
+    tbody.innerHTML = "";
+    for (const a of aspects) {
+      const tr = document.createElement("tr");
+      const orbStr = dms(a.orb);
+      tr.innerHTML =
+        `<td>${a.p1.glyph} ${a.p1.name}</td>` +
+        `<td>${a.aspect.symbol} ${a.aspect.name}</td>` +
+        `<td>${a.p2.glyph} ${a.p2.name}</td>` +
+        `<td class="right">${orbStr}</td>` +
+        `<td class="right">${a.value}</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderQualityTable(tbody, tally) {
+    const {elem, mode} = tally;
+    tbody.innerHTML = "";
+    const rows = [
+      ["masculine", elem.fire + elem.air, "fire", elem.fire],
+      ["feminine",  elem.earth + elem.water, "earth", elem.earth],
+      ["cardinal", mode.cardinal, "air", elem.air],
+      ["fixed",    mode.fixed,    "water", elem.water],
+      ["mutable",  mode.mutable,  "", ""]
+    ];
+    for (const r of rows) {
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        `<td>${r[0]}</td><td class="right">${r[1]}</td>` +
+        `<td>${r[2]}</td><td class="right">${r[3]}</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+  function animateTropicalToSidereal(svg, basePoints, baseCusps, ayanamsaDeg, durationMs) {
+  const start = performance.now();
+  function frame(now) {
+    const t = Math.min(1, (now - start) / durationMs);
+    const offset = ayanamsaDeg * t;
+
+    const pts = basePoints.map(p => ({
+      ...p,
+      longitude: norm360(p.longitude - offset)
+    }));
+    const cusps = baseCusps.map(c => norm360(c - offset));
+
+    const aspects = computeAspects(pts);
+    renderWheel(svg, pts, aspects, cusps);
+
+    if (t < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+  // ---------- main UI ----------
+
+  const form = document.getElementById("form");
+  const statusEl = document.getElementById("status");
+  const wheelSvg = document.getElementById("wheel");
+  const planetTbody = document.querySelector("#planet-table tbody");
+  const houseTbody = document.querySelector("#house-table tbody");
+  const phTbody = document.querySelector("#planets-houses-table tbody");
+  const aspectTbody = document.querySelector("#aspect-table tbody");
+  const qualityTbody = document.querySelector("#quality-table tbody");
+  let tropicalPoints = [];
+  let cuspsTrop;
+  let ayanamsa;
+
+  form.addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  statusEl.textContent = "Computing...";
+  try {
+    const dateStr = document.getElementById("birth-date").value;
+    const timeStr = document.getElementById("birth-time").value;
+    const tz      = parseFloat(document.getElementById("tz-offset").value);
+    const city    = document.getElementById("birth-city").value.trim();
+    const system  = document.getElementById("zodiac-system").value;
+
+    if (!dateStr) throw new Error("date required");
+    if (!city) throw new Error("city required");
+    if (!Number.isFinite(tz)) throw new Error("timezone offset must be number");
+
+    const utcDate = makeUtcFromLocal(dateStr, timeStr, tz);
+    const loc = await geocodeCity(city);
+
+    const {planets, ayanamsa} = computePlanetSet(utcDate);
+    const ascmc = computeAscMcTropical(utcDate, loc.lat, loc.lon);
+
+    // Always start from tropical geometry
+    const ascTrop = ascmc.ascTropical;
+    const mcTrop  = ascmc.mcTropical;
+     cuspsTrop = computeEqualHouseCusps(ascTrop);
+
+    // Base tropical points (planets + angles)
+     tropicalPoints = [
+      ...planets.map(p => ({
+        ...p,
+        longitude: p.tropical,          // ensure tropical
+        signInfo: p.signInfoTropical
+      })),
+      { key: "ASC", name: "I ASC", glyph: "AS", color: "#000",
+        longitude: ascTrop },
+      { key: "MC",  name: "X MC",  glyph: "MC", color: "#000",
+        longitude: mcTrop }
+    ];
+
+    if (system === "tropical") {
+      const aspects = computeAspects(tropicalPoints);
+      renderWheel(wheelSvg, tropicalPoints, aspects, cuspsTrop);
+      renderPlanetTable(planetTbody, planets.map(p => ({
+        ...p,
+        longitude: p.tropical,
+        signInfo: p.signInfoTropical
+      })));
+      renderHouseTable(houseTbody, cuspsTrop);
+      renderPlanetsInHousesTable(phTbody, tropicalPoints.filter(p => p.key!=="ASC"&&p.key!=="MC"), cuspsTrop);
+      renderQualityTable(qualityTbody, tallyElementsModes(planets.map(p => ({...p, signInfo: p.signInfoTropical}))));
+    } else if (system === "sidereal") {
+      const cuspsSid = cuspsTrop.map(c => norm360(c - ayanamsa));
+      const sidPoints = [
+        ...planets.map(p => ({
+          ...p,
+          longitude: p.sidereal,
+          signInfo: p.signInfoSidereal
+        })),
+        { key:"ASC", name:"I ASC", glyph:"AS", color:"#000",
+          longitude: ascmc.ascSidereal },
+        { key:"MC",  name:"X MC", glyph:"MC", color:"#000",
+          longitude: ascmc.mcSidereal }
+      ];
+      const aspects = computeAspects(sidPoints);
+      renderWheel(wheelSvg, sidPoints, aspects, cuspsSid);
+      renderPlanetTable(planetTbody, planets.map(p => ({
+        ...p,
+        longitude: p.sidereal,
+        signInfo: p.signInfoSidereal
+      })));
+      renderHouseTable(houseTbody, cuspsSid);
+      renderPlanetsInHousesTable(phTbody, sidPoints.filter(p => p.key!=="ASC"&&p.key!=="MC"), cuspsSid);
+      renderQualityTable(qualityTbody, tallyElementsModes(planets.map(p => ({...p, signInfo: p.signInfoSidereal}))));
+    } else if (system === "both") {
+      // 1) render tropical instantly
+      const aspectsTrop = computeAspects(tropicalPoints);
+      renderWheel(wheelSvg, tropicalPoints, aspectsTrop, cuspsTrop);
+
+      // Tropical tables (you can add separate sidereal tables if you want)
+      renderPlanetTable(planetTbody, planets.map(p => ({
+        ...p,
+        longitude: p.tropical,
+        signInfo: p.signInfoTropical
+      })));
+      renderHouseTable(houseTbody, cuspsTrop);
+      renderPlanetsInHousesTable(phTbody, tropicalPoints.filter(p => p.key!=="ASC"&&p.key!=="MC"), cuspsTrop);
+      renderQualityTable(qualityTbody, tallyElementsModes(planets.map(p => ({...p, signInfo: p.signInfoTropical}))));
+
+      // 2) animate rotation to sidereal
+      animateTropicalToSidereal(
+        wheelSvg,
+        tropicalPoints,
+        cuspsTrop,
+        ayanamsa,
+        5000         // 5 seconds; tweak as desired
+      );
+    }
+
+    statusEl.textContent =
+      `UTC ${utcDate.toISOString()} | ${loc.displayName} | ` +
+      `ayanamsa≈${ayanamsa.toFixed(2)}° | mode=${system}`;
+  } catch (err) {
+    statusEl.textContent = "Error: " + (err && err.message ? err.message : String(err));
+  }
+}); 
+</script>
+
+</body>
+</html>
