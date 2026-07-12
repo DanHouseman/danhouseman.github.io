@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>QR Code to Binary Array</title>
+
+    <style>
+        :root {
+            color-scheme: dark;
+
+            --background: #090d17;
+            --surface: rgba(20, 27, 44, 0.88);
+            --surface-hover: rgba(27, 36, 58, 0.96);
+            --border: rgba(148, 163, 184, 0.22);
+            --border-strong: rgba(96, 165, 250, 0.5);
+            --text: #e5e7eb;
+            --text-muted: #94a3b8;
+            --accent: #60a5fa;
+            --accent-strong: #3b82f6;
+            --success: #34d399;
+            --error: #fb7185;
+            --warning: #fbbf24;
+            --shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+            overflow-x: hidden;
+
+            color: var(--text);
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 15% 15%,
+                    rgba(59, 130, 246, 0.18),
+                    transparent 32%
+                ),
+                radial-gradient(
+                    circle at 85% 20%,
+                    rgba(139, 92, 246, 0.14),
+                    transparent 28%
+                ),
+                linear-gradient(
+                    145deg,
+                    #070a12,
+                    #0d1322 48%,
+                    #080c15
+                );
+        }
+
+        button,
+        input,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            border: 0;
+        }
+
+        .app-shell {
+            width: min(1200px, 100%);
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 28px;
+        }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 750;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 5vw, 3.7rem);
+            line-height: 1.05;
+            letter-spacing: -0.045em;
+        }
+
+        .subtitle {
+            max-width: 750px;
+            margin: 14px 0 0;
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.65;
+        }
+
+        .panel {
+            padding: 22px;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+
+            background: var(--surface);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns:
+                minmax(240px, 1fr)
+                minmax(150px, 210px)
+                auto;
+            gap: 14px;
+            align-items: end;
+        }
+
+        .field {
+            min-width: 0;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .file-picker {
+            position: relative;
+            display: flex;
+            min-height: 48px;
+            align-items: center;
+            padding: 0 14px;
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .file-picker:hover {
+            border-color: var(--border-strong);
+            background: var(--surface-hover);
+        }
+
+        .file-picker input {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            opacity: 0;
+        }
+
+        .file-picker-content {
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .file-icon {
+            display: grid;
+            width: 32px;
+            height: 32px;
+            flex: 0 0 auto;
+            place-items: center;
+
+            border-radius: 9px;
+            color: var(--accent);
+            background: rgba(59, 130, 246, 0.13);
+        }
+
+        #fileName {
+            overflow: hidden;
+            color: var(--text);
+            font-size: 0.92rem;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .number-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 14px;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            outline: none;
+
+            color: var(--text);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .number-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.13);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .button {
+            display: inline-flex;
+            min-height: 48px;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 17px;
+
+            border: 1px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+
+            color: white;
+            font-weight: 720;
+            transition:
+                transform 120ms ease,
+                background 120ms ease,
+                border-color 120ms ease,
+                opacity 120ms ease;
+        }
+
+        .button:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            cursor: not-allowed;
+            opacity: 0.42;
+        }
+
+        .button-primary {
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--accent-strong),
+                    #6366f1
+                );
+        }
+
+        .button-primary:hover:not(:disabled) {
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #4f46e5
+                );
+        }
+
+        .button-secondary {
+            border-color: var(--border);
+            color: var(--text);
+            background: rgba(30, 41, 59, 0.85);
+        }
+
+        .button-danger {
+            border-color: rgba(251, 113, 133, 0.25);
+            color: #fecdd3;
+            background: rgba(159, 18, 57, 0.16);
+        }
+
+        .status-card {
+            display: none;
+            margin-top: 18px;
+            padding: 15px 16px;
+
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.62);
+        }
+
+        .status-card.visible {
+            display: block;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .spinner {
+            display: none;
+            width: 22px;
+            height: 22px;
+            flex: 0 0 auto;
+
+            border: 3px solid rgba(148, 163, 184, 0.22);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+
+            animation: spin 0.8s linear infinite;
+        }
+
+        .status-card.processing .spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .status-text {
+            min-width: 0;
+            flex: 1;
+        }
+
+        #statusTitle {
+            margin: 0;
+            font-weight: 750;
+        }
+
+        #statusMessage {
+            margin: 3px 0 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .status-card.success #statusTitle {
+            color: var(--success);
+        }
+
+        .status-card.error #statusTitle {
+            color: var(--error);
+        }
+
+        .status-card.warning #statusTitle {
+            color: var(--warning);
+        }
+
+        .progress-track {
+            height: 8px;
+            margin-top: 13px;
+            overflow: hidden;
+
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.15);
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 100%;
+            border-radius: inherit;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #3b82f6,
+                    #8b5cf6,
+                    #3b82f6
+                );
+
+            background-size: 200% 100%;
+            transition: width 220ms ease;
+        }
+
+        .status-card.processing .progress-bar {
+            animation: progress-shimmer 1.3s linear infinite;
+        }
+
+        @keyframes progress-shimmer {
+            to {
+                background-position: -200% 0;
+            }
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns:
+                minmax(300px, 0.8fr)
+                minmax(380px, 1.2fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .badge {
+            padding: 5px 9px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+
+            color: var(--text-muted);
+            font-size: 0.74rem;
+            font-weight: 700;
+            background: rgba(15, 23, 42, 0.75);
+        }
+
+        .preview-container {
+            position: relative;
+            display: grid;
+            min-height: 420px;
+            overflow: hidden;
+            place-items: center;
+
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+            background:
+                linear-gradient(
+                    45deg,
+                    rgba(255, 255, 255, 0.025) 25%,
+                    transparent 25%
+                ),
+                linear-gradient(
+                    -45deg,
+                    rgba(255, 255, 255, 0.025) 25%,
+                    transparent 25%
+                ),
+                linear-gradient(
+                    45deg,
+                    transparent 75%,
+                    rgba(255, 255, 255, 0.025) 75%
+                ),
+                linear-gradient(
+                    -45deg,
+                    transparent 75%,
+                    rgba(255, 255, 255, 0.025) 75%
+                ),
+                rgba(2, 6, 23, 0.5);
+
+            background-position:
+                0 0,
+                0 12px,
+                12px -12px,
+                -12px 0;
+            background-size: 24px 24px;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 620px;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+        .empty-state {
+            max-width: 280px;
+            padding: 30px;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.55;
+        }
+
+        .empty-state-icon {
+            display: grid;
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 15px;
+            place-items: center;
+
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            color: var(--accent);
+            font-size: 1.8rem;
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        .output-container {
+            position: relative;
+        }
+
+        textarea {
+            display: block;
+            width: 100%;
+            min-height: 520px;
+            resize: vertical;
+            padding: 17px;
+
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            outline: none;
+
+            color: #dbeafe;
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                "Liberation Mono",
+                monospace;
+            font-size: 0.82rem;
+            line-height: 1.55;
+
+            background: rgba(2, 6, 23, 0.7);
+        }
+
+        textarea:focus {
+            border-color: var(--border-strong);
+        }
+
+        textarea::placeholder {
+            color: #64748b;
+        }
+
+        .output-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        @media (max-width: 900px) {
+            .toolbar {
+                grid-template-columns: 1fr 180px;
+            }
+
+            .button-group {
+                grid-column: 1 / -1;
+            }
+
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            body {
+                padding: 24px 12px;
+            }
+
+            .panel {
+                padding: 16px;
+                border-radius: 17px;
+            }
+
+            .toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                grid-column: auto;
+            }
+
+            .button {
+                flex: 1;
+            }
+
+            .preview-container {
+                min-height: 320px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="app-shell">
+        <header class="header">
+            <p class="eyebrow">QR extraction utility</p>
+
+            <h1>QR Code to Binary Array</h1>
+
+            <p class="subtitle">
+                Convert PNG, JPEG, GIF, and BMP QR-code images into a
+                JavaScript matrix containing
+                <code>1</code> for dark modules and
+                <code>0</code> for light modules.
+            </p>
+        </header>
+
+        <section class="panel">
+            <div class="toolbar">
+                <div class="field">
+                    <label class="field-label" for="fileInput">
+                        QR image
+                    </label>
+
+                    <div class="file-picker">
+                        <input
+                            id="fileInput"
+                            type="file"
+                            accept=".png,.jpg,.jpeg,.gif,.bmp,image/png,image/jpeg,image/gif,image/bmp"
+                        >
+
+                        <div class="file-picker-content">
+                            <span class="file-icon">▣</span>
+
+                            <span id="fileName">
+                                Choose an image
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field-label" for="moduleCount">
+                        Module count
+                    </label>
+
+                    <input
+                        id="moduleCount"
+                        class="number-input"
+                        type="number"
+                        min="21"
+                        max="177"
+                        step="4"
+                        placeholder="Auto detect"
+                    >
+                </div>
+
+                <div class="button-group">
+                    <button
+                        id="processButton"
+                        class="button button-primary"
+                        type="button"
+                    >
+                        Process
+                    </button>
+
+                    <button
+                        id="cancelButton"
+                        class="button button-secondary"
+                        type="button"
+                        disabled
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        id="clearButton"
+                        class="button button-danger"
+                        type="button"
+                    >
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+            <div id="statusCard" class="status-card">
+                <div class="status-row">
+                    <div class="spinner" aria-hidden="true"></div>
+
+                    <div class="status-text">
+                        <p id="statusTitle">Ready</p>
+                        <p id="statusMessage"></p>
+                    </div>
+
+                    <span id="progressPercent" class="badge">
+                        0%
+                    </span>
+                </div>
+
+                <div class="progress-track">
+                    <div
+                        id="progressBar"
+                        class="progress-bar"
+                    ></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="workspace">
+            <article class="panel">
+                <div class="section-header">
+                    <h2 class="section-title">Preview</h2>
+
+                    <span id="imageDimensions" class="badge">
+                        No image
+                    </span>
+                </div>
+
+                <div class="preview-container">
+                    <canvas
+                        id="previewCanvas"
+                        hidden
+                    ></canvas>
+
+                    <div id="emptyState" class="empty-state">
+                        <div class="empty-state-icon">⌁</div>
+
+                        Select a QR-code image to preview and process it.
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        JavaScript output
+                    </h2>
+
+                    <div class="output-actions">
+                        <button
+                            id="copyButton"
+                            class="button button-secondary"
+                            type="button"
+                        >
+                            Copy
+                        </button>
+
+                        <button
+                            id="downloadButton"
+                            class="button button-secondary"
+                            type="button"
+                        >
+                            Download
+                        </button>
+                    </div>
+                </div>
+
+                <div class="output-container">
+                    <textarea
+                        id="output"
+                        spellcheck="false"
+                        readonly
+                        placeholder="const qr = [
+  [1,1,1,1,1,1,1,0,...],
+  [1,0,0,0,0,0,1,0,...],
+  ...
+];"
+                    ></textarea>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <script type="module">
+        "use strict";
+
+const fileInput = document.getElementById("fileInput");
+const fileName = document.getElementById("fileName");
+const moduleCountInput = document.getElementById("moduleCount");
+
+const processButton = document.getElementById("processButton");
+const cancelButton = document.getElementById("cancelButton");
+const clearButton = document.getElementById("clearButton");
+const copyButton = document.getElementById("copyButton");
+const downloadButton = document.getElementById("downloadButton");
+
+const previewCanvas = document.getElementById("previewCanvas");
+const emptyState = document.getElementById("emptyState");
+const imageDimensions = document.getElementById("imageDimensions");
+const output = document.getElementById("output");
+
+const statusCard = document.getElementById("statusCard");
+const statusTitle = document.getElementById("statusTitle");
+const statusMessage = document.getElementById("statusMessage");
+const progressBar = document.getElementById("progressBar");
+const progressPercent = document.getElementById("progressPercent");
+
+let selectedFile = null;
+let worker = null;
+let currentObjectUrl = null;
+let processingStartedAt = 0;
+
+const progressStages = [
+    {
+        text: "Preparing image",
+        percent: 10
+    },
+    {
+        text: "Calculating threshold",
+        percent: 25
+    },
+    {
+        text: "Locating QR bounds",
+        percent: 40
+    },
+    {
+        text: "Estimating module size",
+        percent: 58
+    },
+    {
+        text: "Testing",
+        percent: 75
+    }
+];
+
+fileInput.addEventListener("change", async () => {
+    const file = fileInput.files?.[0] ?? null;
+
+    if (!file) {
+        return;
+    }
+
+    await loadSelectedFile(file);
+});
+
+processButton.addEventListener("click", processSelectedImage);
+cancelButton.addEventListener("click", cancelProcessing);
+clearButton.addEventListener("click", clearApplication);
+copyButton.addEventListener("click", copyOutput);
+downloadButton.addEventListener("click", downloadOutput);
+
+async function loadSelectedFile(file) {
+    cancelProcessing(false);
+    clearOutput();
+
+    selectedFile = file;
+    fileName.textContent = file.name;
+
+    try {
+        showStatus({
+            type: "processing",
+            title: "Loading image",
+            message: "Decoding the selected file.",
+            percent: 5
+        });
+
+        const bitmap = await createImageBitmap(file);
+
+        drawBitmapPreview(bitmap);
+
+        imageDimensions.textContent =
+            `${bitmap.width} × ${bitmap.height}`;
+
+        bitmap.close();
+
+        showStatus({
+            type: "success",
+            title: "Image loaded",
+            message: `${file.name} is ready to process.`,
+            percent: 100
+        });
+    } catch (error) {
+        selectedFile = null;
+        resetPreview();
+
+        showStatus({
+            type: "error",
+            title: "Unable to load image",
+            message: errorMessage(error),
+            percent: 0
+        });
+    }
+}
+
+async function processSelectedImage() {
+    if (!selectedFile) {
+        showStatus({
+            type: "warning",
+            title: "No image selected",
+            message: "Choose a QR-code image before processing.",
+            percent: 0
+        });
+
+        return;
+    }
+
+    const manualModuleCount = parseModuleCount(
+        moduleCountInput.value
+    );
+
+    if (manualModuleCount === undefined) {
+        return;
+    }
+
+    terminateWorker();
+
+    setProcessingState(true);
+    clearOutput();
+
+    processingStartedAt = performance.now();
+
+    showStatus({
+        type: "processing",
+        title: "Processing QR code",
+        message: "Initializing image worker.",
+        percent: 3
+    });
+
+    try {
+        const bitmap = await createImageBitmap(selectedFile);
+
+        worker = new Worker(
+            new URL("./qr-worker.js", import.meta.url),
+            {
+                type: "module"
+            }
+        );
+
+        worker.onmessage = handleWorkerMessage;
+
+        worker.onerror = event => {
+            showStatus({
+                type: "error",
+                title: "Worker failure",
+                message:
+                    event.message ||
+                    "The image worker stopped unexpectedly.",
+                percent: 0
+            });
+
+            finishProcessing();
+        };
+
+        worker.postMessage(
+            {
+                type: "process",
+                bitmap,
+                manualModuleCount,
+                maxDimension: 900
+            },
+            [bitmap]
+        );
+    } catch (error) {
+        showStatus({
+            type: "error",
+            title: "Processing failed",
+            message: errorMessage(error),
+            percent: 0
+        });
+
+        finishProcessing();
+    }
+}
+
+function handleWorkerMessage(event) {
+    const message = event.data;
+
+    switch (message.type) {
+        case "progress":
+            handleWorkerProgress(message.message);
+            break;
+
+        case "result":
+            handleWorkerResult(message);
+            break;
+
+        case "error":
+            showStatus({
+                type: "error",
+                title: "QR detection failed",
+                message: message.message,
+                percent: 0
+            });
+
+            finishProcessing();
+            break;
+
+        default:
+            console.warn(
+                "Unknown worker message:",
+                message
+            );
+    }
+}
+
+function handleWorkerProgress(message) {
+    const normalized = String(message).toLowerCase();
+
+    const matchingStage = progressStages.find(
+        stage =>
+            normalized.includes(
+                stage.text.toLowerCase()
+            )
+    );
+
+    const percent = matchingStage?.percent ?? 65;
+
+    showStatus({
+        type: "processing",
+        title: "Processing QR code",
+        message,
+        percent
+    });
+}
+
+function handleWorkerResult(message) {
+    output.value = formatMatrix(message.matrix);
+    drawMatrix(message.matrix);
+
+    const elapsedMs =
+        message.elapsedMs ??
+        performance.now() - processingStartedAt;
+
+    showStatus({
+        type: "success",
+        title: "QR code converted",
+        message:
+            `${message.moduleCount} × ` +
+            `${message.moduleCount} modules detected. ` +
+            `Score ${message.score.toFixed(3)}. ` +
+            `Completed in ${formatElapsedTime(elapsedMs)}.`,
+        percent: 100
+    });
+
+    imageDimensions.textContent =
+        `${message.moduleCount} × ${message.moduleCount} modules`;
+
+    finishProcessing();
+}
+
+function cancelProcessing(showMessage = true) {
+    const wasProcessing = Boolean(worker);
+
+    terminateWorker();
+    setProcessingState(false);
+
+    if (showMessage && wasProcessing) {
+        showStatus({
+            type: "warning",
+            title: "Processing cancelled",
+            message: "The active QR conversion was stopped.",
+            percent: 0
+        });
+    }
+}
+
+function clearApplication() {
+    terminateWorker();
+    setProcessingState(false);
+
+    selectedFile = null;
+
+    fileInput.value = "";
+    fileName.textContent = "Choose an image";
+    moduleCountInput.value = "";
+
+    clearOutput();
+    resetPreview();
+    hideStatus();
+
+    if (currentObjectUrl) {
+        URL.revokeObjectURL(currentObjectUrl);
+        currentObjectUrl = null;
+    }
+}
+
+async function copyOutput() {
+    if (!output.value) {
+        showStatus({
+            type: "warning",
+            title: "Nothing to copy",
+            message:
+                "Process a QR-code image before copying the output.",
+            percent: 0
+        });
+
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(output.value);
+
+        showStatus({
+            type: "success",
+            title: "Output copied",
+            message:
+                "The JavaScript matrix is now on the clipboard.",
+            percent: 100
+        });
+    } catch (error) {
+        showStatus({
+            type: "error",
+            title: "Copy failed",
+            message: errorMessage(error),
+            percent: 0
+        });
+    }
+}
+
+function downloadOutput() {
+    if (!output.value) {
+        showStatus({
+            type: "warning",
+            title: "Nothing to download",
+            message:
+                "Process a QR-code image before downloading the output.",
+            percent: 0
+        });
+
+        return;
+    }
+
+    const blob = new Blob(
+        [output.value + "\n"],
+        {
+            type: "text/javascript;charset=utf-8"
+        }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = createOutputFileName();
+    link.click();
+
+    URL.revokeObjectURL(url);
+
+    showStatus({
+        type: "success",
+        title: "Download created",
+        message:
+            "The QR array was saved as a JavaScript file.",
+        percent: 100
+    });
+}
+
+function parseModuleCount(value) {
+    const normalized = value.trim();
+
+    if (!normalized) {
+        return null;
+    }
+
+    const count = Number.parseInt(normalized, 10);
+
+    if (
+        !Number.isInteger(count) ||
+        count < 21 ||
+        count > 177 ||
+        (count - 21) % 4 !== 0
+    ) {
+        showStatus({
+            type: "error",
+            title: "Invalid module count",
+            message:
+                "Use 21, 25, 29, 33, and so on through 177.",
+            percent: 0
+        });
+
+        return undefined;
+    }
+
+    return count;
+}
+
+function showStatus({
+    type,
+    title,
+    message,
+    percent
+}) {
+    const clampedPercent = Math.max(
+        0,
+        Math.min(100, percent ?? 0)
+    );
+
+    statusCard.className =
+        `status-card visible ${type}`;
+
+    statusTitle.textContent = title;
+    statusMessage.textContent = message;
+
+    progressBar.style.width = `${clampedPercent}%`;
+    progressPercent.textContent = `${clampedPercent}%`;
+}
+
+function hideStatus() {
+    statusCard.className = "status-card";
+    statusTitle.textContent = "Ready";
+    statusMessage.textContent = "";
+    progressBar.style.width = "0%";
+    progressPercent.textContent = "0%";
+}
+
+function setProcessingState(isProcessing) {
+    processButton.disabled = isProcessing;
+    cancelButton.disabled = !isProcessing;
+    clearButton.disabled = false;
+    fileInput.disabled = isProcessing;
+    moduleCountInput.disabled = isProcessing;
+}
+
+function terminateWorker() {
+    if (!worker) {
+        return;
+    }
+
+    worker.terminate();
+    worker = null;
+}
+
+function drawBitmapPreview(bitmap) {
+    const maximumSize = 900;
+
+    const scale = Math.min(
+        1,
+        maximumSize /
+            Math.max(bitmap.width, bitmap.height)
+    );
+
+    previewCanvas.width = Math.max(
+        1,
+        Math.round(bitmap.width * scale)
+    );
+
+    previewCanvas.height = Math.max(
+        1,
+        Math.round(bitmap.height * scale)
+    );
+
+    const context = previewCanvas.getContext("2d");
+
+    context.clearRect(
+        0,
+        0,
+        previewCanvas.width,
+        previewCanvas.height
+    );
+
+    context.imageSmoothingEnabled = true;
+
+    context.drawImage(
+        bitmap,
+        0,
+        0,
+        previewCanvas.width,
+        previewCanvas.height
+    );
+
+    previewCanvas.hidden = false;
+    emptyState.hidden = true;
+}
+
+function drawMatrix(matrix) {
+    const size = matrix.length;
+
+    const moduleSize = Math.max(
+        3,
+        Math.floor(900 / size)
+    );
+
+    previewCanvas.width = size * moduleSize;
+    previewCanvas.height = size * moduleSize;
+
+    const context = previewCanvas.getContext("2d");
+
+    context.imageSmoothingEnabled = false;
+
+    context.fillStyle = "#ffffff";
+    context.fillRect(
+        0,
+        0,
+        previewCanvas.width,
+        previewCanvas.height
+    );
+
+    context.fillStyle = "#000000";
+
+    for (let row = 0; row < size; row++) {
+        for (
+            let column = 0;
+            column < size;
+            column++
+        ) {
+            if (matrix[row][column] !== 1) {
+                continue;
+            }
+
+            context.fillRect(
+                column * moduleSize,
+                row * moduleSize,
+                moduleSize,
+                moduleSize
+            );
+        }
+    }
+
+    previewCanvas.hidden = false;
+    emptyState.hidden = true;
+}
+
+function resetPreview() {
+    const context = previewCanvas.getContext("2d");
+
+    context.clearRect(
+        0,
+        0,
+        previewCanvas.width,
+        previewCanvas.height
+    );
+
+    previewCanvas.width = 1;
+    previewCanvas.height = 1;
+    previewCanvas.hidden = true;
+
+    emptyState.hidden = false;
+    imageDimensions.textContent = "No image";
+}
+
+function clearOutput() {
+    output.value = "";
+}
+
+function formatMatrix(matrix) {
+    return [
+        "const qr = [",
+        matrix
+            .map(
+                row =>
+                    `  [${row.join(",")}]`
+            )
+            .join(",\n"),
+        "];"
+    ].join("\n");
+}
+
+function createOutputFileName() {
+    if (!selectedFile?.name) {
+        return "qr-array.js";
+    }
+
+    const baseName = selectedFile.name.replace(
+        /\.[^.]+$/,
+        ""
+    );
+
+    return `${baseName}-array.js`;
+}
+
+function formatElapsedTime(milliseconds) {
+    if (milliseconds < 1000) {
+        return `${milliseconds.toFixed(1)} ms`;
+    }
+
+    return `${(milliseconds / 1000).toFixed(2)} s`;
+}
+
+function errorMessage(error) {
+    return error instanceof Error
+        ? error.message
+        : String(error);
+}
+    </script>
+</body>
+</html>
