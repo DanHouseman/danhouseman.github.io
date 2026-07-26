@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shuffle Similarity Lab</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #21262d;
+      --border: #30363d;
+      --text: #f0f6fc;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --danger: #ff7b72;
+      --good: #3fb950;
+      --card-w: 72px;
+      --card-h: 98px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(88,166,255,.12), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(1500px, 96vw);
+      margin: 0 auto;
+      padding: 24px 0 48px;
+    }
+
+    h1, h2, h3 { margin: 0; }
+    h1 { font-size: clamp(1.5rem, 3vw, 2.3rem); }
+    h2 { font-size: 1.1rem; margin-bottom: 12px; }
+
+    .subheading {
+      margin: 6px 0 20px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 15px;
+      color: var(--text);
+      background: var(--panel-2);
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    button:disabled { opacity: .48; cursor: not-allowed; }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #071525;
+    }
+
+    .status {
+      margin-left: auto;
+      align-self: center;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .panel {
+      background: rgba(22, 27, 34, .93);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 12px 32px rgba(0,0,0,.22);
+      margin-bottom: 18px;
+    }
+
+    .deck {
+      display: grid;
+      grid-template-columns: repeat(13, minmax(48px, 1fr));
+      gap: 9px;
+      align-items: center;
+    }
+
+    .card {
+      position: relative;
+      min-width: 0;
+      height: var(--card-h);
+      border-radius: 9px;
+      background: #f7f7f4;
+      border: 1px solid #d7d7d2;
+      color: #121212;
+      box-shadow: 0 5px 13px rgba(0,0,0,.28);
+      transition:
+        transform .13s ease,
+        box-shadow .13s ease,
+        background .13s ease;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    .card.red { color: #c62828; }
+
+    .card.swapping {
+      transform: translateY(-8px) rotate(1.5deg) scale(1.045);
+      box-shadow: 0 11px 21px rgba(88,166,255,.35);
+      background: #fff;
+    }
+
+    .corner {
+      position: absolute;
+      top: 5px;
+      left: 7px;
+      font-weight: 800;
+      line-height: .92;
+      text-align: center;
+      font-size: clamp(.78rem, 1.2vw, 1rem);
+    }
+
+    .corner.bottom {
+      top: auto;
+      left: auto;
+      right: 7px;
+      bottom: 5px;
+      transform: rotate(180deg);
+    }
+
+    .suit-center {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: clamp(1.65rem, 3vw, 2.35rem);
+    }
+
+    .index {
+      position: absolute;
+      right: 4px;
+      top: 2px;
+      color: #6e7781;
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(280px, .7fr) minmax(450px, 1.3fr);
+      gap: 18px;
+    }
+
+    .history {
+      max-height: 430px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .history-item {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-item:last-child { border-bottom: 0; }
+
+    .history-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 5px;
+      font-weight: 700;
+    }
+
+    .history-order {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .78rem;
+      color: var(--muted);
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .empty {
+      padding: 18px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: 430px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .86rem;
+    }
+
+    th, td {
+      padding: 9px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: var(--panel-2);
+      z-index: 1;
+      white-space: nowrap;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .score {
+      font-weight: 800;
+      color: var(--good);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .78rem;
+    }
+
+    .metric-help {
+      color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.45;
+      margin-top: 10px;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 1000px) {
+      .deck { grid-template-columns: repeat(8, minmax(48px, 1fr)); }
+      .grid-2 { grid-template-columns: 1fr; }
+      .status { width: 100%; margin-left: 0; }
+    }
+
+    @media (max-width: 650px) {
+      :root { --card-h: 82px; }
+      .deck { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Shuffle Similarity Lab</h1>
+  <p class="subheading">
+    Every completed shuffle is a legal 52-card permutation produced by an in-place Fisher–Yates shuffle.
+    The animation displays each swap as it occurs.
+  </p>
+
+  <div class="toolbar">
+    <button id="shuffleBtn" class="primary">Shuffle</button>
+    <button id="statsBtn">Stats</button>
+    <button id="indexStatsBtn">Compare Index Similarities</button>
+    <button id="resetBtn">Reset History</button>
+    <span id="status" class="status">0 recorded shuffles</span>
+  </div>
+
+  <section class="panel">
+    <div id="deck" class="deck" aria-live="polite"></div>
+  </section>
+
+  <div class="grid-2">
+    <section class="panel">
+      <h2>Recorded Orders</h2>
+      <div id="history" class="history">
+        <div class="empty">Press Shuffle to record the first order.</div>
+      </div>
+    </section>
+
+    <section id="statsPanel" class="panel">
+      <h2 id="statsTitle">Similarity Statistics</h2>
+      <div id="statsContent" class="empty">
+        Record at least two shuffles, then select a statistics view.
+      </div>
+      <p id="metricHelp" class="metric-help">
+        Composite similarity = 50% positional similarity + 30% displacement similarity + 20% adjacency similarity.
+      </p>
+    </section>
+  </div>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const SUITS = [
+    { symbol: "♠", name: "Spades", red: false },
+    { symbol: "♥", name: "Hearts", red: true },
+    { symbol: "♦", name: "Diamonds", red: true },
+    { symbol: "♣", name: "Clubs", red: false }
+  ];
+
+  const RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+
+  const canonicalDeck = SUITS.flatMap(suit =>
+    RANKS.map(rank => ({
+      id: `${rank}${suit.symbol}`,
+      rank,
+      suit: suit.symbol,
+      suitName: suit.name,
+      red: suit.red
+    }))
+  );
+
+  let currentDeck = canonicalDeck.map(card => ({ ...card }));
+  let history = [];
+  let isShuffling = false;
+
+  const deckEl = document.getElementById("deck");
+  const historyEl = document.getElementById("history");
+  const statusEl = document.getElementById("status");
+  const shuffleBtn = document.getElementById("shuffleBtn");
+  const statsBtn = document.getElementById("statsBtn");
+  const indexStatsBtn = document.getElementById("indexStatsBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const statsTitle = document.getElementById("statsTitle");
+  const statsContent = document.getElementById("statsContent");
+  const metricHelp = document.getElementById("metricHelp");
+
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  function renderDeck(activeIndexes = []) {
+    const active = new Set(activeIndexes);
+    deckEl.innerHTML = currentDeck.map((card, index) => `
+      <div class="card ${card.red ? "red" : ""} ${active.has(index) ? "swapping" : ""}"
+           title="${card.rank} of ${card.suitName}">
+        <span class="index">${index}</span>
+        <span class="corner">${card.rank}<br>${card.suit}</span>
+        <span class="suit-center">${card.suit}</span>
+        <span class="corner bottom">${card.rank}<br>${card.suit}</span>
+      </div>
+    `).join("");
+  }
+
+  function secureRandomIndex(maxInclusive) {
+    if (maxInclusive < 0) throw new RangeError("maxInclusive must be non-negative.");
+
+    const range = maxInclusive + 1;
+    const maxUint = 0x100000000;
+    const limit = maxUint - (maxUint % range);
+    const values = new Uint32Array(1);
+
+    do {
+      crypto.getRandomValues(values);
+    } while (values[0] >= limit);
+
+    return values[0] % range;
+  }
+
+  async function fisherYatesAnimated() {
+    for (let i = currentDeck.length - 1; i > 0; i--) {
+      const j = secureRandomIndex(i);
+
+      if (i !== j) {
+        renderDeck([i, j]);
+        await sleep(34);
+        [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
+        renderDeck([i, j]);
+        await sleep(34);
+      }
+    }
+
+    renderDeck();
+  }
+
+  function validateDeck(deck) {
+    return deck.length === 52 &&
+      new Set(deck.map(card => card.id)).size === 52 &&
+      canonicalDeck.every(card => deck.some(candidate => candidate.id === card.id));
+  }
+
+  function recordCurrentOrder() {
+    if (!validateDeck(currentDeck)) {
+      throw new Error("The resulting order is not a legal 52-card deck.");
+    }
+
+    history.push({
+      number: history.length + 1,
+      timestamp: new Date(),
+      order: currentDeck.map(card => card.id)
+    });
+
+    renderHistory();
+    updateStatus();
+  }
+
+  function renderHistory() {
+    if (history.length === 0) {
+      historyEl.innerHTML = '<div class="empty">Press Shuffle to record the first order.</div>';
+      return;
+    }
+
+    historyEl.innerHTML = [...history].reverse().map(item => `
+      <article class="history-item">
+        <div class="history-title">
+          <span>Shuffle ${item.number}</span>
+          <time>${item.timestamp.toLocaleTimeString()}</time>
+        </div>
+        <div class="history-order">${item.order.join(" ")}</div>
+      </article>
+    `).join("");
+  }
+
+  function updateStatus(message = null) {
+    statusEl.textContent = message ?? `${history.length} recorded shuffle${history.length === 1 ? "" : "s"}`;
+  }
+
+  function setControlsDisabled(disabled) {
+    shuffleBtn.disabled = disabled;
+    statsBtn.disabled = disabled;
+    indexStatsBtn.disabled = disabled;
+    resetBtn.disabled = disabled;
+  }
+
+  function exactPositionMatches(a, b) {
+    const indexes = [];
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] === b[i]) indexes.push(i);
+    }
+    return indexes;
+  }
+
+  function displacementSimilarity(a, b) {
+    const positionsB = new Map(b.map((card, index) => [card, index]));
+    const totalDisplacement = a.reduce(
+      (sum, card, index) => sum + Math.abs(index - positionsB.get(card)),
+      0
+    );
+
+    const maximumPerCard = a.length - 1;
+    return 1 - totalDisplacement / (a.length * maximumPerCard);
+  }
+
+  function adjacencySimilarity(a, b) {
+    const adjacentB = new Set();
+    for (let i = 0; i < b.length - 1; i++) {
+      adjacentB.add(`${b[i]}→${b[i + 1]}`);
+    }
+
+    let matches = 0;
+    for (let i = 0; i < a.length - 1; i++) {
+      if (adjacentB.has(`${a[i]}→${a[i + 1]}`)) matches++;
+    }
+
+    return matches / (a.length - 1);
+  }
+
+  function compareOrders(a, b) {
+    const matchingIndexes = exactPositionMatches(a, b);
+    const positional = matchingIndexes.length / a.length;
+    const displacement = displacementSimilarity(a, b);
+    const adjacency = adjacencySimilarity(a, b);
+    const composite = positional * 0.50 + displacement * 0.30 + adjacency * 0.20;
+
+    return {
+      matchingIndexes,
+      positional,
+      displacement,
+      adjacency,
+      composite
+    };
+  }
+
+  function allPairComparisons() {
+    const comparisons = [];
+
+    for (let i = 0; i < history.length; i++) {
+      for (let j = i + 1; j < history.length; j++) {
+        comparisons.push({
+          a: history[i],
+          b: history[j],
+          ...compareOrders(history[i].order, history[j].order)
+        });
+      }
+    }
+
+    return comparisons.sort((x, y) =>
+      y.composite - x.composite ||
+      y.matchingIndexes.length - x.matchingIndexes.length
+    );
+  }
+
+  function pct(value) {
+    return `${(value * 100).toFixed(2)}%`;
+  }
+
+  function showStats() {
+    statsTitle.textContent = "Shuffle Pair Similarity";
+    metricHelp.textContent =
+      "Composite similarity = 50% exact-position similarity + 30% normalized displacement similarity + 20% directed adjacency similarity.";
+
+    if (history.length < 2) {
+      statsContent.className = "empty";
+      statsContent.textContent = "Record at least two shuffles first.";
+      return;
+    }
+
+    const comparisons = allPairComparisons();
+
+    statsContent.className = "table-wrap";
+    statsContent.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Shuffle Pair</th>
+            <th>Composite</th>
+            <th>Exact Matches</th>
+            <th>Matching Indexes</th>
+            <th>Displacement</th>
+            <th>Adjacency</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${comparisons.map((row, index) => `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${row.a.number} ↔ ${row.b.number}</td>
+              <td class="score">${pct(row.composite)}</td>
+              <td>${row.matchingIndexes.length}/52</td>
+              <td class="mono">${row.matchingIndexes.length ? row.matchingIndexes.join(", ") : "None"}</td>
+              <td>${pct(row.displacement)}</td>
+              <td>${pct(row.adjacency)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function jaccardSimilarity(indexesA, indexesB) {
+    const setA = new Set(indexesA);
+    const setB = new Set(indexesB);
+    const union = new Set([...setA, ...setB]);
+
+    if (union.size === 0) return 1;
+
+    let intersection = 0;
+    for (const value of setA) {
+      if (setB.has(value)) intersection++;
+    }
+
+    return intersection / union.size;
+  }
+
+  function showIndexSimilarityStats() {
+    statsTitle.textContent = "Index-Signature Similarity";
+    metricHelp.textContent =
+      "Each shuffle pair produces an index signature: the positions containing the same card in both shuffles. Signatures are compared using Jaccard similarity: intersection ÷ union.";
+
+    if (history.length < 3) {
+      statsContent.className = "empty";
+      statsContent.textContent =
+        "Record at least three shuffles. Three shuffles create three pair signatures that can be compared.";
+      return;
+    }
+
+    const pairs = allPairComparisons().map(comparison => ({
+      label: `${comparison.a.number}↔${comparison.b.number}`,
+      indexes: comparison.matchingIndexes
+    }));
+
+    const signatureComparisons = [];
+
+    for (let i = 0; i < pairs.length; i++) {
+      for (let j = i + 1; j < pairs.length; j++) {
+        const shared = pairs[i].indexes.filter(index => pairs[j].indexes.includes(index));
+        const union = [...new Set([...pairs[i].indexes, ...pairs[j].indexes])].sort((a, b) => a - b);
+
+        signatureComparisons.push({
+          left: pairs[i],
+          right: pairs[j],
+          shared,
+          union,
+          similarity: jaccardSimilarity(pairs[i].indexes, pairs[j].indexes)
+        });
+      }
+    }
+
+    signatureComparisons.sort((a, b) =>
+      b.similarity - a.similarity ||
+      b.shared.length - a.shared.length
+    );
+
+    statsContent.className = "table-wrap";
+    statsContent.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Pair Signatures</th>
+            <th>Jaccard</th>
+            <th>Left Indexes</th>
+            <th>Right Indexes</th>
+            <th>Shared Indexes</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${signatureComparisons.map((row, index) => `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${row.left.label} vs ${row.right.label}</td>
+              <td class="score">${pct(row.similarity)}</td>
+              <td class="mono">${row.left.indexes.length ? row.left.indexes.join(", ") : "∅"}</td>
+              <td class="mono">${row.right.indexes.length ? row.right.indexes.join(", ") : "∅"}</td>
+              <td class="mono">${row.shared.length ? row.shared.join(", ") : "∅"}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  async function shuffle() {
+    if (isShuffling) return;
+
+    isShuffling = true;
+    setControlsDisabled(true);
+    updateStatus("Shuffling…");
+
+    try {
+      await fisherYatesAnimated();
+      recordCurrentOrder();
+    } catch (error) {
+      console.error(error);
+      updateStatus(`Error: ${error.message}`);
+    } finally {
+      isShuffling = false;
+      setControlsDisabled(false);
+    }
+  }
+
+  function resetHistory() {
+    history = [];
+    renderHistory();
+    updateStatus();
+    statsTitle.textContent = "Similarity Statistics";
+    statsContent.className = "empty";
+    statsContent.textContent = "Record at least two shuffles, then select a statistics view.";
+    metricHelp.textContent =
+      "Composite similarity = 50% positional similarity + 30% displacement similarity + 20% adjacency similarity.";
+  }
+
+  shuffleBtn.addEventListener("click", shuffle);
+  statsBtn.addEventListener("click", showStats);
+  indexStatsBtn.addEventListener("click", showIndexSimilarityStats);
+  resetBtn.addEventListener("click", resetHistory);
+
+  renderDeck();
+})();
+</script>
+</body>
+</html>
