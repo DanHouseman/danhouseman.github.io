@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Squeaky Fruit Merge</title>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f7f2c8;
+    --panel:#fff9d9;
+    --wall:#f6d581;
+    --ink:#201b16;
+    --accent:#ef7a42;
+    --danger:#d94747;
+    --shadow:rgba(65,45,20,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:linear-gradient(#f7f2c8,#efe5a8);font-family:Inter,ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+  body{display:grid;place-items:center;padding:16px;overflow-x:hidden;-webkit-text-size-adjust:100%;overscroll-behavior:none}
+  button{font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  .app{width:min(100%,920px);display:grid;grid-template-columns:minmax(300px,500px) minmax(220px,1fr);gap:18px;align-items:start}
+  .game-shell{position:relative;width:100%;aspect-ratio:5/6;border:8px solid var(--wall);border-top-width:4px;border-radius:18px 18px 10px 10px;background:var(--bg);box-shadow:0 18px 50px var(--shadow);overflow:hidden;touch-action:none}
+  canvas{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+  .danger-line{position:absolute;left:0;right:0;top:16%;height:2px;background:repeating-linear-gradient(90deg,rgba(217,71,71,.8) 0 8px,transparent 8px 14px);pointer-events:none;opacity:.7}
+  .overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(247,242,200,.82);backdrop-filter:blur(5px);padding:24px;text-align:center}
+  .overlay[hidden]{display:none}
+  .card{background:rgba(255,249,217,.96);border:3px solid var(--wall);border-radius:20px;padding:26px;box-shadow:0 12px 35px var(--shadow);max-width:360px}
+  h1,h2,p{margin-top:0}
+  h1{font-size:clamp(1.8rem,4vw,2.7rem);line-height:1;margin-bottom:10px}
+  h2{font-size:1.5rem;margin-bottom:8px}
+  .subtitle{opacity:.72;margin-bottom:20px}
+  .btn{border:0;border-radius:999px;background:var(--accent);color:white;min-height:48px;padding:12px 20px;font-weight:800;box-shadow:0 5px 0 #bd5428;cursor:pointer}
+  .btn:active{transform:translateY(3px);box-shadow:0 2px 0 #bd5428}
+  .btn.secondary{background:#5e8d70;box-shadow:0 5px 0 #3d654e}
+  .side{display:grid;gap:14px}
+  .panel{background:rgba(255,249,217,.9);border:3px solid var(--wall);border-radius:18px;padding:16px;box-shadow:0 10px 28px var(--shadow)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat{background:#fffdf0;border-radius:14px;padding:12px;text-align:center}
+  .stat b{display:block;font-size:1.65rem}
+  .label{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;opacity:.6;font-weight:800}
+  .next-wrap{display:flex;align-items:center;gap:14px}
+  #nextCanvas{width:86px;height:86px;background:#fffdf0;border-radius:16px}
+  .legend{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .legend-item{background:#fffdf0;border-radius:12px;padding:8px;text-align:center;font-size:.75rem;font-weight:700}
+  .dot{width:28px;height:28px;border-radius:50%;margin:0 auto 5px;border:2px solid #201b16}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .small{font-size:.9rem;line-height:1.45;opacity:.76}
+  .sound-toggle{display:flex;align-items:center;gap:8px}
+  input[type=checkbox]{width:19px;height:19px}
+  @media(max-width:760px){
+    body{display:block;padding:env(safe-area-inset-top,8px) 8px env(safe-area-inset-bottom,8px);min-height:100dvh}
+    .game-shell{max-height:78dvh}
+    .btn{min-height:52px;font-size:1rem}
+    body{padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}
+    .app{grid-template-columns:1fr;max-width:500px}
+    .side{grid-template-columns:1fr 1fr}
+    .panel.instructions,.panel.legend-panel{grid-column:1/-1}
+  }
+  @media(max-width:430px){
+    .side{grid-template-columns:1fr}
+    .panel.instructions,.panel.legend-panel{grid-column:auto}
+  }
+</style>
+</head>
+<body>
+<main class="app" aria-label="Squeaky Fruit Merge game">
+  <section class="game-shell" id="gameShell">
+    <canvas id="game" width="500" height="600" aria-label="Fruit merge play field"></canvas>
+    <div class="danger-line"></div>
+
+    <div class="overlay" id="startOverlay">
+      <div class="card">
+        <h1>Squeaky Fruit Merge</h1>
+        <p class="subtitle">Drop matching fruits together. Every merge squeaks. Every hard bounce goes <em>boing</em>.</p>
+        <button class="btn" id="startBtn">Start Game</button>
+      </div>
+    </div>
+
+    <div class="overlay" id="gameOverOverlay" hidden>
+      <div class="card">
+        <h2>Fruit pile overflowed</h2>
+        <p>Final score: <strong id="finalScore">0</strong></p>
+        <button class="btn" id="restartBtn">Play Again</button>
+      </div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <section class="panel stats">
+      <div class="stat"><span class="label">Score</span><b id="score">0</b></div>
+      <div class="stat"><span class="label">Best</span><b id="best">0</b></div>
+      <div class="stat"><span class="label">Merges</span><b id="merges">0</b></div>
+      <div class="stat"><span class="label">Largest</span><b id="largest">1</b></div>
+    </section>
+
+    <section class="panel">
+      <span class="label">Next fruit</span>
+      <div class="next-wrap">
+        <canvas id="nextCanvas" width="100" height="100"></canvas>
+        <div>
+          <strong id="nextName">Cherry</strong>
+          <p class="small">Move left or right, then tap or click to drop.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <button class="btn secondary" id="restartSmall">Restart</button>
+        <label class="sound-toggle"><input id="soundEnabled" type="checkbox" checked> Sound</label>
+      </div>
+    </section>
+
+    <section class="panel instructions">
+      <span class="label">How to play</span>
+      <p class="small">Combine two matching fruits to create the next size. Keep the stack below the dashed line. Harder collisions make deeper boings.</p>
+    </section>
+
+    <section class="panel legend-panel">
+      <span class="label">Fruit chain</span>
+      <div class="legend" id="legend"></div>
+    </section>
+  </aside>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  const nextCanvas = document.getElementById("nextCanvas");
+  const nextCtx = nextCanvas.getContext("2d");
+
+  const W = 500, H = 600;
+  const FLOOR = 590;
+  const CEILING = 4;
+  const LEFT = 8;
+  const RIGHT = 492;
+  const DROP_Y = 38;
+  const DANGER_Y = 96;
+  const GRAVITY = 1150;
+  const FLOOR_FRICTION = 0.34;
+  const ROLLING_RESISTANCE = 0.018;
+  const MAX_ANGULAR_SPEED = 6.5;
+  const MAX_GROUNDED_SPIN_SECONDS = 3;
+  const WAKE_IMPACT_SPEED = 42;
+  const SPIN_TANGENT_THRESHOLD = 34;
+  const SPIN_OBLIQUENESS_THRESHOLD = 0.22;
+  const MERGE_SQUISH_RATIO = 0.085;
+  const MERGE_FORCE_WINDOW_MS = 280;
+  const MERGE_FORCE_THRESHOLD = 58;
+  const MERGE_CLOSING_SPEED = 24;
+
+  const COLORS = [
+    "#f32223","#ac6cff","#f7ba00","#fa080e","#fdef9d",
+    "#ffb5ac","#f8ee11","#9fdd0f","#42b307"
+  ];
+  const NAMES = ["Cherry","Plum","Orange","Apple","Melon","Peach","Lemon","Lime","Watermelon"];
+  const RADII = [15,22,29,37,46,57,69,82,96];
+  const MASSES = RADII.map(r => Math.PI * r * r);
+  const SCORE_VALUES = [1,3,6,10,15,21,28,36,50];
+
+  let fruits = [];
+  let current = null;
+  let nextType = 0;
+  let pointerX = W / 2;
+  let state = "ready";
+  let score = 0;
+  let merges = 0;
+  let largest = 1;
+  let nextId = 1;
+  let spawnAt = 0;
+  let dangerTimer = 0;
+  let lastTime = performance.now();
+  let audio = null;
+  let lastBoingAt = 0;
+  let pendingMerges = new Set();
+  let lastPlayerActionAt = performance.now();
+  let idleWhistleAt = Infinity;
+  let idleWhistlePlayed = false;
+
+  const scoreEl = document.getElementById("score");
+  const bestEl = document.getElementById("best");
+  const mergesEl = document.getElementById("merges");
+  const largestEl = document.getElementById("largest");
+  const nextNameEl = document.getElementById("nextName");
+  const finalScoreEl = document.getElementById("finalScore");
+  const startOverlay = document.getElementById("startOverlay");
+  const gameOverOverlay = document.getElementById("gameOverOverlay");
+  const soundEnabled = document.getElementById("soundEnabled");
+
+  function loadBestScore() {
+    try {
+      return Number(window.localStorage.getItem("squeakyFruitBest") || 0);
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  function saveBestScore(value) {
+    try {
+      window.localStorage.setItem("squeakyFruitBest", String(value));
+    } catch (_) {
+      // Storage may be unavailable when opened from a sandboxed file preview.
+    }
+  }
+
+  let best = loadBestScore();
+  bestEl.textContent = best;
+
+  class Fruit {
+    constructor(type, x, y, vx = 0, vy = 0, held = false) {
+      this.id = nextId++;
+      this.type = type;
+      this.r = RADII[type];
+      this.mass = MASSES[type];
+      this.x = x;
+      this.y = y;
+      this.vx = vx;
+      this.vy = vy;
+      this.angle = 0;
+      this.angularVelocity = 0;
+      this.groundedTime = 0;
+      this.resting = false;
+      this.held = held;
+      this.alive = true;
+      this.sleep = 0;
+      const now = performance.now();
+      this.nextBlinkAt = now + 700 + Math.random() * 4200;
+      this.blinkUntil = 0;
+      this.surprisedUntil = 0;
+      this.whistlingUntil = 0;
+      this.lastImpactAt = 0;
+      this.lastImpactStrength = 0;
+      this.flash = 0;
+      this.createdAt = now;
+    }
+  }
+
+  function initAudio() {
+    if (!audio) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audio = AudioContext ? new AudioContext() : null;
+    }
+    if (audio && audio.state === "suspended") audio.resume();
+  }
+
+  function squeak(type = 0) {
+    if (!audio || !soundEnabled.checked) return;
+    const now = audio.currentTime;
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+    const filter = audio.createBiquadFilter();
+
+    osc.type = "square";
+    osc.frequency.setValueAtTime(780 + type * 22, now);
+    osc.frequency.exponentialRampToValueAtTime(1150 + type * 35, now + 0.055);
+    osc.frequency.exponentialRampToValueAtTime(690 + type * 18, now + 0.13);
+
+    filter.type = "lowpass";
+    filter.frequency.value = 2100;
+    filter.Q.value = 5;
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.11, now + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+
+    osc.connect(filter).connect(gain).connect(audio.destination);
+    osc.start(now);
+    osc.stop(now + 0.16);
+  }
+
+  function boing(intensity = 1, radiusA = 30, radiusB = radiusA) {
+    if (!audio || !soundEnabled.checked) return;
+    const wallNow = performance.now();
+    if (wallNow - lastBoingAt < 55) return;
+    lastBoingAt = wallNow;
+
+    const now = audio.currentTime;
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+    const filter = audio.createBiquadFilter();
+
+    // Smaller colliding pairs sound higher; large pairs sound deeper.
+    // Harmonic mean weights the smaller fruit strongly, so cherry-vs-plum is high.
+    const effectiveRadius = (2 * radiusA * radiusB) / Math.max(1, radiusA + radiusB);
+    const base = clamp(215 - effectiveRadius * 1.55, 48, 195);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(base * 1.75, now);
+    osc.frequency.exponentialRampToValueAtTime(base, now + 0.10);
+    osc.frequency.exponentialRampToValueAtTime(base * 0.70, now + 0.34);
+
+    filter.type = "lowpass";
+    filter.frequency.value = Math.max(420, base * 5);
+    filter.Q.value = 7;
+
+    const volume = Math.min(0.18, 0.035 + intensity * 0.018);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(volume, now + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+
+    osc.connect(filter).connect(gain).connect(audio.destination);
+    osc.start(now);
+    osc.stop(now + 0.44);
+  }
+
+  function catcallWhistle(fruit) {
+    if (!fruit || !audio || !soundEnabled.checked) return;
+    const now = audio.currentTime;
+    fruit.whistlingUntil = performance.now() + 1450;
+
+    const master = audio.createGain();
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime(0.10, now + 0.025);
+    master.gain.setValueAtTime(0.10, now + 1.12);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 1.42);
+    master.connect(audio.destination);
+
+    const makePhrase = (start, frequencies, times) => {
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = "sine";
+      frequencies.forEach((freq, i) => {
+        if (i === 0) osc.frequency.setValueAtTime(freq, now + start + times[i]);
+        else osc.frequency.exponentialRampToValueAtTime(freq, now + start + times[i]);
+      });
+      gain.gain.setValueAtTime(0.0001, now + start);
+      gain.gain.exponentialRampToValueAtTime(1, now + start + 0.025);
+      gain.gain.setValueAtTime(1, now + start + times[times.length - 1] - 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + start + times[times.length - 1]);
+      osc.connect(gain).connect(master);
+      osc.start(now + start);
+      osc.stop(now + start + times[times.length - 1] + 0.03);
+    };
+
+    // Two-part rising/falling catcall whistle.
+    makePhrase(0.00, [720, 1120, 880], [0, 0.28, 0.54]);
+    makePhrase(0.67, [820, 1320, 960], [0, 0.30, 0.66]);
+  }
+
+  function notePlayerAction() {
+    const now = performance.now();
+    lastPlayerActionAt = now;
+    idleWhistlePlayed = false;
+    idleWhistleAt = now + 10000 + Math.random() * 20000;
+  }
+
+  function randomSpawnType() {
+    const max = score > 350 ? 4 : 3;
+    return Math.floor(Math.random() * (max + 1));
+  }
+
+  function spawnHeld() {
+    if (state !== "playing") return;
+    const spawnRadius = RADII[nextType];
+    current = new Fruit(
+      nextType,
+      clamp(pointerX, LEFT + spawnRadius, RIGHT - spawnRadius),
+      Math.max(DROP_Y, CEILING + spawnRadius),
+      0, 0, true
+    );
+    nextType = randomSpawnType();
+    renderNext();
+  }
+
+  function dropCurrent() {
+    if (state !== "playing" || !current) return;
+    initAudio();
+    notePlayerAction();
+    current.held = false;
+    current.vy = 15;
+    fruits.push(current);
+    current = null;
+    spawnAt = performance.now() + 420;
+  }
+
+  function resetGame() {
+    fruits = [];
+    current = null;
+    nextType = randomSpawnType();
+    score = 0;
+    merges = 0;
+    largest = 1;
+    dangerTimer = 0;
+    pendingMerges.clear();
+    notePlayerAction();
+    state = "playing";
+    gameOverOverlay.hidden = true;
+    startOverlay.hidden = true;
+    updateHUD();
+    renderNext();
+    spawnHeld();
+    initAudio();
+  }
+
+  function gameOver() {
+    if (state !== "playing") return;
+    state = "over";
+    current = null;
+    finalScoreEl.textContent = score;
+    if (score > best) {
+      best = score;
+      saveBestScore(best);
+      bestEl.textContent = best;
+    }
+    gameOverOverlay.hidden = false;
+  }
+
+  function updateHUD() {
+    scoreEl.textContent = score;
+    mergesEl.textContent = merges;
+    largestEl.textContent = largest;
+    if (score > best) bestEl.textContent = score;
+  }
+
+  function enforceBounds(f, bounce = true) {
+    if (!f || !f.alive) return;
+
+    const minX = LEFT + f.r;
+    const maxX = RIGHT - f.r;
+    const minY = CEILING + f.r;
+    const maxY = FLOOR - f.r;
+
+    // Position correction is unconditional. This prevents collision resolution,
+    // merges, and high-speed integration from leaving any portion outside the bin.
+    if (f.x < minX) {
+      f.x = minX;
+      if (bounce && f.vx < 0) f.vx = Math.abs(f.vx) * 0.52;
+    } else if (f.x > maxX) {
+      f.x = maxX;
+      if (bounce && f.vx > 0) f.vx = -Math.abs(f.vx) * 0.52;
+    }
+
+    if (f.y < minY) {
+      f.y = minY;
+      if (bounce && f.vy < 0) f.vy = Math.abs(f.vy) * 0.34;
+    } else if (f.y > maxY) {
+      f.y = maxY;
+      if (bounce && f.vy > 0) f.vy = -Math.abs(f.vy) * 0.39;
+    }
+  }
+
+  function physics(dt) {
+    const substeps = 3;
+    const step = dt / substeps;
+
+    for (let s = 0; s < substeps; s++) {
+      for (const f of fruits) {
+        if (!f.alive || f.held) continue;
+        if (f.resting) {
+          f.vx = 0;
+          f.vy = 0;
+          f.angularVelocity = 0;
+          f.y = FLOOR - f.r;
+          continue;
+        }
+        f.vy += GRAVITY * step;
+        f.x += f.vx * step;
+        f.y += f.vy * step;
+        f.angle += f.angularVelocity * step;
+        f.vx *= Math.pow(0.9965, step * 60);
+        f.vy *= Math.pow(0.999, step * 60);
+        // Very light air drag only. Strong rotational damping occurs at contacts.
+        f.angularVelocity *= Math.pow(0.999, step * 60);
+        f.angularVelocity = clamp(f.angularVelocity, -MAX_ANGULAR_SPEED, MAX_ANGULAR_SPEED);
+
+        // First containment pass catches high-speed tunneling before contact logic.
+        enforceBounds(f, true);
+
+        let impact = 0;
+        if (f.x - f.r < LEFT) {
+          f.x = LEFT + f.r;
+          impact = Math.abs(f.vx);
+          f.vx = Math.abs(f.vx) * 0.52;
+          f.angularVelocity *= 0.82;
+        } else if (f.x + f.r > RIGHT) {
+          f.x = RIGHT - f.r;
+          impact = Math.abs(f.vx);
+          f.vx = -Math.abs(f.vx) * 0.52;
+          f.angularVelocity *= 0.82;
+        }
+        if (f.y + f.r > FLOOR) {
+          f.y = FLOOR - f.r;
+          impact = Math.max(impact, Math.abs(f.vy));
+          f.vy = -Math.abs(f.vy) * 0.39;
+          f.groundedTime += step;
+
+          // Coulomb-style floor friction, proportional to gravity. Positive
+          // horizontal velocity corresponds to positive (clockwise) rotation.
+          // Friction removes contact-point slip by exchanging translation and spin.
+          const surfaceSpeed = f.angularVelocity * f.r;
+          const slipSpeed = f.vx - surfaceSpeed;
+          const maxFrictionDelta = FLOOR_FRICTION * GRAVITY * step;
+          const slipCorrection = clamp(
+            slipSpeed * 0.48,
+            -maxFrictionDelta,
+            maxFrictionDelta
+          );
+          f.vx -= slipCorrection;
+          f.angularVelocity += slipCorrection / Math.max(12, f.r);
+
+          // Rolling resistance slows translation and rotation together without
+          // allowing a stationary fruit to spin indefinitely in place.
+          const rollingDelta = ROLLING_RESISTANCE * GRAVITY * step;
+          if (Math.abs(f.vx) <= rollingDelta) {
+            f.vx = 0;
+          } else {
+            f.vx -= Math.sign(f.vx) * rollingDelta;
+          }
+
+          const targetOmega = f.vx / Math.max(12, f.r);
+          const settleRate = Math.min(1, (GRAVITY / Math.max(20, f.r)) * step * 0.22);
+          f.angularVelocity += (targetOmega - f.angularVelocity) * settleRate;
+
+          if (Math.abs(f.vx) < 2.5 && Math.abs(f.angularVelocity) < 0.08) {
+            f.vx = 0;
+            f.angularVelocity = 0;
+          }
+          if (Math.abs(f.vy) < 10) f.vy = 0;
+
+          // Hard settling rule: no fruit may continue ground motion/spin for
+          // longer than three seconds without being re-energized by a collision.
+          if (f.groundedTime >= MAX_GROUNDED_SPIN_SECONDS ||
+              (Math.abs(f.vx) < 0.8 && Math.abs(f.vy) < 0.8 && Math.abs(f.angularVelocity) < 0.035)) {
+            f.vx = 0;
+            f.vy = 0;
+            f.angularVelocity = 0;
+            f.resting = true;
+          }
+        } else {
+          f.groundedTime = 0;
+        }
+        if (impact > 115) boing(Math.min(6, impact / 90), f.r, f.r);
+      }
+
+      for (let i = 0; i < fruits.length; i++) {
+        const a = fruits[i];
+        if (!a.alive) continue;
+        for (let j = i + 1; j < fruits.length; j++) {
+          const b = fruits[j];
+          if (!b.alive) continue;
+          resolvePair(a, b);
+        }
+      }
+
+      // Pair separation can push a fruit through a wall, so containment must run
+      // again after every collision-solving pass.
+      for (const f of fruits) enforceBounds(f, false);
+    }
+
+    applyMerges();
+    fruits = fruits.filter(f => f.alive);
+
+    const now = performance.now();
+    if (!current && now >= spawnAt) spawnHeld();
+
+    if (!idleWhistlePlayed && now >= idleWhistleAt && now - lastPlayerActionAt < 30000) {
+      const settled = fruits.filter(f => f.alive && Math.hypot(f.vx, f.vy) < 28);
+      if (settled.length) {
+        const chosen = settled[Math.floor(Math.random() * settled.length)];
+        catcallWhistle(chosen);
+        idleWhistlePlayed = true;
+      }
+    }
+    if (now - lastPlayerActionAt >= 30000) idleWhistlePlayed = true;
+
+    let unsafe = false;
+    for (const f of fruits) {
+      if (now - f.createdAt > 1200 && f.y - f.r < DANGER_Y && Math.hypot(f.vx, f.vy) < 55) {
+        unsafe = true;
+        break;
+      }
+    }
+    dangerTimer = unsafe ? dangerTimer + dt : Math.max(0, dangerTimer - dt * 2.4);
+    if (dangerTimer > 2.15) gameOver();
+  }
+
+  function resolvePair(a, b) {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const minDist = a.r + b.r;
+    const distSq = dx * dx + dy * dy;
+    if (distSq <= 0) return;
+
+    const dist = Math.sqrt(distSq);
+    const nx = dx / dist;
+    const ny = dy / dist;
+    const rvx = b.vx - a.vx;
+    const rvy = b.vy - a.vy;
+    const velAlongNormal = rvx * nx + rvy * ny;
+    const closingSpeed = Math.max(0, -velAlongNormal);
+    const gap = dist - minDist;
+
+    // Matching fruit can deform slightly under a real impact. This lets a pair
+    // merge when surrounding fruit compress them together, while passive nearby
+    // fruit still remain separate. The permitted gap scales with fruit size.
+    if (a.type === b.type && a.type < COLORS.length - 1) {
+      const now = performance.now();
+      const squishAllowance = Math.min(a.r, b.r) * MERGE_SQUISH_RATIO;
+      const recentForce = Math.max(
+        now - a.lastImpactAt <= MERGE_FORCE_WINDOW_MS ? a.lastImpactStrength : 0,
+        now - b.lastImpactAt <= MERGE_FORCE_WINDOW_MS ? b.lastImpactStrength : 0
+      );
+      const forceApplied = closingSpeed >= MERGE_CLOSING_SPEED || recentForce >= MERGE_FORCE_THRESHOLD;
+      if (gap <= 0 || (gap <= squishAllowance && forceApplied)) {
+        pendingMerges.add(a.id < b.id ? `${a.id}:${b.id}` : `${b.id}:${a.id}`);
+        return;
+      }
+    }
+
+    if (dist >= minDist) return;
+    const overlap = minDist - dist;
+
+    const totalMass = a.mass + b.mass;
+    a.x -= nx * overlap * (b.mass / totalMass);
+    a.y -= ny * overlap * (b.mass / totalMass);
+    b.x += nx * overlap * (a.mass / totalMass);
+    b.y += ny * overlap * (a.mass / totalMass);
+
+    if (velAlongNormal > 0) return;
+
+    const impact = Math.abs(velAlongNormal);
+    if (impact > 8) {
+      const impactNow = performance.now();
+      a.lastImpactAt = impactNow;
+      b.lastImpactAt = impactNow;
+      a.lastImpactStrength = Math.max(a.lastImpactStrength * 0.45, impact);
+      b.lastImpactStrength = Math.max(b.lastImpactStrength * 0.45, impact);
+    }
+    if (impact >= WAKE_IMPACT_SPEED) {
+      a.resting = false;
+      b.resting = false;
+      a.groundedTime = 0;
+      b.groundedTime = 0;
+    }
+
+    const restitution = 0.36;
+    const impulse = -(1 + restitution) * velAlongNormal / (1 / a.mass + 1 / b.mass);
+    const ix = impulse * nx;
+    const iy = impulse * ny;
+
+    a.vx -= ix / a.mass;
+    a.vy -= iy / a.mass;
+    b.vx += ix / b.mass;
+    b.vy += iy / b.mass;
+
+    const tangentX = -ny, tangentY = nx;
+    const tangentVelocity = rvx * tangentX + rvy * tangentY;
+    const frictionImpulse = -tangentVelocity * 0.018;
+    a.vx -= frictionImpulse * tangentX;
+    a.vy -= frictionImpulse * tangentY;
+    b.vx += frictionImpulse * tangentX;
+    b.vy += frictionImpulse * tangentY;
+
+    // Only clearly oblique impacts create spin. Near-radial impacts simply
+    // bounce. Larger fruit transfer more angular momentum than smaller fruit.
+    const relativeSpeed = Math.hypot(rvx, rvy);
+    const tangentialMagnitude = Math.abs(tangentVelocity);
+    const obliqueness = relativeSpeed > 0.001 ? tangentialMagnitude / relativeSpeed : 0;
+    if (impact >= WAKE_IMPACT_SPEED &&
+        tangentialMagnitude >= SPIN_TANGENT_THRESHOLD &&
+        obliqueness >= SPIN_OBLIQUENESS_THRESHOLD) {
+      const direction = Math.sign(tangentVelocity) || 1;
+      const sizeShareA = b.r / (a.r + b.r); // larger striker contributes more
+      const sizeShareB = a.r / (a.r + b.r);
+      const torque = Math.min(2.2, tangentialMagnitude * 0.0065);
+      a.angularVelocity += direction * torque * sizeShareA;
+      b.angularVelocity -= direction * torque * sizeShareB;
+      a.angularVelocity = clamp(a.angularVelocity, -MAX_ANGULAR_SPEED, MAX_ANGULAR_SPEED);
+      b.angularVelocity = clamp(b.angularVelocity, -MAX_ANGULAR_SPEED, MAX_ANGULAR_SPEED);
+    }
+
+    if (impact > 38) {
+      const now = performance.now();
+      const reactionDuration = Math.min(620, 260 + impact * 1.25);
+      a.surprisedUntil = Math.max(a.surprisedUntil, now + reactionDuration);
+      b.surprisedUntil = Math.max(b.surprisedUntil, now + reactionDuration);
+    }
+    if (impact > 155) boing(Math.min(6, impact / 100), a.r, b.r);
+  }
+
+  function applyMerges() {
+    if (!pendingMerges.size) return;
+    const byId = new Map(fruits.map(f => [f.id, f]));
+    const used = new Set();
+
+    for (const key of pendingMerges) {
+      const [aid, bid] = key.split(":").map(Number);
+      const a = byId.get(aid), b = byId.get(bid);
+      if (!a || !b || !a.alive || !b.alive || used.has(aid) || used.has(bid) || a.type !== b.type) continue;
+
+      used.add(aid); used.add(bid);
+      a.alive = false; b.alive = false;
+
+      const newType = a.type + 1;
+      const x = (a.x * a.mass + b.x * b.mass) / (a.mass + b.mass);
+      const y = (a.y * a.mass + b.y * b.mass) / (a.mass + b.mass);
+      const vx = (a.vx + b.vx) * 0.42;
+      const vy = Math.min(-95, (a.vy + b.vy) * 0.18 - 65);
+
+      const merged = new Fruit(newType, x, y, vx, vy, false);
+      merged.angle = Math.atan2(
+        Math.sin(a.angle) + Math.sin(b.angle),
+        Math.cos(a.angle) + Math.cos(b.angle)
+      );
+      merged.angularVelocity = (a.angularVelocity + b.angularVelocity) * 0.55;
+      merged.flash = 1;
+      enforceBounds(merged, false);
+      fruits.push(merged);
+
+      score += SCORE_VALUES[newType] * 10;
+      merges++;
+      largest = Math.max(largest, newType + 1);
+      updateHUD();
+      squeak(newType);
+    }
+    pendingMerges.clear();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "#f7f2c8";
+    ctx.fillRect(0, 0, W, H);
+
+    const grd = ctx.createLinearGradient(0, 0, 0, H);
+    grd.addColorStop(0, "rgba(255,255,255,.24)");
+    grd.addColorStop(1, "rgba(225,190,90,.08)");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(91,66,25,.08)";
+    ctx.lineWidth = 1;
+    for (let y = 0; y < H; y += 30) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    ctx.restore();
+
+    for (const f of fruits) drawFruit(ctx, f);
+    if (current) drawFruit(ctx, current);
+
+    if (state === "playing" && current) {
+      ctx.save();
+      ctx.setLineDash([5, 7]);
+      ctx.strokeStyle = "rgba(32,27,22,.22)";
+      ctx.beginPath();
+      ctx.moveTo(current.x, current.y + current.r + 4);
+      ctx.lineTo(current.x, H);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    if (dangerTimer > 0) {
+      ctx.fillStyle = `rgba(217,71,71,${Math.min(.16, dangerTimer * .065)})`;
+      ctx.fillRect(0, 0, W, DANGER_Y + 15);
+    }
+  }
+
+  function drawFruit(context, f, scale = 1) {
+    const now = performance.now();
+    const r = f.r * scale;
+
+    // Each fruit owns its own irregular blink schedule instead of blinking in sync.
+    if (now >= f.nextBlinkAt) {
+      f.blinkUntil = now + 85 + Math.random() * 75;
+      f.nextBlinkAt = f.blinkUntil + 900 + Math.random() * 5200;
+    }
+    const blinking = now < f.blinkUntil;
+    const surprised = now < f.surprisedUntil;
+    const whistling = now < f.whistlingUntil;
+
+    context.save();
+    context.translate(f.x, f.y);
+    const whistleWiggle = whistling ? Math.sin(now * 0.018) * 0.055 : 0;
+    context.rotate(f.angle + whistleWiggle);
+
+    context.shadowColor = "rgba(45,30,10,.25)";
+    context.shadowBlur = 10 * scale;
+    context.shadowOffsetX = 2 * scale;
+    context.shadowOffsetY = 7 * scale;
+
+    // Soft pseudo-3D sphere: directional color gradient, rim shade, and restrained gloss.
+    const bodyGradient = context.createRadialGradient(
+      -r * 0.38, -r * 0.42, r * 0.06,
+      r * 0.12, r * 0.16, r * 1.18
+    );
+    bodyGradient.addColorStop(0, mixHex(COLORS[f.type], "#ffffff", 0.38));
+    bodyGradient.addColorStop(0.38, COLORS[f.type]);
+    bodyGradient.addColorStop(0.78, mixHex(COLORS[f.type], "#000000", 0.12));
+    bodyGradient.addColorStop(1, mixHex(COLORS[f.type], "#000000", 0.28));
+
+    context.beginPath();
+    context.arc(0, 0, r, 0, Math.PI * 2);
+    context.fillStyle = bodyGradient;
+    context.fill();
+    context.shadowColor = "transparent";
+
+    const lowerShade = context.createLinearGradient(0, -r * .1, 0, r);
+    lowerShade.addColorStop(0, "rgba(0,0,0,0)");
+    lowerShade.addColorStop(1, "rgba(0,0,0,.16)");
+    context.fillStyle = lowerShade;
+    context.beginPath();
+    context.arc(0, 0, r * .97, 0, Math.PI * 2);
+    context.fill();
+
+    const highlight = context.createRadialGradient(-r*.42, -r*.48, 0, -r*.40, -r*.45, r*.50);
+    highlight.addColorStop(0, "rgba(255,255,255,.52)");
+    highlight.addColorStop(.35, "rgba(255,255,255,.18)");
+    highlight.addColorStop(1, "rgba(255,255,255,0)");
+    context.fillStyle = highlight;
+    context.beginPath();
+    context.ellipse(-r*.24, -r*.31, r*.38, r*.27, -0.45, 0, Math.PI*2);
+    context.fill();
+
+    context.lineWidth = Math.max(2, 3.5 * scale);
+    context.strokeStyle = "#111";
+    context.beginPath();
+    context.arc(0, 0, r, 0, Math.PI * 2);
+    context.stroke();
+
+    context.fillStyle = "#090909";
+    const eyeY = -r * .08;
+    const eyeX = r * .30;
+    const eyeRadius = Math.max(2.2, r * .075);
+
+    if (blinking) {
+      context.lineCap = "round";
+      context.lineWidth = Math.max(2.2, r * .055);
+      context.strokeStyle = "#090909";
+      context.beginPath();
+      context.moveTo(-eyeX - r * .065, eyeY);
+      context.lineTo(-eyeX + r * .065, eyeY);
+      context.moveTo(eyeX - r * .065, eyeY);
+      context.lineTo(eyeX + r * .065, eyeY);
+      context.stroke();
+    } else {
+      context.beginPath();
+      context.arc(-eyeX, eyeY, eyeRadius, 0, Math.PI * 2);
+      context.arc(eyeX, eyeY, eyeRadius, 0, Math.PI * 2);
+      context.fill();
+    }
+
+    // Whistling uses a small puckered mouth; collisions use a larger surprised O.
+    if (whistling) {
+      context.beginPath();
+      context.ellipse(r * .055, r * .17, r * .075, r * .095, -0.18, 0, Math.PI * 2);
+      context.fill();
+      context.strokeStyle = "rgba(255,255,255,.62)";
+      context.lineWidth = Math.max(1, r * .018);
+      context.beginPath();
+      context.arc(r * .035, r * .14, r * .034, Math.PI * 1.05, Math.PI * 1.75);
+      context.stroke();
+    } else if (surprised) {
+      context.beginPath();
+      context.ellipse(0, r * .18, r * .115, r * .155, 0, 0, Math.PI * 2);
+      context.fill();
+    } else {
+      // Original OpenProcessing face: a filled lower semicircle with a flat upper lip.
+      const mouthWidth = r * .42;
+      const mouthHeight = r * .34;
+      const mouthY = r * .10;
+      context.beginPath();
+      context.moveTo(-mouthWidth / 2, mouthY);
+      context.lineTo(mouthWidth / 2, mouthY);
+      context.bezierCurveTo(
+        mouthWidth * .48, mouthY + mouthHeight,
+        -mouthWidth * .48, mouthY + mouthHeight,
+        -mouthWidth / 2, mouthY
+      );
+      context.closePath();
+      context.fill();
+    }
+
+    if (f.type >= 6) {
+      context.strokeStyle = "rgba(32,27,22,.32)";
+      context.lineWidth = Math.max(1.5, r*.025);
+      context.beginPath();
+      context.arc(0, 0, r*.66, 0, Math.PI*2);
+      context.stroke();
+    }
+
+    if (f.flash > 0) {
+      context.strokeStyle = `rgba(255,255,255,${f.flash})`;
+      context.lineWidth = 8;
+      context.beginPath();
+      context.arc(0,0,r+7,0,Math.PI*2);
+      context.stroke();
+      f.flash = Math.max(0, f.flash - .07);
+    }
+    context.restore();
+  }
+
+  function renderNext() {
+    nextCtx.clearRect(0,0,100,100);
+    const temp = new Fruit(nextType, 50, 50, 0, 0, true);
+    const scale = Math.min(1.5, 34 / temp.r);
+    drawFruit(nextCtx, temp, scale);
+    nextNameEl.textContent = NAMES[nextType];
+  }
+
+  function setPointerFromClientX(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    pointerX = (clientX - rect.left) * (W / rect.width);
+    if (current) current.x = clamp(pointerX, LEFT + current.r, RIGHT - current.r);
+  }
+
+  function pointerFromEvent(e) {
+    if (typeof e.clientX === "number") setPointerFromClientX(e.clientX);
+  }
+
+  function loop(now) {
+    const dt = Math.min(.032, (now - lastTime) / 1000);
+    lastTime = now;
+    if (state === "playing") physics(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  function mixHex(a, b, amount) {
+    const parse = value => {
+      const hex = value.replace("#", "");
+      return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
+    };
+    const ca = parse(a), cb = parse(b);
+    const c = ca.map((v, i) => Math.round(v + (cb[i] - v) * amount));
+    return `rgb(${c[0]},${c[1]},${c[2]})`;
+  }
+
+  function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+
+  let activeTouchId = null;
+  let touchMoved = false;
+  let ignoreMouseUntil = 0;
+
+  canvas.addEventListener("touchstart", e => {
+    if (state !== "playing" || !current) return;
+    e.preventDefault();
+    initAudio();
+    notePlayerAction();
+    const touch = e.changedTouches[0];
+    activeTouchId = touch.identifier;
+    touchMoved = false;
+    setPointerFromClientX(touch.clientX);
+  }, { passive: false });
+
+  canvas.addEventListener("touchmove", e => {
+    if (activeTouchId === null) return;
+    e.preventDefault();
+    const touch = Array.from(e.changedTouches).find(t => t.identifier === activeTouchId) || e.touches[0];
+    if (!touch) return;
+    touchMoved = true;
+    notePlayerAction();
+    setPointerFromClientX(touch.clientX);
+  }, { passive: false });
+
+  const finishTouchDrop = e => {
+    if (activeTouchId === null) return;
+    e.preventDefault();
+    const touch = Array.from(e.changedTouches).find(t => t.identifier === activeTouchId);
+    if (touch) setPointerFromClientX(touch.clientX);
+    activeTouchId = null;
+    ignoreMouseUntil = performance.now() + 700;
+    dropCurrent();
+  };
+
+  canvas.addEventListener("touchend", finishTouchDrop, { passive: false });
+  canvas.addEventListener("touchcancel", e => {
+    e.preventDefault();
+    activeTouchId = null;
+  }, { passive: false });
+
+  canvas.addEventListener("pointermove", e => {
+    if (e.pointerType !== "touch") notePlayerAction();
+    if (e.pointerType !== "touch") pointerFromEvent(e);
+  });
+
+  canvas.addEventListener("pointerdown", e => {
+    if (e.pointerType === "touch" || performance.now() < ignoreMouseUntil) return;
+    e.preventDefault();
+    pointerFromEvent(e);
+    dropCurrent();
+  });
+  window.addEventListener("keydown", e => {
+    if (state !== "playing") return;
+    notePlayerAction();
+    if (e.key === "ArrowLeft" && current) current.x = clamp(current.x - 18, LEFT + current.r, RIGHT - current.r);
+    if (e.key === "ArrowRight" && current) current.x = clamp(current.x + 18, LEFT + current.r, RIGHT - current.r);
+    if (e.key === " " || e.key === "ArrowDown") {
+      e.preventDefault();
+      dropCurrent();
+    }
+  });
+
+  function bindActionButton(id, action) {
+    const button = document.getElementById(id);
+    button.addEventListener("click", e => {
+      e.preventDefault();
+      initAudio();
+      action();
+    });
+    button.addEventListener("touchend", e => {
+      e.preventDefault();
+      initAudio();
+      action();
+    }, { passive: false });
+  }
+
+  bindActionButton("startBtn", resetGame);
+  bindActionButton("restartBtn", resetGame);
+  bindActionButton("restartSmall", resetGame);
+  soundEnabled.addEventListener("change", initAudio);
+
+  const legend = document.getElementById("legend");
+  COLORS.forEach((color, i) => {
+    const item = document.createElement("div");
+    item.className = "legend-item";
+    item.innerHTML = `<div class="dot" style="background:${color}"></div>${i+1}. ${NAMES[i]}`;
+    legend.appendChild(item);
+  });
+
+  renderNext();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
