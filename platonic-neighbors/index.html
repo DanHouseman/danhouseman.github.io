@@ -1,0 +1,6993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Platonic Neighbors</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.min.js"></script>
+
+  <style>
+    :root {
+      --accent: #4caf50;
+      --gold: #ffd700;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'SYSTEM-UI', monospace;
+      background: radial-gradient(circle, #000033 0%, #000066 100%);
+    }
+
+    #container {
+      position: fixed;
+      inset: 0;
+    }
+
+    /* MOBILE: prevent browser pan/zoom gestures from stealing board taps. */
+    #container canvas {
+      display: block;
+      touch-action: none;
+    }
+
+    #effectsLayer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 150;
+      overflow: hidden;
+    }
+
+    #hud {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 100;
+      pointer-events: none;
+      display: none;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 12px 16px;
+      gap: 12px;
+    }
+
+    #hudLeft {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      pointer-events: auto;
+    }
+
+    #leaveGame,
+    #musicToggle {
+      appearance: none;
+      border: 2px solid var(--accent);
+      background: rgba(5, 15, 35, .78);
+      color: #fff;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+      transition: transform .15s ease, background .15s ease;
+    }
+
+    #leaveGame:hover,
+    #musicToggle:hover {
+      transform: translateY(-1px);
+      background: rgba(20, 40, 70, .9);
+    }
+
+    #levelInfo,
+    #score {
+      color: #fff;
+      font-weight: 900;
+      text-shadow: 0 2px 8px rgba(0,0,0,.9);
+      background: rgba(0,0,0,.25);
+      padding: 8px 12px;
+      border-radius: 10px;
+      backdrop-filter: blur(6px);
+    }
+
+    #levelInfo {
+      font-size: 16px;
+    }
+
+    #score {
+      font-size: 22px;
+    }
+
+    /*
+     * SCORE IMPACT:
+     * A freed orbiting Platonic solid physically reaches the score HUD, then
+     * this short illumination confirms the impact.
+     */
+    #score.score-hit {
+      animation: scoreHit .42s ease-out;
+    }
+
+    @keyframes scoreHit {
+      0% {
+        transform: scale(1);
+        filter: brightness(1);
+        box-shadow: 0 0 0 rgba(255,255,255,0);
+      }
+      35% {
+        transform: scale(1.18);
+        filter: brightness(2.25);
+        color: var(--score-hit-color, #ffffff);
+        text-shadow:
+          0 0 8px var(--score-hit-color, #ffffff),
+          0 0 18px var(--score-hit-color, #ffffff),
+          0 0 32px var(--score-hit-color, #ffffff);
+        box-shadow:
+          0 0 14px var(--score-hit-color, #ffffff),
+          0 0 34px var(--score-hit-color, #ffffff);
+      }
+      100% {
+        transform: scale(1);
+        filter: brightness(1);
+        box-shadow: 0 0 0 rgba(255,255,255,0);
+      }
+    }
+
+    /*
+     * TITLE SCREEN
+     * The title uses displaced duplicate text layers and intermittent slice
+     * offsets, echoing the reference's noise/texCoord glitch approach without
+     * adding a post-processing dependency to the gameplay renderer.
+     */
+    #splashScreen {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 46%, #111526 0%, #050713 36%, #010208 76%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      transition: opacity .7s ease-out;
+      cursor: pointer;
+      isolation: isolate;
+    }
+
+    #splashScreen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .16;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,255,255,.035) 0,
+          rgba(255,255,255,.035) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+      mix-blend-mode: screen;
+      z-index: 4;
+    }
+
+    #splashOrbitLayer {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      left: -230px;
+      top: -120px;
+    }
+
+    #titleContent {
+      position: relative;
+      z-index: 3;
+      width: min(92vw, 1100px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #gameTitle {
+      position: relative;
+      margin: 0 0 1.6rem;
+      color: #f5f7ff;
+      font-size: clamp(2.7rem, 7vw, 6.5rem);
+      line-height: .95;
+      font-weight: 900;
+      letter-spacing: .075em;
+      text-align: center;
+      text-transform: uppercase;
+      text-shadow: 0 0 18px rgba(255,255,255,.20);
+      animation: glitchBase 7s steps(1, end) infinite;
+    }
+
+    #gameTitle::before,
+    #gameTitle::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    #gameTitle::before {
+      color: #29f4ff;
+      text-shadow: -3px 0 #29f4ff;
+      animation: glitchCyan 4.9s steps(1, end) infinite;
+    }
+
+    #gameTitle::after {
+      color: #ff2f91;
+      text-shadow: 3px 0 #ff2f91;
+      animation: glitchMagenta 6.1s steps(1, end) infinite;
+    }
+
+    @keyframes glitchBase {
+      0%, 88%, 100% { transform: translate(0); filter: none; }
+      89% { transform: translate(-3px, 1px) skewX(-2deg); }
+      90% { transform: translate(4px, -1px); }
+      91% { transform: translate(-1px, 0); }
+      92% { transform: translate(0); }
+      96% { transform: translate(2px, 0); filter: contrast(1.35); }
+      97% { transform: translate(-2px, 1px); }
+    }
+
+    @keyframes glitchCyan {
+      0%, 82%, 86%, 100% { opacity: 0; clip-path: inset(0 0 100% 0); }
+      83% { opacity: .82; transform: translate(-8px, 0); clip-path: inset(12% 0 63% 0); }
+      84% { opacity: .55; transform: translate(5px, 1px); clip-path: inset(61% 0 18% 0); }
+      85% { opacity: .75; transform: translate(-3px, -1px); clip-path: inset(38% 0 44% 0); }
+      94% { opacity: .5; transform: translate(-6px, 0); clip-path: inset(73% 0 9% 0); }
+      95% { opacity: 0; }
+    }
+
+    @keyframes glitchMagenta {
+      0%, 71%, 75%, 100% { opacity: 0; clip-path: inset(100% 0 0 0); }
+      72% { opacity: .72; transform: translate(7px, -1px); clip-path: inset(55% 0 24% 0); }
+      73% { opacity: .48; transform: translate(-5px, 0); clip-path: inset(18% 0 67% 0); }
+      74% { opacity: .68; transform: translate(3px, 1px); clip-path: inset(79% 0 5% 0); }
+      91% { opacity: .45; transform: translate(5px, 0); clip-path: inset(31% 0 51% 0); }
+      92% { opacity: 0; }
+    }
+
+    #gameDescription {
+      max-width: 680px;
+      margin: 0 24px 2.5rem;
+      color: #bfc5d7;
+      text-align: center;
+      line-height: 1.65;
+      font-size: 1rem;
+      text-shadow: 0 2px 10px #000;
+    }
+
+    #startPrompt {
+      color: #eef2ff;
+      border: 1px solid rgba(255,255,255,.48);
+      background: rgba(255,255,255,.045);
+      padding: 11px 22px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      animation: titlePrompt 2.1s ease-in-out infinite;
+    }
+
+    @keyframes titlePrompt {
+      0%,100% { opacity: .48; }
+      50% { opacity: 1; }
+    }
+
+    #overlay {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 300;
+      min-width: min(440px, calc(100vw - 40px));
+      padding: 28px 34px;
+      border-radius: 18px;
+      background: rgba(3, 10, 25, .88);
+      border: 2px solid var(--accent);
+      color: #fff;
+      text-align: center;
+      display: none;
+      box-shadow: 0 14px 50px rgba(0,0,0,.55);
+      backdrop-filter: blur(12px);
+      pointer-events: none;
+    }
+
+    #overlay h2 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+    }
+
+    #overlay p {
+      margin: 0;
+      color: #d8d8e8;
+      line-height: 1.5;
+    }
+
+    .score-popup {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-weight: 900;
+      white-space: nowrap;
+      text-shadow:
+        -2px -2px 0 #000,
+         2px -2px 0 #000,
+        -2px  2px 0 #000,
+         2px  2px 0 #000,
+         0 0 10px rgba(255,255,255,.8);
+      animation: scoreFloat 1.35s ease-out forwards;
+      will-change: transform, opacity;
+    }
+
+    .score-popup.bonus {
+      color: var(--gold);
+      text-shadow:
+        -2px -2px 0 #000,
+         2px -2px 0 #000,
+        -2px  2px 0 #000,
+         2px  2px 0 #000,
+         0 0 14px rgba(255,215,0,.95);
+    }
+
+    @keyframes scoreFloat {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(.8); }
+      18% { opacity: 1; transform: translate(-50%, -75%) scale(1.08); }
+      100% { opacity: 0; transform: translate(-50%, -190%) scale(1.16); }
+    }
+
+
+    #orientationOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      background: rgba(1, 6, 18, .97);
+      color: #fff;
+      text-align: center;
+      pointer-events: all;
+    }
+
+    #orientationOverlay .orientation-card {
+      max-width: 520px;
+      padding: 30px;
+      border: 2px solid var(--accent);
+      border-radius: 18px;
+      background: rgba(10, 22, 44, .8);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+    }
+
+    #orientationOverlay .rotate-icon {
+      display: block;
+      margin-bottom: 16px;
+      font-size: 4rem;
+      line-height: 1;
+      animation: rotateHint 1.8s ease-in-out infinite alternate;
+    }
+
+    #orientationOverlay h2 {
+      margin: 0 0 10px;
+      font-size: 1.8rem;
+    }
+
+    #orientationOverlay p {
+      margin: 0;
+      color: #d9e3f0;
+      line-height: 1.55;
+    }
+
+    @keyframes rotateHint {
+      from { transform: rotate(-10deg); }
+      to   { transform: rotate(80deg); }
+    }
+
+    @media (max-width: 700px) {
+      #hud {
+        padding: 8px;
+      }
+
+      #hudLeft {
+        gap: 6px;
+      }
+
+      #leaveGame,
+    #musicToggle {
+        padding: 8px 10px;
+      }
+
+      #levelInfo {
+        font-size: 13px;
+      }
+
+      #score {
+        font-size: 17px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+<div id="author" style="
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: #838383;
+    font-size: 14px;
+    z-index: 10000;
+">A game by <a href="https://danhouseman.com/" target="_blank" rel="noopener">Dan Houseman</a></div>
+  <div id="container"></div>
+  <div id="effectsLayer"></div>
+
+  <div id="hud">
+    <div id="hudLeft">
+      <button id="leaveGame">Leave Game</button>
+      <button id="musicToggle" aria-pressed="false">Music: On</button>
+      <div id="levelInfo">Level 1</div>
+    </div>
+    <div id="score">Score: 0</div>
+  </div>
+
+
+  <div id="overlay">
+    <h2 id="overlayTitle"></h2>
+    <p id="overlayText"></p>
+  </div>
+
+
+  <div id="orientationOverlay" role="dialog" aria-modal="true" aria-live="assertive">
+    <div class="orientation-card">
+      <span class="rotate-icon" aria-hidden="true">↻</span>
+      <h2>Rotate to Landscape</h2>
+      <p>Platonic Neighbors pauses on mobile until the device is in landscape orientation.</p>
+    </div>
+  </div>
+
+  <div id="splashScreen">
+    <div id="splashOrbitLayer" aria-hidden="true"></div>
+    <div id="titleContent">
+      <h1 id="gameTitle" data-text="PLATONIC NEIGHBORS">PLATONIC NEIGHBORS</h1>
+      <p id="gameDescription">
+        Match connected solids in eight directions. Destroy every orbiting satellite to clear the level.
+        Large chains create prismatic satellites that can erase two colors at once.
+      </p>
+      <div id="startPrompt">Click anywhere to start</div>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    /*
+     * ============================================================
+     * Campaign / progression configuration
+     * ============================================================
+     * OPTIMIZATION + SOLID:
+     * Level progression, palettes, hollow probability and board shape
+     * are data-driven rather than scattered through gameplay code.
+     */
+
+    const BOARD_SIZES = Object.freeze([7, 9, 11, 13, 15, 17]);
+    const BOARD_SHAPES = Object.freeze(['square', 'diamond', 'circle', 'cross']);
+
+    const PALETTES = Object.freeze([
+      Object.freeze([0xff3b6b, 0x55ff66, 0x3d63ff, 0xffe13b, 0xe83dff, 0x28eaff]),
+      Object.freeze([0xff5a2e, 0x32f58c, 0x6545ff, 0xffcc32, 0xff3d9d, 0x22dfff]),
+      Object.freeze([0xff365c, 0x9aff32, 0x2688ff, 0xffd52e, 0xa83dff, 0x1df5d2]),
+      Object.freeze([0xff4f91, 0x3dff82, 0x45a0ff, 0xffe02e, 0xd83dff, 0x25e8ff]),
+      Object.freeze([0xff353f, 0x83f542, 0x4168e8, 0xffc832, 0xf02dbd, 0x22e8cb]),
+      Object.freeze([0xff3b32, 0x38f55c, 0x2375ff, 0xffdb25, 0xc83df5, 0x35e9ff]),
+      Object.freeze([0xf53258, 0x42f58b, 0x485cff, 0xffd043, 0xb43df0, 0x20ddff]),
+      Object.freeze([0xff4388, 0x65f542, 0x4d82ff, 0xffd843, 0xcf45ff, 0x28e9ef])
+    ]);
+
+    const SHAPE_NAMES = Object.freeze([
+      'tetrahedron',
+      'cube',
+      'octahedron',
+      'dodecahedron',
+      'icosahedron',
+      'sphere'
+    ]);
+
+    const DIRECTIONS_8 = Object.freeze([
+      Object.freeze([-1, -1]),
+      Object.freeze([-1,  0]),
+      Object.freeze([-1,  1]),
+      Object.freeze([ 0, -1]),
+      Object.freeze([ 0,  1]),
+      Object.freeze([ 1, -1]),
+      Object.freeze([ 1,  0]),
+      Object.freeze([ 1,  1])
+    ]);
+
+    const FUN_PHRASES = Object.freeze([
+      Object.freeze(['POP!', 'TINY!', 'CUTE!']),
+      Object.freeze(['NICE!', 'GOOD!', 'SWEET!', 'FUN!']),
+      Object.freeze(['AWESOME!', 'GREAT!', 'JOY!', 'WOW!']),
+      Object.freeze(['FANTASTIC!', 'EXCITING!', 'AWESOME!', 'WOW!']),
+      Object.freeze(['INCREDIBLE!', 'FANTASTIC!', 'GREAT!']),
+      Object.freeze(['LEGENDARY!', 'INCREDIBLE!', 'EXCITING!']),
+      Object.freeze(['IMPOSSIBLE!', 'LEGENDARY!', 'WOW!'])
+    ]);
+
+    const FUN_PHRASE_AUDIO = Object.freeze(new Set([
+      'fun', 'legendary', 'impossible', 'sweet', 'incredible', 'awesome',
+      'good', 'nice', 'tiny', 'fantastic', 'great', 'joy', 'wow', 'pop',
+      'exciting', 'cute'
+    ]));
+
+    const RANDOM_FUN_PHRASES = Object.freeze(
+      [...new Set(FUN_PHRASES.flat())]
+    );
+
+    const MUSIC_TRACKS = Object.freeze([
+      'game_music_1.mp3',
+      'game_music_2.mp3',
+      'game_music_3.mp3',
+      'game_music_4.mp3',
+      'game_music_5.mp3',
+      'game_music_6.mp3'
+    ]);
+
+    const WIN_SOUNDS = Object.freeze([
+      'winner_1.wav',
+      'winner_2.wav',
+      'winner_3.wav'
+    ]);
+
+    const LOSE_SOUNDS = Object.freeze([
+      'loser_1.wav',
+      'loser_2.wav',
+      'loser_3.wav'
+    ]);
+
+    /*
+     * Configurable mapping from analyzed music features to temporary visual
+     * modulation. Values are deliberately bounded and never affect phase.
+     */
+    const ORBIT_REACTIVITY = Object.freeze({
+      scale: Object.freeze({
+        beat: 0.20,
+        bass: 0.10,
+        high: 0.035,
+        sustainedBreathing: 0.05,
+        activityPulse: 0.045
+      }),
+      radial: Object.freeze({
+        bass: 0.055,
+        beat: 0.045
+      }),
+      emissive: Object.freeze({
+        base: 0.18,
+        lowMid: 0.42,
+        transient: 0.30,
+        high: 0.16,
+        max: 0.88
+      }),
+      selfRotation: Object.freeze({
+        base: 0.75,
+        mid: 2.6,
+        activity: 5.0,
+        high: 1.5
+      }),
+      trailEnergy: Object.freeze({
+        lowMid: 0.35,
+        high: 0.25,
+        activity: 0.45,
+        transient: 0.25
+      }),
+      trailWidth: Object.freeze({
+        lowMid: 0.55,
+        beat: 0.35,
+        activity: 0.25
+      })
+    });
+
+    const CONFIG = Object.freeze({
+      boardWorldSpan: 20,
+      bubbleSizeRatio: 0.40,
+      starCount: 800,
+      particlePoolSize: 360,
+      tubePoolSize: 120,
+      scoreFactor: 10,
+      prizeBonus: 100,
+      columnBonus: 100,
+      prismThreshold: 8,
+      prismRingChangeSeconds: 0.28,
+
+      // MUSIC-SYNCHRONIZED ORBIT CONFIGURATION
+      beatsPerOrbit: 4,
+      orbitSpeedMultiplier: 1,
+      trailOrbitFraction: 0.82,
+      minimumOrbitalSeparationRadians: Math.PI / 18,
+
+      // Occasionally a cleared solid chain with NO orbiting marker may leave
+      // one same-color wireframe shell at the clicked cell.
+      shellDropChance: 0.18,
+
+      /*
+       * MOBILE RULE:
+       * A rendered solid must be at least 20×20 CSS pixels. Bubble diameter
+       * is ~2 * bubbleSizeRatio of cell pitch, so campaign grid size is
+       * capped dynamically from the current viewport.
+       */
+      minTouchSolidPixels: 20
+    });
+
+    const LEVELS = Object.freeze(
+      BOARD_SIZES.flatMap((size, sizeIndex) =>
+        BOARD_SHAPES.map((shape, shapeIndex) => {
+          const index = sizeIndex * BOARD_SHAPES.length + shapeIndex;
+
+          // Progressively introduce hollow variants.
+          // Level 1 = 0%; final level ≈ 48%.
+          const hollowChance =
+            index === 0 ? 0 :
+            Math.min(0.48, 0.04 + index * 0.019);
+
+          return Object.freeze({
+            number: index + 1,
+            size,
+            shape,
+            hollowChance,
+            palette: PALETTES[index % PALETTES.length]
+          });
+        })
+      )
+    );
+
+    const Utils = Object.freeze({
+      randomInt(maxExclusive) {
+        return Math.floor(Math.random() * maxExclusive);
+      },
+
+      shuffleInPlace(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Utils.randomInt(i + 1);
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      },
+
+      matrix(rows, cols, value = null) {
+        return Array.from({ length: rows }, () => Array(cols).fill(value));
+      },
+
+      cellKey(row, col, columns) {
+        return row * columns + col;
+      },
+
+      clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      },
+
+      shapeLabel(shape) {
+        return shape === 'square'
+          ? 'Square'
+          : shape.charAt(0).toUpperCase() + shape.slice(1);
+      }
+    });
+
+    /*
+     * ============================================================
+     * Board template strategy
+     * ============================================================
+     */
+
+    class BoardTemplateFactory {
+      static create(shape, rows, cols) {
+        switch (shape) {
+          case 'square':
+            return Utils.matrix(rows, cols, true);
+
+          case 'diamond':
+            return this.diamond(rows, cols);
+
+          case 'circle':
+            return this.circle(rows, cols);
+
+          case 'cross':
+            return this.cross(rows, cols);
+
+          default:
+            throw new Error(`Unknown board shape: ${shape}`);
+        }
+      }
+
+      static diamond(rows, cols) {
+        const layout = Utils.matrix(rows, cols, false);
+        const midRow = Math.floor(rows / 2);
+        const midCol = Math.floor(cols / 2);
+        const maxDist = Math.min(midRow, midCol);
+
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            layout[row][col] =
+              Math.abs(row - midRow) + Math.abs(col - midCol) <= maxDist;
+          }
+        }
+
+        return layout;
+      }
+
+      static circle(rows, cols) {
+        const layout = Utils.matrix(rows, cols, false);
+        const centerRow = (rows - 1) / 2;
+        const centerCol = (cols - 1) / 2;
+        const radius = Math.min(rows, cols) / 2 - 1;
+        const radiusSquared = radius * radius;
+
+        // OPTIMIZATION: compare squared distance; no Math.sqrt in hot loop.
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            const dr = row - centerRow;
+            const dc = col - centerCol;
+            layout[row][col] = dr * dr + dc * dc <= radiusSquared;
+          }
+        }
+
+        return layout;
+      }
+
+      static cross(rows, cols) {
+        const layout = Utils.matrix(rows, cols, false);
+        const midRow = Math.floor(rows / 2);
+        const midCol = Math.floor(cols / 2);
+        const armWidth = Math.max(1, Math.floor(Math.min(rows, cols) / 5));
+
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            layout[row][col] =
+              Math.abs(row - midRow) <= armWidth ||
+              Math.abs(col - midCol) <= armWidth;
+          }
+        }
+
+        return layout;
+      }
+    }
+
+    /*
+     * ============================================================
+     * Domain model
+     * ============================================================
+     * A cell is a gameplay value object:
+     *   colorIndex: palette identity
+     *   hollow: solid vs wireframe compatibility
+     *   prismatic: special power-up state
+     *   ringColorIndex: current prismatic secondary color
+     *
+     * IMPORTANT RULE:
+     * Hollow and solid cells are incompatible even when their color matches.
+     */
+
+    class Cell {
+      constructor({
+        colorIndex,
+        hollow = false,
+        prismatic = false,
+        ringColorIndex = null
+      }) {
+        this.colorIndex = colorIndex;
+        this.hollow = hollow;
+        this.prismatic = prismatic;
+        this.ringColorIndex = ringColorIndex;
+      }
+
+      matches(other) {
+        return Boolean(
+          other &&
+          !this.prismatic &&
+          !other.prismatic &&
+          this.colorIndex === other.colorIndex &&
+          this.hollow === other.hollow
+        );
+      }
+    }
+
+    class BoardModel {
+      constructor(level) {
+        this.level = level;
+        this.rows = level.size;
+        this.columns = level.size;
+        this.layout = BoardTemplateFactory.create(
+          level.shape,
+          this.rows,
+          this.columns
+        );
+
+        this.cells = Utils.matrix(this.rows, this.columns, null);
+
+        // OPTIMIZATION: visitation marks are reused across flood fills.
+        this.visitMarks = new Uint32Array(this.rows * this.columns);
+        this.visitGeneration = 0;
+
+        this.populate();
+      }
+
+      populate() {
+        for (let row = 0; row < this.rows; row++) {
+          for (let col = 0; col < this.columns; col++) {
+            if (!this.layout[row][col]) continue;
+
+            this.cells[row][col] = new Cell({
+              colorIndex: Utils.randomInt(this.level.palette.length),
+              hollow: Math.random() < this.level.hollowChance
+            });
+          }
+        }
+      }
+
+      isInside(row, col) {
+        return row >= 0 && row < this.rows && col >= 0 && col < this.columns;
+      }
+
+      getCell(row, col) {
+        return this.isInside(row, col) ? this.cells[row][col] : null;
+      }
+
+      getActiveCells() {
+        const result = [];
+
+        for (let row = 0; row < this.rows; row++) {
+          for (let col = 0; col < this.columns; col++) {
+            if (this.layout[row][col]) {
+              result.push({ row, col });
+            }
+          }
+        }
+
+        return result;
+      }
+
+      nextVisitGeneration() {
+        this.visitGeneration++;
+
+        if (this.visitGeneration >= 0xfffffffe) {
+          this.visitMarks.fill(0);
+          this.visitGeneration = 1;
+        }
+
+        return this.visitGeneration;
+      }
+
+      findConnected(startRow, startCol) {
+        const startCell = this.getCell(startRow, startCol);
+
+        // Prismatic cells activate their power instead of joining chains.
+        if (!startCell || startCell.prismatic) {
+          return [];
+        }
+
+        const generation = this.nextVisitGeneration();
+
+        /*
+         * OPTIMIZATION/CORRECTNESS:
+         * Store one flat cell id per stack entry. A normal JS array is used
+         * deliberately here: duplicate neighbor discoveries can temporarily
+         * make the pending stack larger than rows×columns before visitation
+         * marks are applied. A fixed-size typed stack could silently truncate
+         * valid traversal work.
+         */
+        const stack = [
+          Utils.cellKey(startRow, startCol, this.columns)
+        ];
+
+        const connected = [];
+
+        while (stack.length > 0) {
+          const flat = stack.pop();
+          const row = Math.floor(flat / this.columns);
+          const col = flat % this.columns;
+
+          if (this.visitMarks[flat] === generation) continue;
+          this.visitMarks[flat] = generation;
+
+          const cell = this.cells[row][col];
+
+          if (!cell || !startCell.matches(cell)) {
+            continue;
+          }
+
+          connected.push({ row, col });
+
+          for (const [dr, dc] of DIRECTIONS_8) {
+            const nr = row + dr;
+            const nc = col + dc;
+
+            if (!this.isInside(nr, nc)) continue;
+
+            const neighborFlat =
+              Utils.cellKey(nr, nc, this.columns);
+
+            if (this.visitMarks[neighborFlat] !== generation) {
+              stack.push(neighborFlat);
+            }
+          }
+        }
+
+        return connected;
+      }
+
+      hasValidMoves() {
+        /*
+         * OPTIMIZATION:
+         * - Any prismatic cell is itself a valid move.
+         * - Otherwise only inspect immediate neighbors, not whole components.
+         */
+        for (let row = 0; row < this.rows; row++) {
+          for (let col = 0; col < this.columns; col++) {
+            const cell = this.cells[row][col];
+
+            if (!cell) continue;
+            if (cell.prismatic) return true;
+
+            for (const [dr, dc] of DIRECTIONS_8) {
+              const other = this.getCell(row + dr, col + dc);
+
+              if (cell.matches(other)) {
+                return true;
+              }
+            }
+          }
+        }
+
+        return false;
+      }
+
+      getPrismColorTargets(row, col, colorIndex) {
+        const prism = this.getCell(row, col);
+
+        if (!prism || !prism.prismatic) {
+          return [];
+        }
+
+        const targets = [];
+
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.columns; c++) {
+            const cell = this.cells[r][c];
+
+            if (!cell) continue;
+
+            /*
+             * HOLLOW COMPATIBILITY RULE:
+             * Solid and hollow forms never interact, including prism blasts.
+             */
+            if (
+              cell.hollow === prism.hollow &&
+              cell.colorIndex === colorIndex
+            ) {
+              targets.push({ row: r, col: c });
+            }
+          }
+        }
+
+        return targets;
+      }
+
+      getPrismaticTargets(row, col) {
+        const prism = this.getCell(row, col);
+
+        if (!prism || !prism.prismatic) {
+          return [];
+        }
+
+        const unique = new Map();
+
+        for (const target of this.getPrismColorTargets(
+          row,
+          col,
+          prism.colorIndex
+        )) {
+          unique.set(
+            Utils.cellKey(target.row, target.col, this.columns),
+            target
+          );
+        }
+
+        for (const target of this.getPrismColorTargets(
+          row,
+          col,
+          prism.ringColorIndex
+        )) {
+          unique.set(
+            Utils.cellKey(target.row, target.col, this.columns),
+            target
+          );
+        }
+
+        return [...unique.values()];
+      }
+
+      removeCells(positions) {
+        for (const { row, col } of positions) {
+          this.cells[row][col] = null;
+        }
+      }
+
+      createPrism(row, col, sourceCell) {
+        let ringColorIndex = Utils.randomInt(this.level.palette.length);
+
+        // Prefer a different secondary color when possible.
+        if (this.level.palette.length > 1) {
+          while (ringColorIndex === sourceCell.colorIndex) {
+            ringColorIndex = Utils.randomInt(this.level.palette.length);
+          }
+        }
+
+        this.cells[row][col] = new Cell({
+          colorIndex: sourceCell.colorIndex,
+          hollow: sourceCell.hollow,
+          prismatic: true,
+          ringColorIndex
+        });
+
+        return this.cells[row][col];
+      }
+
+      createShell(row, col, sourceCell) {
+        /*
+         * SHELL DROP:
+         * Preserve color/shape identity while converting the surviving cell
+         * from solid to hollow. No orbiting marker is attached.
+         */
+        this.cells[row][col] = new Cell({
+          colorIndex: sourceCell.colorIndex,
+          hollow: true,
+          prismatic: false,
+          ringColorIndex: null
+        });
+
+        return this.cells[row][col];
+      }
+
+      applyGravity() {
+        const moves = [];
+
+        for (let col = 0; col < this.columns; col++) {
+          const segments = [];
+          let current = [];
+
+          for (let row = 0; row < this.rows; row++) {
+            if (this.layout[row][col]) {
+              current.push(row);
+            } else if (current.length) {
+              segments.push(current);
+              current = [];
+            }
+          }
+
+          if (current.length) {
+            segments.push(current);
+          }
+
+          for (const segment of segments) {
+            const occupants = [];
+
+            for (let i = segment.length - 1; i >= 0; i--) {
+              const row = segment[i];
+              const cell = this.cells[row][col];
+
+              if (cell) {
+                occupants.push({ fromRow: row, cell });
+              }
+            }
+
+            for (const row of segment) {
+              this.cells[row][col] = null;
+            }
+
+            for (let i = 0; i < occupants.length; i++) {
+              const targetRow = segment[segment.length - 1 - i];
+              const occupant = occupants[i];
+
+              this.cells[targetRow][col] = occupant.cell;
+
+              if (targetRow !== occupant.fromRow) {
+                moves.push({
+                  fromRow: occupant.fromRow,
+                  fromCol: col,
+                  toRow: targetRow,
+                  toCol: col
+                });
+              }
+            }
+          }
+        }
+
+        return moves;
+      }
+
+      getEmptyActiveColumns() {
+        const result = [];
+
+        for (let col = 0; col < this.columns; col++) {
+          let active = false;
+          let occupied = false;
+
+          for (let row = 0; row < this.rows; row++) {
+            if (!this.layout[row][col]) continue;
+
+            active = true;
+
+            if (this.cells[row][col]) {
+              occupied = true;
+              break;
+            }
+          }
+
+          if (active && !occupied) {
+            result.push(col);
+          }
+        }
+
+        return result;
+      }
+
+      collapseColumns(emptyColumns) {
+        const emptySet = new Set(emptyColumns);
+        const columnMap = new Map();
+        let targetCol = 0;
+
+        for (let sourceCol = 0; sourceCol < this.columns; sourceCol++) {
+          if (!emptySet.has(sourceCol)) {
+            columnMap.set(sourceCol, targetCol++);
+          }
+        }
+
+        const newLayout = Utils.matrix(this.rows, this.columns, false);
+        const newCells = Utils.matrix(this.rows, this.columns, null);
+
+        for (let row = 0; row < this.rows; row++) {
+          for (const [sourceCol, destinationCol] of columnMap) {
+            newLayout[row][destinationCol] = this.layout[row][sourceCol];
+            newCells[row][destinationCol] = this.cells[row][sourceCol];
+          }
+        }
+
+        this.layout = newLayout;
+        this.cells = newCells;
+
+        return columnMap;
+      }
+    }
+
+    /*
+     * ============================================================
+     * Shared rendering resources (Flyweight)
+     * ============================================================
+     */
+
+    class GeometryFactory {
+      constructor(size) {
+        this.size = size;
+        this.solid = new Map();
+        this.wire = new Map();
+      }
+
+      get(shapeName, hollow) {
+        const cache = hollow ? this.wire : this.solid;
+
+        if (!cache.has(shapeName)) {
+          const base = this.createBaseGeometry(shapeName);
+
+          if (hollow) {
+            /*
+             * HOLLOW PLATONIC SOLID:
+             * EdgesGeometry is the wire-frame equivalent, avoiding the
+             * diagonal artifacts commonly produced by WireframeGeometry.
+             */
+            const edges = new THREE.EdgesGeometry(base);
+            base.dispose();
+            cache.set(shapeName, edges);
+          } else {
+            cache.set(shapeName, base);
+          }
+        }
+
+        return cache.get(shapeName);
+      }
+
+      createBaseGeometry(shapeName) {
+        const s = this.size;
+
+        switch (shapeName) {
+          case 'tetrahedron':
+            return new THREE.TetrahedronGeometry(s * 1.15, 0);
+
+          case 'cube':
+            return new THREE.BoxGeometry(s * 1.55, s * 1.55, s * 1.55);
+
+          case 'octahedron':
+            return new THREE.OctahedronGeometry(s * 1.1, 0);
+
+          case 'dodecahedron':
+            return new THREE.DodecahedronGeometry(s * 0.95, 0);
+
+          case 'icosahedron':
+            return new THREE.IcosahedronGeometry(s, 0);
+
+          case 'sphere':
+          default:
+            return new THREE.SphereGeometry(s, 16, 12);
+        }
+      }
+
+      dispose() {
+        for (const geometry of this.solid.values()) {
+          geometry.dispose();
+        }
+
+        for (const geometry of this.wire.values()) {
+          geometry.dispose();
+        }
+
+        this.solid.clear();
+        this.wire.clear();
+      }
+    }
+
+    class MaterialFactory {
+      constructor() {
+        this.solid = new Map();
+        this.solidHighlighted = new Map();
+        this.hollow = new Map();
+        this.hollowHighlighted = new Map();
+        this.crystalEdge = new Map();
+        this.crystalEdgeHighlighted = new Map();
+
+        // Track cached materials so shared appearance settings remain consistent.
+        this.liveBaseMaterials = new Set();
+        this.settings = {
+          colorIntensity: 0.4,
+          emissive: 0,
+          highlightedEmissive: 0.16,
+          roughness: 0,
+          highlightedRoughness: 0.025,
+          metalness: 0,
+          clearcoat: 1,
+          clearcoatRoughness: 1,
+          transmission: 0.43,
+          thickness: 1.29,
+          ior: 1.68,
+          attenuationDistance: 5.25,
+          opacity: 0.58,
+          highlightedOpacity: 0.98,
+          edgeWhiteMix: 1,
+          edgeOpacity: 0.59,
+          highlightedEdgeOpacity: 0.92,
+
+          // Internal-aura crystal layer: colored light trapped inside the gem.
+        };
+      }
+
+      get(color, hollow, highlighted) {
+        const cache = hollow
+          ? (highlighted ? this.hollowHighlighted : this.hollow)
+          : (highlighted ? this.solidHighlighted : this.solid);
+
+        if (!cache.has(color)) {
+          if (hollow) {
+            cache.set(color, new THREE.LineBasicMaterial({
+              color,
+              transparent: true,
+              opacity: highlighted ? 1.0 : 0.88
+            }));
+          } else {
+            const hsv = this.hexToHsv(color);
+            const material = new THREE.ShaderMaterial({
+              uniforms: {
+                time: { value: 0 },
+                hsv: { value: new THREE.Vector3(hsv.h, 0.65, 0.0) },
+                highlight: { value: highlighted ? 1.0 : 0.0 }
+              },
+              vertexShader: `
+                varying vec3 vPosition;
+                varying vec2 vUv;
+                void main() {
+                  vec4 mPosition = modelMatrix * vec4(position, 1.0);
+                  vPosition = mPosition.xyz;
+                  vUv = uv;
+                  gl_Position = projectionMatrix * viewMatrix * mPosition;
+                }
+              `,
+              fragmentShader: `
+                precision highp float;
+                uniform vec3 hsv;
+                uniform float time;
+                uniform float highlight;
+                varying vec3 vPosition;
+                varying vec2 vUv;
+
+                vec3 hsv2rgb(vec3 c) {
+                  vec3 p = abs(fract(c.xxx + vec3(0.0,2.0/3.0,1.0/3.0))*6.0-3.0);
+                  return c.z * mix(vec3(1.0), clamp(p-1.0,0.0,1.0), c.y);
+                }
+                float hash(vec2 p) {
+                  return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453123);
+                }
+                float noise(vec2 p) {
+                  vec2 i=floor(p), f=fract(p);
+                  f=f*f*(3.0-2.0*f);
+                  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),
+                             mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);
+                }
+                float fog(vec2 uv) {
+                  return (noise(uv*3.5)+0.5*noise(uv*7.0))/1.5;
+                }
+
+                void main() {
+                  vec3 ntex = vec3(
+                    noise(vUv*11.0)-0.5,
+                    noise(vUv*13.0+4.0)-0.5,
+                    noise(vUv*9.0+8.0)-0.5
+                  ) * 0.10;
+
+                  vec3 light = normalize(vec3(-1.0,1.0,-1.0));
+                  vec3 normal = normalize(cross(dFdx(vPosition), dFdy(vPosition)));
+                  float diff = (dot(normalize(normal+ntex), light)+1.0)/2.0;
+
+                  float surface = clamp(
+                    0.45 + 0.55*noise(vUv*4.0) + (diff-0.5)*0.30,
+                    0.0, 1.0
+                  );
+
+                  float f1=fog(vUv+vec2(0.0,time*0.06));
+                  float f2=fog(vUv+vec2(0.0,time*-0.03));
+                  float f3=fog(vUv+vec2(0.0,time*0.03));
+                  float f4=fog(vUv+vec2(0.0,time*-0.06));
+
+                  vec3 h = hsv;
+                  h.x += (f3+f4-1.0)*0.16;
+                  h.y += (1.0-surface)*0.05;
+                  // Keep the body visibly filled. The animated field modulates
+                  // the crystal; it must never erase the base gemstone color.
+                  h.z = clamp(
+                    0.52 +
+                    surface * 0.34 +
+                    (f1 + f2 - 1.0) * 0.16 +
+                    diff * 0.18 +
+                    highlight * 0.10,
+                    0.46,
+                    1.0
+                  );
+
+                  vec3 crystalColor = hsv2rgb(h);
+
+                  // Bright facet response without an external glow.
+                  float facing = pow(
+                    1.0 - abs(dot(normal, normalize(cameraPosition - vPosition))),
+                    2.0
+                  );
+                  crystalColor += vec3(0.16) * facing;
+                  crystalColor += vec3(0.08) * pow(diff, 5.0);
+
+                  gl_FragColor = vec4(crystalColor, 1.0);
+                }
+              `,
+              transparent: false,
+              depthWrite: true,
+              side: THREE.FrontSide,
+              extensions: { derivatives: true }
+            });
+            material.userData.ykobCrystal = true;
+            cache.set(color, material);
+          }
+        }
+        return cache.get(color);
+      }
+
+      hexToHsv(hex) {
+        const c = new THREE.Color(hex);
+        const max=Math.max(c.r,c.g,c.b), min=Math.min(c.r,c.g,c.b), d=max-min;
+        let h=0;
+        if (d) {
+          if (max===c.r) h=((c.g-c.b)/d)%6;
+          else if (max===c.g) h=(c.b-c.r)/d+2;
+          else h=(c.r-c.g)/d+4;
+          h/=6; if(h<0) h+=1;
+        }
+        return {h, s:max?d/max:0, v:max};
+      }
+
+      registerBaseMaterial(material, metadata) {
+        if (!material) return material;
+        material.userData.crystalMeta = metadata;
+        this.liveBaseMaterials.add(material);
+        return material;
+      }
+
+      updateSettings(patch) {
+        Object.assign(this.settings, patch);
+
+        // Update every cached base-gem material from one shared settings object.
+        const getDisplayColor = color => {
+          const base = new THREE.Color(color);
+
+          // Scale RGB in linear space, then clamp to legal display range.
+          base.r = THREE.MathUtils.clamp(
+            base.r * this.settings.colorIntensity,
+            0,
+            1
+          );
+          base.g = THREE.MathUtils.clamp(
+            base.g * this.settings.colorIntensity,
+            0,
+            1
+          );
+          base.b = THREE.MathUtils.clamp(
+            base.b * this.settings.colorIntensity,
+            0,
+            1
+          );
+
+          return base;
+        };
+
+        const updateSolidCache = (cache, highlighted) => {
+          for (const [color, material] of cache.entries()) {
+            const sourceColor = new THREE.Color(color);
+            const displayColor = getDisplayColor(color);
+
+            material.color.copy(displayColor);
+            material.emissive
+              .copy(sourceColor)
+              .multiplyScalar(
+                highlighted
+                  ? this.settings.highlightedEmissive
+                  : this.settings.emissive
+              );
+
+            material.roughness =
+              highlighted
+                ? this.settings.highlightedRoughness
+                : this.settings.roughness;
+            material.metalness = this.settings.metalness;
+            material.clearcoat = this.settings.clearcoat;
+            material.clearcoatRoughness =
+              this.settings.clearcoatRoughness;
+            material.transmission = this.settings.transmission;
+            material.thickness = this.settings.thickness;
+            material.ior = this.settings.ior;
+            material.attenuationColor.copy(sourceColor);
+            material.attenuationDistance =
+              this.settings.attenuationDistance;
+            material.opacity =
+              highlighted
+                ? this.settings.highlightedOpacity
+                : this.settings.opacity;
+
+            material.needsUpdate = true;
+          }
+        };
+
+        const updateHollowCache = (cache, highlighted) => {
+          for (const [color, material] of cache.entries()) {
+            material.color.copy(getDisplayColor(color));
+            material.opacity =
+              highlighted
+                ? this.settings.highlightedOpacity
+                : this.settings.opacity;
+            material.needsUpdate = true;
+          }
+        };
+
+        const updateEdgeCache = (cache, highlighted) => {
+          for (const [color, material] of cache.entries()) {
+            const base = getDisplayColor(color);
+
+            material.color.copy(
+              highlighted
+                ? new THREE.Color(0xffffff)
+                : base.clone().lerp(
+                    new THREE.Color(0xffffff),
+                    this.settings.edgeWhiteMix
+                  )
+            );
+
+            material.opacity =
+              highlighted
+                ? this.settings.highlightedEdgeOpacity
+                : this.settings.edgeOpacity;
+
+            material.needsUpdate = true;
+          }
+        };
+
+        updateSolidCache(this.solid, false);
+        updateSolidCache(this.solidHighlighted, true);
+
+        // Critical fix: wireframe/hollow base gems now receive live changes too.
+        updateHollowCache(this.hollow, false);
+        updateHollowCache(this.hollowHighlighted, true);
+
+        updateEdgeCache(this.crystalEdge, false);
+        updateEdgeCache(this.crystalEdgeHighlighted, true);
+
+        // Synchronize all cached crystal materials from the shared appearance settings.
+        for (const material of this.liveBaseMaterials) {
+          const meta = material.userData?.crystalMeta;
+          if (!meta) continue;
+
+          const color = meta.color;
+          const highlighted = !!meta.highlighted;
+          const sourceColor = new THREE.Color(color);
+          const displayColor = getDisplayColor(color);
+
+          if (meta.kind === 'solid' && material.isMeshPhysicalMaterial) {
+            material.color.copy(displayColor);
+            material.emissive.copy(sourceColor).multiplyScalar(
+              highlighted
+                ? this.settings.highlightedEmissive
+                : this.settings.emissive
+            );
+            material.roughness = highlighted
+              ? this.settings.highlightedRoughness
+              : this.settings.roughness;
+            material.metalness = this.settings.metalness;
+            material.clearcoat = this.settings.clearcoat;
+            material.clearcoatRoughness = this.settings.clearcoatRoughness;
+            material.transmission = this.settings.transmission;
+            material.thickness = this.settings.thickness;
+            material.ior = this.settings.ior;
+            material.attenuationColor.copy(sourceColor);
+            material.attenuationDistance = this.settings.attenuationDistance;
+            material.opacity = highlighted
+              ? this.settings.highlightedOpacity
+              : this.settings.opacity;
+          } else if (meta.kind === 'hollow') {
+            material.color.copy(displayColor);
+            material.opacity = highlighted
+              ? this.settings.highlightedOpacity
+              : this.settings.opacity;
+          } else if (meta.kind === 'edge') {
+            material.color.copy(
+              highlighted
+                ? new THREE.Color(0xffffff)
+                : displayColor.clone().lerp(
+                    new THREE.Color(0xffffff),
+                    this.settings.edgeWhiteMix
+                  )
+            );
+            material.opacity = highlighted
+              ? this.settings.highlightedEdgeOpacity
+              : this.settings.edgeOpacity;
+          } else if (meta.kind === 'aura') {
+            material.color
+              .copy(sourceColor)
+              .multiplyScalar(this.settings.auraBrightness);
+            material.opacity = highlighted
+              ? this.settings.auraHighlightedOpacity
+              : this.settings.auraOpacity;
+          }
+
+          material.needsUpdate = true;
+        }
+      }
+
+      getCrystalEdge(color, highlighted = false) {
+        const cache =
+          highlighted
+            ? this.crystalEdgeHighlighted
+            : this.crystalEdge;
+
+        if (!cache.has(color)) {
+          const base = new THREE.Color(color);
+
+          cache.set(
+            color,
+            new THREE.LineBasicMaterial({
+              color:
+                highlighted
+                  ? 0xffffff
+                  : base.clone().lerp(
+                      new THREE.Color(0xffffff),
+                      this.settings.edgeWhiteMix
+                    ),
+              transparent: true,
+              opacity: highlighted ? this.settings.highlightedEdgeOpacity : this.settings.edgeOpacity,
+              depthWrite: false
+            })
+          );
+        }
+
+        return this.registerBaseMaterial(
+          cache.get(color),
+          {
+            kind: 'edge',
+            color,
+            highlighted
+          }
+        );
+      }
+
+      dispose() {
+        const all = [
+          this.solid,
+          this.solidHighlighted,
+          this.hollow,
+          this.hollowHighlighted,
+          this.crystalEdge,
+          this.crystalEdgeHighlighted
+        ];
+
+        for (const cache of all) {
+          for (const material of cache.values()) {
+            material.dispose();
+          }
+          cache.clear();
+        }
+
+        this.liveBaseMaterials.clear();
+      }
+    }
+
+    class BubbleResourceFactory {
+      constructor(size) {
+        this.geometry = new GeometryFactory(size);
+        this.material = new MaterialFactory();
+      }
+
+      createRenderable(cell, color) {
+        const shapeName = SHAPE_NAMES[cell.colorIndex];
+        const geometry = this.geometry.get(shapeName, cell.hollow);
+        const material = this.material.get(color, cell.hollow, false);
+
+        return cell.hollow
+          ? new THREE.LineSegments(geometry, material)
+          : new THREE.Mesh(geometry, material);
+      }
+
+      getMaterial(cell, color, highlighted) {
+        return this.material.get(color, cell.hollow, highlighted);
+      }
+
+      dispose() {
+        this.geometry.dispose();
+        this.material.dispose();
+      }
+    }
+
+    /*
+     * ============================================================
+     * Bubble / prismatic views
+     * ============================================================
+     */
+
+
+    /*
+     * ============================================================
+     * Orbital Platonic marker
+     * ============================================================
+     * Replaces both ring/torus markers:
+     *
+     * - Golden prize marker: small gold Platonic solid orbiting its host.
+     * - Prismatic marker: small same-form Platonic solid whose color changes.
+     *
+     * TRAIL DESIGN:
+     * Inspired by the reference's moving light emitter + decaying particle
+     * trail, but implemented as a 3D GPU point trail. Each sample owns an age
+     * and color; alpha falls continuously to zero. Trail lifetime is shorter
+     * than one orbital period, guaranteeing the previous trail is gone before
+     * the marker returns to the same angular position.
+     *
+     * RANDOM ORBIT PLANE:
+     * After each complete revolution the marker receives a new random plane.
+     */
+
+    /*
+     * ============================================================
+     * Orbital phase coordinator
+     * ============================================================
+     * DESIGN PATTERN: Mediator/Coordinator.
+     *
+     * All simultaneously active orbiters share one phase allocator. Initial
+     * orbiters are spread evenly through 360 degrees:
+     *
+     *   theta_i = theta_0 + 2*pi*i/N
+     *
+     * Dynamic orbiters are inserted into the largest angular gap so they
+     * maintain the configured minimum angular separation whenever possible.
+     */
+
+    class OrbitalPhaseCoordinator {
+      constructor(
+        minimumSeparation =
+          CONFIG.minimumOrbitalSeparationRadians
+      ) {
+        this.minimumSeparation = minimumSeparation;
+        this.orbiters = new Set();
+        this.globalPhaseOffset =
+          Math.random() * Math.PI * 2;
+      }
+
+      normalize(angle) {
+        const twoPi = Math.PI * 2;
+        return ((angle % twoPi) + twoPi) % twoPi;
+      }
+
+      register(orbiter) {
+        this.orbiters.add(orbiter);
+
+        if (this.orbiters.size === 1) {
+          orbiter.setInitialPhase(
+            this.globalPhaseOffset
+          );
+          return;
+        }
+
+        orbiter.setInitialPhase(
+          this.findLargestGapMidpoint()
+        );
+      }
+
+      unregister(orbiter) {
+        this.orbiters.delete(orbiter);
+      }
+
+      redistributePhases() {
+        const active = [...this.orbiters];
+        const count = active.length;
+
+        if (!count) return;
+
+        this.globalPhaseOffset =
+          Math.random() * Math.PI * 2;
+
+        for (let i = 0; i < count; i++) {
+          active[i].setInitialPhase(
+            this.normalize(
+              this.globalPhaseOffset +
+              (Math.PI * 2 * i) / count
+            )
+          );
+        }
+      }
+
+      findLargestGapMidpoint() {
+        const phases = [...this.orbiters]
+          .map(orbiter => this.normalize(orbiter.phase))
+          .sort((a, b) => a - b);
+
+        if (!phases.length) {
+          return this.globalPhaseOffset;
+        }
+
+        if (phases.length === 1) {
+          return this.normalize(
+            phases[0] + Math.PI
+          );
+        }
+
+        let bestStart = phases[0];
+        let bestGap = -1;
+
+        for (let i = 0; i < phases.length; i++) {
+          const a = phases[i];
+          const b =
+            i === phases.length - 1
+              ? phases[0] + Math.PI * 2
+              : phases[i + 1];
+
+          const gap = b - a;
+
+          if (gap > bestGap) {
+            bestGap = gap;
+            bestStart = a;
+          }
+        }
+
+        const midpoint =
+          this.normalize(bestStart + bestGap / 2);
+
+        /*
+         * If the board is extremely crowded the requested minimum separation
+         * may be mathematically impossible. Largest-gap insertion is still
+         * the maximally separated deterministic choice.
+         */
+        return midpoint;
+      }
+
+      clear() {
+        this.orbiters.clear();
+        this.globalPhaseOffset =
+          Math.random() * Math.PI * 2;
+      }
+    }
+
+    /*
+     * ============================================================
+     * BPM-synchronized, musically reactive orbital Platonic marker
+     * ============================================================
+     *
+     * MOTION AND MUSIC MODULATION ARE EXPLICITLY SEPARATE:
+     *
+     *   BPM/audio clock -> phase
+     *   phase + fixed plane -> position
+     *   360 completion -> next plane
+     *   FFT/transients -> visual modulation only
+     *
+     * Musical events never reset or directly alter orbital phase.
+     */
+
+    class OrbitalMarker {
+      static nextId = 1;
+
+      constructor({
+        parent,
+        geometry,
+        orbitRadius,
+        markerScale = 0.28,
+        initialColor = 0xffd700,
+        audioService,
+        phaseCoordinator,
+        beatsPerOrbit = CONFIG.beatsPerOrbit,
+        speedMultiplier = CONFIG.orbitSpeedMultiplier,
+        colorProvider = null,
+        colorChangeSeconds = null,
+        onColorChange = null
+      }) {
+        this.id = OrbitalMarker.nextId++;
+
+        this.parent = parent;
+        this.audioService = audioService;
+        this.phaseCoordinator = phaseCoordinator;
+
+        this.baseOrbitRadius = orbitRadius;
+        this.baseMarkerScale = markerScale;
+        this.beatsPerOrbit = beatsPerOrbit;
+        this.speedMultiplier = speedMultiplier;
+
+        this.phase = 0;
+        this.revolutionProgress = 0;
+        this.lastAudioTime = null;
+        this.lastTrackToken = null;
+        this.lastFallbackOrbitTime = null;
+
+        this.colorProvider = colorProvider;
+        this.colorChangeSeconds = colorChangeSeconds;
+        this.onColorChange = onColorChange;
+        this.colorAccumulator = 0;
+
+        this.currentColor =
+          new THREE.Color(initialColor);
+
+        this.markerMaterial =
+          new THREE.MeshPhysicalMaterial({
+            color: this.currentColor,
+            emissive:
+              this.currentColor
+                .clone()
+                .multiplyScalar(0.22),
+            roughness: 0.12,
+            metalness: 0.05,
+            reflectivity: 1,
+            clearcoat: 1,
+            clearcoatRoughness: 0.05,
+
+            // ORBIT VISIBILITY: 25% lower opacity than before.
+            transparent: true,
+            opacity: 0.75,
+            flatShading: true
+          });
+
+        this.marker = new THREE.Mesh(
+          geometry,
+          this.markerMaterial
+        );
+
+        parent.add(this.marker);
+
+        /*
+         * Deterministic individual character.
+         * Same music, slightly different constrained sensitivities.
+         */
+        const random =
+          this.createDeterministicRandom(this.id);
+
+        this.character = Object.freeze({
+          pulseSensitivity:
+            0.90 + random() * 0.22,
+          bassWeight:
+            0.88 + random() * 0.22,
+          midWeight:
+            0.88 + random() * 0.22,
+          highWeight:
+            0.88 + random() * 0.22,
+          activityWeight:
+            0.88 + random() * 0.22,
+          trailWeight:
+            0.90 + random() * 0.20,
+          selfRotationWeight:
+            0.90 + random() * 0.20,
+          breathingPhase:
+            random() * Math.PI * 2
+        });
+
+        /*
+         * True 3D orbit represented by a fixed orthonormal X/Y basis.
+         * No accumulated Euler rotations are used for orbital motion.
+         */
+        this.orbitX = new THREE.Vector3();
+        this.orbitY = new THREE.Vector3();
+        this.orbitNormal = new THREE.Vector3();
+        this.tempPosition = new THREE.Vector3();
+        this.tempRadial = new THREE.Vector3();
+        this.tempTangent = new THREE.Vector3();
+        this.tempPreviousTangent = new THREE.Vector3();
+
+        this.chooseInitialOrbitPlane();
+
+        // GPU point trail: position/color/alpha/age/lifetime.
+        this.maxTrailPoints = 56;
+        this.trailPositions =
+          new Float32Array(this.maxTrailPoints * 3);
+        this.trailColors =
+          new Float32Array(this.maxTrailPoints * 3);
+        this.trailAlphas =
+          new Float32Array(this.maxTrailPoints);
+        this.trailAges =
+          new Float32Array(this.maxTrailPoints);
+        this.trailLifetimes =
+          new Float32Array(this.maxTrailPoints);
+
+        this.trailHead = 0;
+        this.sampleAccumulator = 0;
+
+        this.trailGeometry =
+          new THREE.BufferGeometry();
+
+        this.positionAttribute =
+          new THREE.BufferAttribute(
+            this.trailPositions,
+            3
+          );
+
+        this.colorAttribute =
+          new THREE.BufferAttribute(
+            this.trailColors,
+            3
+          );
+
+        this.alphaAttribute =
+          new THREE.BufferAttribute(
+            this.trailAlphas,
+            1
+          );
+
+        this.trailGeometry.setAttribute(
+          'position',
+          this.positionAttribute
+        );
+        this.trailGeometry.setAttribute(
+          'color',
+          this.colorAttribute
+        );
+        this.trailGeometry.setAttribute(
+          'trailAlpha',
+          this.alphaAttribute
+        );
+
+        this.trailMaterial =
+          new THREE.ShaderMaterial({
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            vertexColors: true,
+            uniforms: {
+              uTrailEnergy: { value: 0 },
+              uTrailWidth: { value: 0 }
+            },
+            vertexShader: `
+              attribute float trailAlpha;
+              varying vec3 vColor;
+              varying float vAlpha;
+              uniform float uTrailWidth;
+
+              void main() {
+                vColor = color;
+                vAlpha = trailAlpha;
+
+                vec4 mvPosition =
+                  modelViewMatrix *
+                  vec4(position, 1.0);
+
+                gl_Position =
+                  projectionMatrix *
+                  mvPosition;
+
+                float perspective =
+                  clamp(
+                    220.0 /
+                    max(1.0, -mvPosition.z),
+                    0.8,
+                    8.0
+                  );
+
+                gl_PointSize =
+                  (
+                    2.0 +
+                    4.2 * trailAlpha +
+                    2.5 * uTrailWidth
+                  ) *
+                  perspective;
+              }
+            `,
+            fragmentShader: `
+              varying vec3 vColor;
+              varying float vAlpha;
+              uniform float uTrailEnergy;
+
+              void main() {
+                vec2 centered =
+                  gl_PointCoord -
+                  vec2(0.5);
+
+                float radius =
+                  length(centered);
+
+                if (radius > 0.5) {
+                  discard;
+                }
+
+                float soft =
+                  1.0 -
+                  smoothstep(
+                    0.06,
+                    0.5,
+                    radius
+                  );
+
+                float glow =
+                  soft *
+                  vAlpha *
+                  0.75 *
+                  (1.0 + uTrailEnergy * 0.55);
+
+                gl_FragColor =
+                  vec4(
+                    vColor *
+                    (1.0 + glow * 0.72),
+                    glow
+                  );
+              }
+            `
+          });
+
+        this.trail =
+          new THREE.Points(
+            this.trailGeometry,
+            this.trailMaterial
+          );
+
+        this.trail.frustumCulled = false;
+        parent.add(this.trail);
+
+        this.phaseCoordinator.register(this);
+
+        this.updateMarkerPosition(
+          this.baseOrbitRadius
+        );
+
+        this.spawnTrailSample(
+          this.getCurrentOrbitPeriod()
+        );
+      }
+
+      createDeterministicRandom(seed) {
+        let state =
+          (seed * 2654435761) >>> 0;
+
+        return () => {
+          state ^= state << 13;
+          state ^= state >>> 17;
+          state ^= state << 5;
+          return (
+            (state >>> 0) /
+            4294967296
+          );
+        };
+      }
+
+      setInitialPhase(phase) {
+        this.phase =
+          ((phase % (Math.PI * 2)) +
+          Math.PI * 2) %
+          (Math.PI * 2);
+
+        this.revolutionProgress = 0;
+        this.lastAudioTime = null;
+
+        this.updateMarkerPosition(
+          this.baseOrbitRadius
+        );
+      }
+
+      randomUnitVector() {
+        const vector = new THREE.Vector3();
+
+        do {
+          vector.set(
+            Math.random() * 2 - 1,
+            Math.random() * 2 - 1,
+            Math.random() * 2 - 1
+          );
+        } while (vector.lengthSq() < 0.0001);
+
+        return vector.normalize();
+      }
+
+      chooseInitialOrbitPlane() {
+        this.orbitNormal.copy(
+          this.randomUnitVector()
+        );
+
+        let seed = this.randomUnitVector();
+
+        if (
+          Math.abs(
+            seed.dot(this.orbitNormal)
+          ) > 0.92
+        ) {
+          seed = new THREE.Vector3(
+            this.orbitNormal.y,
+            -this.orbitNormal.x,
+            0.37
+          ).normalize();
+        }
+
+        this.orbitX
+          .copy(seed)
+          .addScaledVector(
+            this.orbitNormal,
+            -seed.dot(this.orbitNormal)
+          )
+          .normalize();
+
+        this.orbitY
+          .crossVectors(
+            this.orbitNormal,
+            this.orbitX
+          )
+          .normalize();
+      }
+
+      chooseContinuousNextOrbitPlane() {
+        /*
+         * CONTINUITY:
+         * The new random plane is forced to pass through the exact current
+         * radial vector. Thus position before and after the 360-degree plane
+         * change is mathematically identical—no teleport or snap.
+         */
+        /*
+         * Compute the radial vector directly from the OLD plane and current
+         * phase. Do not use last frame's rendered marker position because a
+         * large audio-clock delta could otherwise introduce a tiny handoff
+         * discontinuity.
+         */
+        this.tempRadial
+          .copy(this.orbitX)
+          .multiplyScalar(
+            Math.cos(this.phase)
+          )
+          .addScaledVector(
+            this.orbitY,
+            Math.sin(this.phase)
+          )
+          .normalize();
+
+        /*
+         * Preserve forward travel direction through the plane change.
+         * Old derivative direction for increasing phase is:
+         *   T = -X sin(theta) + Y cos(theta)
+         */
+        this.tempPreviousTangent
+          .copy(this.orbitX)
+          .multiplyScalar(
+            -Math.sin(this.phase)
+          )
+          .addScaledVector(
+            this.orbitY,
+            Math.cos(this.phase)
+          )
+          .normalize();
+
+        let randomNormal =
+          this.randomUnitVector();
+
+        randomNormal
+          .addScaledVector(
+            this.tempRadial,
+            -randomNormal.dot(
+              this.tempRadial
+            )
+          );
+
+        if (
+          randomNormal.lengthSq() <
+          0.0001
+        ) {
+          randomNormal.set(
+            -this.tempRadial.y,
+            this.tempRadial.x,
+            0.31
+          );
+        }
+
+        randomNormal.normalize();
+
+        this.tempTangent
+          .crossVectors(
+            randomNormal,
+            this.tempRadial
+          )
+          .normalize();
+
+        /*
+         * NEVER REVERSE:
+         * A random plane normal has two equivalent signs. Choose the sign
+         * whose forward tangent agrees with the previous revolution's
+         * forward tangent.
+         */
+        if (
+          this.tempTangent.dot(
+            this.tempPreviousTangent
+          ) < 0
+        ) {
+          this.tempTangent
+            .multiplyScalar(-1);
+
+          randomNormal
+            .multiplyScalar(-1);
+        }
+
+        /*
+         * Construct X/Y such that:
+         *
+         * R = X*cos(theta) + Y*sin(theta)
+         *
+         * at the current phase theta.
+         */
+        const c = Math.cos(this.phase);
+        const s = Math.sin(this.phase);
+
+        this.orbitX
+          .copy(this.tempRadial)
+          .multiplyScalar(c)
+          .addScaledVector(
+            this.tempTangent,
+            -s
+          )
+          .normalize();
+
+        this.orbitY
+          .copy(this.tempRadial)
+          .multiplyScalar(s)
+          .addScaledVector(
+            this.tempTangent,
+            c
+          )
+          .normalize();
+
+        this.orbitNormal
+          .crossVectors(
+            this.orbitX,
+            this.orbitY
+          )
+          .normalize();
+      }
+
+      getCurrentOrbitPeriod() {
+        const bpm =
+          this.audioService.getTempoBpm();
+
+        if (!bpm || bpm <= 0) {
+          return Infinity;
+        }
+
+        return (
+          this.beatsPerOrbit *
+          60 /
+          (
+            bpm *
+            this.speedMultiplier
+          )
+        );
+      }
+
+      getAngularVelocity() {
+        /*
+         * Music on: orbit remains synchronized to the analyzed track tempo.
+         * Music off: use a steady 120 BPM equivalent so satellites continue
+         * moving instead of freezing with the muted playback clock.
+         */
+        const detectedBpm =
+          this.audioService.getTempoBpm();
+
+        const bpm =
+          detectedBpm > 0
+            ? detectedBpm
+            : 120;
+
+        return (
+          Math.PI *
+          2 *
+          bpm *
+          Math.abs(this.speedMultiplier) /
+          (
+            60 *
+            this.beatsPerOrbit
+          )
+        );
+      }
+
+      consumeAudioClockDelta() {
+        const clock =
+          this.audioService.getMusicClock();
+
+        if (
+          !clock ||
+          !clock.playing ||
+          clock.time == null
+        ) {
+          this.lastAudioTime =
+            clock?.time ?? this.lastAudioTime;
+
+          this.lastTrackToken =
+            clock?.trackToken ??
+            this.lastTrackToken;
+
+          return 0;
+        }
+
+        if (
+          this.lastTrackToken !==
+          clock.trackToken
+        ) {
+          this.lastTrackToken =
+            clock.trackToken;
+          this.lastAudioTime =
+            clock.time;
+          return 0;
+        }
+
+        if (this.lastAudioTime == null) {
+          this.lastAudioTime =
+            clock.time;
+          return 0;
+        }
+
+        let delta =
+          clock.time -
+          this.lastAudioTime;
+
+        /*
+         * HTMLMediaElement loop wraps currentTime back to zero. Translate
+         * that wrap into forward musical time instead of a reverse jump.
+         */
+        if (
+          delta < -0.25 &&
+          clock.duration > 0 &&
+          this.lastAudioTime >
+            clock.duration * 0.75 &&
+          clock.time <
+            clock.duration * 0.25
+        ) {
+          delta =
+            (clock.duration -
+            this.lastAudioTime) +
+            clock.time;
+        }
+
+        this.lastAudioTime =
+          clock.time;
+
+        /*
+         * DIRECTION INVARIANT:
+         * Orbiting solids NEVER reverse. A backward seek or clock anomaly
+         * resets the audio baseline and contributes zero phase movement.
+         * Forward seeks/frame drops remain forward-only and are absorbed as
+         * a larger positive audio-clock delta.
+         */
+        if (delta < 0) {
+          return 0;
+        }
+
+        return delta;
+      }
+
+      setColor(hexColor) {
+        this.currentColor.setHex(hexColor);
+
+        this.markerMaterial.color.copy(
+          this.currentColor
+        );
+      }
+
+      updateColor(deltaSeconds) {
+        if (
+          !this.colorProvider ||
+          !this.colorChangeSeconds
+        ) {
+          return false;
+        }
+
+        this.colorAccumulator +=
+          deltaSeconds;
+
+        if (
+          this.colorAccumulator <
+          this.colorChangeSeconds
+        ) {
+          return false;
+        }
+
+        this.colorAccumulator %=
+          this.colorChangeSeconds;
+
+        const next =
+          this.colorProvider();
+
+        if (next == null) {
+          return false;
+        }
+
+        this.setColor(next);
+
+        if (this.onColorChange) {
+          this.onColorChange(next);
+        }
+
+        return true;
+      }
+
+      updatePhase(deltaSeconds) {
+        const musicClock =
+          this.audioService.getMusicClock();
+
+        const audioDelta =
+          this.consumeAudioClockDelta();
+
+        /*
+         * With music enabled, only the authoritative audio clock advances
+         * phase. With music disabled, a frame-independent render delta keeps
+         * the same forward-only orbital mechanics running at the fallback BPM.
+         */
+        const orbitDelta =
+          this.audioService.musicEnabled
+            ? audioDelta
+            : Math.max(0, deltaSeconds || 0);
+
+        if (!orbitDelta) {
+          return;
+        }
+
+        const omega =
+          this.getAngularVelocity();
+
+        const phaseDelta =
+          Math.abs(omega * orbitDelta);
+
+        if (!phaseDelta) {
+          return;
+        }
+
+        this.phase += phaseDelta;
+        this.revolutionProgress +=
+          Math.abs(phaseDelta);
+
+        const twoPi = Math.PI * 2;
+
+        while (
+          this.revolutionProgress >=
+          twoPi
+        ) {
+          this.revolutionProgress -=
+            twoPi;
+
+          this.phase =
+            ((this.phase % twoPi) +
+            twoPi) %
+            twoPi;
+
+          /*
+           * Plane changes only after a completed 360-degree revolution.
+           */
+          this.chooseContinuousNextOrbitPlane();
+        }
+
+        this.phase =
+          ((this.phase % twoPi) +
+          twoPi) %
+          twoPi;
+      }
+
+      getVisualModulation() {
+        const features =
+          this.audioService.getAudioFeatures();
+
+        const c = this.character;
+
+        const beat =
+          features.beat *
+          c.pulseSensitivity;
+
+        const bass =
+          features.bass *
+          c.bassWeight;
+
+        const lowMid =
+          features.lowMid;
+
+        const mids =
+          features.mid *
+          c.midWeight;
+
+        const highs =
+          features.high *
+          c.highWeight;
+
+        const activity =
+          features.activity *
+          c.activityWeight;
+
+        const sustained =
+          features.sustained;
+
+        const audioTime =
+          this.audioService
+            .getMusicClock()
+            ?.time || 0;
+
+        const breathing =
+          sustained *
+          (
+            0.5 +
+            0.5 *
+            Math.sin(
+              audioTime * 2.1 +
+              c.breathingPhase
+            )
+          );
+
+        const rapidPulse =
+          activity *
+          Math.max(
+            0,
+            Math.sin(
+              audioTime *
+              (12 + activity * 10) +
+              c.breathingPhase
+            )
+          );
+
+        const mapping =
+          ORBIT_REACTIVITY;
+
+        const scale =
+          1 +
+          mapping.scale.beat * beat +
+          mapping.scale.bass * bass +
+          mapping.scale.high * highs +
+          mapping.scale.sustainedBreathing * breathing +
+          mapping.scale.activityPulse * rapidPulse;
+
+        const radial =
+          1 +
+          mapping.radial.bass * bass +
+          mapping.radial.beat * beat;
+
+        const emissive =
+          Utils.clamp(
+            mapping.emissive.base +
+            lowMid * mapping.emissive.lowMid +
+            features.transient *
+              mapping.emissive.transient +
+            highs * mapping.emissive.high,
+            mapping.emissive.base,
+            mapping.emissive.max
+          );
+
+        const selfRotation =
+          (
+            mapping.selfRotation.base +
+            mapping.selfRotation.mid * mids +
+            mapping.selfRotation.activity * activity +
+            mapping.selfRotation.high * highs
+          ) *
+          c.selfRotationWeight;
+
+        const trailEnergy =
+          Utils.clamp(
+            (
+              lowMid *
+                mapping.trailEnergy.lowMid +
+              highs *
+                mapping.trailEnergy.high +
+              activity *
+                mapping.trailEnergy.activity +
+              features.transient *
+                mapping.trailEnergy.transient
+            ) *
+            c.trailWeight,
+            0,
+            1
+          );
+
+        const trailWidth =
+          Utils.clamp(
+            (
+              lowMid *
+                mapping.trailWidth.lowMid +
+              beat *
+                mapping.trailWidth.beat +
+              activity *
+                mapping.trailWidth.activity
+            ) *
+            c.trailWeight,
+            0,
+            1
+          );
+
+        return {
+          scale,
+          radial,
+          emissive,
+          selfRotation,
+          trailEnergy,
+          trailWidth
+        };
+      }
+
+      updateMarkerPosition(
+        orbitRadius
+      ) {
+        const c =
+          Math.cos(this.phase);
+
+        const s =
+          Math.sin(this.phase);
+
+        this.tempPosition
+          .copy(this.orbitX)
+          .multiplyScalar(
+            orbitRadius * c
+          )
+          .addScaledVector(
+            this.orbitY,
+            orbitRadius * s
+          );
+
+        this.marker.position.copy(
+          this.tempPosition
+        );
+      }
+
+      spawnTrailSample(
+        orbitPeriod,
+        modulation
+      ) {
+        const index =
+          this.trailHead;
+
+        const p =
+          index * 3;
+
+        this.trailPositions[p] =
+          this.marker.position.x;
+        this.trailPositions[p + 1] =
+          this.marker.position.y;
+        this.trailPositions[p + 2] =
+          this.marker.position.z;
+
+        /*
+         * Prismatic marker trails preserve the emitter color at sample time,
+         * producing a true multicolor history when the marker changes color.
+         */
+        this.trailColors[p] =
+          this.currentColor.r;
+        this.trailColors[p + 1] =
+          this.currentColor.g;
+        this.trailColors[p + 2] =
+          this.currentColor.b;
+
+        this.trailAlphas[index] =
+          Utils.clamp(
+            0.72 +
+            (modulation?.trailEnergy || 0) *
+            0.28,
+            0,
+            1
+          );
+
+        this.trailAges[index] = 0;
+
+        /*
+         * Hard invariant: lifetime is always less than one orbit period.
+         */
+        this.trailLifetimes[index] =
+          Number.isFinite(orbitPeriod)
+            ? Math.max(
+                0.08,
+                orbitPeriod *
+                CONFIG.trailOrbitFraction
+              )
+            : 0.8;
+
+        this.trailHead =
+          (this.trailHead + 1) %
+          this.maxTrailPoints;
+      }
+
+      updateTrail(
+        deltaSeconds,
+        currentOrbitPeriod
+      ) {
+        const currentMaximum =
+          Number.isFinite(
+            currentOrbitPeriod
+          )
+            ? currentOrbitPeriod *
+              CONFIG.trailOrbitFraction
+            : Infinity;
+
+        for (
+          let i = 0;
+          i < this.maxTrailPoints;
+          i++
+        ) {
+          if (
+            this.trailAlphas[i] <= 0
+          ) {
+            continue;
+          }
+
+          /*
+           * If BPM rises, shorten existing samples too. This preserves the
+           * "never catch your own visible trail" invariant after tempo change.
+           */
+          this.trailLifetimes[i] =
+            Math.min(
+              this.trailLifetimes[i],
+              currentMaximum
+            );
+
+          this.trailAges[i] +=
+            deltaSeconds;
+
+          const lifetime =
+            this.trailLifetimes[i];
+
+          const life =
+            lifetime > 0
+              ? 1 -
+                this.trailAges[i] /
+                lifetime
+              : 0;
+
+          this.trailAlphas[i] =
+            life > 0
+              ? Math.pow(
+                  life,
+                  1.58
+                )
+              : 0;
+        }
+
+        this.alphaAttribute.needsUpdate =
+          true;
+      }
+
+      update(deltaSeconds) {
+        const ringChanged =
+          this.updateColor(deltaSeconds);
+
+        /*
+         * Music-enabled phase follows the audio clock. When music is disabled,
+         * updatePhase() intentionally falls back to frame-independent delta time.
+         */
+        this.updatePhase(deltaSeconds);
+
+        const modulation =
+          this.getVisualModulation();
+
+        const orbitPeriod =
+          this.getCurrentOrbitPeriod();
+
+        const effectiveRadius =
+          this.baseOrbitRadius *
+          modulation.radial;
+
+        this.updateMarkerPosition(
+          effectiveRadius
+        );
+
+        // Temporary scale modulation; base size remains immutable.
+        this.marker.scale.setScalar(
+          this.baseMarkerScale *
+          modulation.scale
+        );
+
+        this.marker.rotation.x +=
+          deltaSeconds *
+          modulation.selfRotation *
+          0.75;
+
+        this.marker.rotation.y +=
+          deltaSeconds *
+          modulation.selfRotation;
+
+        this.marker.rotation.z +=
+          deltaSeconds *
+          modulation.selfRotation *
+          0.45;
+
+        this.markerMaterial.emissive
+          .copy(this.currentColor)
+          .multiplyScalar(
+            modulation.emissive
+          );
+
+        this.trailMaterial.uniforms
+          .uTrailEnergy.value =
+          modulation.trailEnergy;
+
+        this.trailMaterial.uniforms
+          .uTrailWidth.value =
+          modulation.trailWidth;
+
+        /*
+         * Sample in render time because the trail is a visual history of the
+         * actual rendered 3D trajectory. Lifetime remains bounded by BPM.
+         */
+        const sampleInterval =
+          Number.isFinite(orbitPeriod)
+            ? Math.min(
+                0.034,
+                (
+                  orbitPeriod *
+                  CONFIG.trailOrbitFraction
+                ) /
+                this.maxTrailPoints
+              )
+            : 0.034;
+
+        this.sampleAccumulator +=
+          deltaSeconds;
+
+        while (
+          this.sampleAccumulator >=
+          sampleInterval
+        ) {
+          this.sampleAccumulator -=
+            sampleInterval;
+
+          this.spawnTrailSample(
+            orbitPeriod,
+            modulation
+          );
+        }
+
+        this.updateTrail(
+          deltaSeconds,
+          orbitPeriod
+        );
+
+        this.positionAttribute.needsUpdate =
+          true;
+        this.colorAttribute.needsUpdate =
+          true;
+
+        return ringChanged;
+      }
+
+      dispose() {
+        this.phaseCoordinator.unregister(
+          this
+        );
+
+        this.parent.remove(this.marker);
+        this.parent.remove(this.trail);
+
+        this.markerMaterial.dispose();
+        this.trailGeometry.dispose();
+        this.trailMaterial.dispose();
+      }
+    }
+
+    class BubbleView {
+      constructor(
+        resourceFactory,
+        cell,
+        palette,
+        row,
+        col,
+        position,
+        audioService,
+        phaseCoordinator
+      ) {
+        this.resourceFactory = resourceFactory;
+        this.cell = cell;
+        this.palette = palette;
+        this.row = row;
+        this.col = col;
+        this.shapeName = SHAPE_NAMES[cell.colorIndex];
+        this.audioService = audioService;
+        this.phaseCoordinator = phaseCoordinator;
+
+        this.root = new THREE.Group();
+        this.root.position.copy(position);
+
+        /*
+         * FACET ROTATION:
+         * Every solid/wireframe rotates independently so the crystal faces
+         * continually catch the key/rim lights.
+         */
+        this.rotationVelocity = new THREE.Vector3(
+          0.18 + Math.random() * 0.18,
+          0.24 + Math.random() * 0.22,
+          0.12 + Math.random() * 0.16
+        );
+
+        this.primaryObject = resourceFactory.createRenderable(
+          cell,
+          palette[cell.colorIndex]
+        );
+
+        this.root.add(this.primaryObject);
+
+        /*
+         * Facet-highlight overlay gives base gems the bright cut-stone edges
+         * visible in the visual target without adding an outer glow.
+         */
+        this.crystalEdges = null;
+
+        if (!cell.hollow) {
+          const edgeGeometry =
+            new THREE.EdgesGeometry(
+              resourceFactory.geometry.get(
+                this.shapeName,
+                false
+              ),
+              18
+            );
+
+          this.crystalEdges =
+            new THREE.LineSegments(
+              edgeGeometry,
+              resourceFactory.material.getCrystalEdge(
+                palette[cell.colorIndex],
+                false
+              )
+            );
+
+          this.crystalEdges.scale.setScalar(1.008);
+          this.root.add(this.crystalEdges);
+
+
+        }
+
+        // Direct picking metadata.
+        this.primaryObject.userData.bubbleView = this;
+        this.root.userData.bubbleView = this;
+
+        this.prismOrbiter = null;
+
+        if (cell.prismatic) {
+          this.createPrismOrbiter();
+        }
+      }
+
+      createPrismOrbiter() {
+        const geometry =
+          this.resourceFactory.geometry.get(
+            this.shapeName,
+            false
+          );
+
+        this.prismOrbiter = new OrbitalMarker({
+          parent: this.root,
+          geometry,
+          orbitRadius:
+            this.resourceFactory.geometry.size * 1.72,
+          markerScale: 0.30,
+          initialColor:
+            this.palette[this.cell.ringColorIndex],
+          audioService: this.audioService,
+          phaseCoordinator: this.phaseCoordinator,
+          beatsPerOrbit: CONFIG.beatsPerOrbit,
+          speedMultiplier: CONFIG.orbitSpeedMultiplier,
+          colorChangeSeconds:
+            CONFIG.prismRingChangeSeconds,
+
+          colorProvider: () => {
+            let next =
+              Utils.randomInt(this.palette.length);
+
+            if (this.palette.length > 1) {
+              while (
+                next === this.cell.ringColorIndex ||
+                next === this.cell.colorIndex
+              ) {
+                next =
+                  Utils.randomInt(this.palette.length);
+              }
+            }
+
+            this.cell.ringColorIndex = next;
+            return this.palette[next];
+          }
+        });
+
+        this.prismOrbiter.marker.userData.bubbleView =
+          this;
+      }
+
+      setHighlighted(highlighted) {
+        this.primaryObject.material = this.resourceFactory.getMaterial(
+          this.cell,
+          this.palette[this.cell.colorIndex],
+          highlighted
+        );
+
+        if (this.crystalEdges) {
+          this.crystalEdges.material =
+            this.resourceFactory.material.getCrystalEdge(
+              this.palette[this.cell.colorIndex],
+              highlighted
+            );
+        }
+      }
+
+      popIn(delay = 0) {
+        this.root.scale.setScalar(0);
+
+        new TWEEN.Tween(this.root.scale)
+          .to({ x: 1.18, y: 1.18, z: 1.18 }, 270)
+          .delay(delay)
+          .easing(TWEEN.Easing.Back.Out)
+          .onComplete(() => {
+            new TWEEN.Tween(this.root.scale)
+              .to({ x: 1, y: 1, z: 1 }, 170)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start();
+          })
+          .start();
+      }
+
+      popOut(delay, onComplete) {
+        new TWEEN.Tween(this.root.scale)
+          .to({ x: 1.35, y: 1.35, z: 1.35 }, 150)
+          .delay(delay)
+          .easing(TWEEN.Easing.Back.In)
+          .onComplete(() => {
+            new TWEEN.Tween(this.root.scale)
+              .to({ x: 0, y: 0, z: 0 }, 170)
+              .easing(TWEEN.Easing.Back.In)
+              .onComplete(onComplete)
+              .start();
+          })
+          .start();
+      }
+
+      update(deltaSeconds) {
+        /*
+         * Rotation is purely visual and independent of BPM/orbital phase.
+         */
+        const rx =
+          this.rotationVelocity.x * deltaSeconds;
+        const ry =
+          this.rotationVelocity.y * deltaSeconds;
+        const rz =
+          this.rotationVelocity.z * deltaSeconds;
+
+        this.primaryObject.rotation.x += rx;
+        this.primaryObject.rotation.y += ry;
+        this.primaryObject.rotation.z += rz;
+
+        if (this.crystalEdges) {
+          this.crystalEdges.rotation.x += rx;
+          this.crystalEdges.rotation.y += ry;
+          this.crystalEdges.rotation.z += rz;
+        }
+
+        if (
+          !this.cell.prismatic ||
+          !this.prismOrbiter
+        ) {
+          return false;
+        }
+
+        return this.prismOrbiter.update(
+          deltaSeconds
+        );
+      }
+
+      disposeUniqueResources() {
+        // Shared primary geometry/material are disposed by flyweight factory.
+        if (this.crystalEdges) {
+          this.crystalEdges.geometry.dispose();
+          this.crystalEdges = null;
+        }
+
+
+        if (this.prismOrbiter) {
+          this.prismOrbiter.dispose();
+          this.prismOrbiter = null;
+        }
+      }
+    }
+
+    /*
+     * ============================================================
+     * Prize views / manager
+     * ============================================================
+     */
+
+    class PrizeView {
+      constructor({
+        position,
+        geometry,
+        orbitRadius,
+        hostColor,
+        audioService,
+        phaseCoordinator
+      }) {
+        this.root = new THREE.Group();
+        this.root.position.copy(position);
+
+        /*
+         * REGULAR PRIZE MARKER:
+         * The former golden torus is now a miniature gold Platonic solid of
+         * the same shape as its host, with an additive fading light trail.
+         */
+        this.orbiter = new OrbitalMarker({
+          parent: this.root,
+          geometry,
+          orbitRadius,
+          markerScale: 0.27,
+          initialColor: hostColor,
+          audioService,
+          phaseCoordinator,
+          beatsPerOrbit: CONFIG.beatsPerOrbit,
+          speedMultiplier: CONFIG.orbitSpeedMultiplier
+        });
+      }
+
+      update(deltaSeconds) {
+        this.orbiter.update(deltaSeconds);
+      }
+
+      dispose() {
+        this.orbiter.dispose();
+      }
+    }
+
+    class PrizeManager {
+      constructor(
+        group,
+        columns,
+        bubbleSize,
+        resourceFactory,
+        palette,
+        audioService,
+        phaseCoordinator
+      ) {
+        this.group = group;
+        this.columns = columns;
+        this.bubbleSize = bubbleSize;
+        this.resourceFactory = resourceFactory;
+        this.palette = palette;
+        this.audioService = audioService;
+        this.phaseCoordinator = phaseCoordinator;
+        this.prizes = [];
+        this.byCell = new Map();
+      }
+
+      key(row, col) {
+        return Utils.cellKey(row, col, this.columns);
+      }
+
+      get(row, col) {
+        return this.byCell.get(
+          this.key(row, col)
+        ) || null;
+      }
+
+      create(row, col, position, cell) {
+        const shapeName =
+          SHAPE_NAMES[cell.colorIndex];
+
+        const geometry =
+          this.resourceFactory.geometry.get(
+            shapeName,
+            false
+          );
+
+        const prize = {
+          row,
+          col,
+          collected: false,
+          view: new PrizeView({
+            position,
+            geometry,
+            orbitRadius:
+              this.bubbleSize * 1.72,
+            hostColor:
+              this.palette[cell.colorIndex],
+            audioService:
+              this.audioService,
+            phaseCoordinator:
+              this.phaseCoordinator
+          })
+        };
+
+        this.prizes.push(prize);
+        this.byCell.set(this.key(row, col), prize);
+        this.group.add(prize.view.root);
+      }
+
+      collect(row, col, particleSystem) {
+        const prize = this.byCell.get(this.key(row, col));
+
+        if (!prize || prize.collected) {
+          return false;
+        }
+
+        prize.collected = true;
+        this.byCell.delete(this.key(row, col));
+
+        particleSystem.createPrizeExplosion(
+          prize.view.root.position,
+          2.2
+        );
+
+        new TWEEN.Tween(prize.view.root.scale)
+          .to({ x: 1.8, y: 1.8, z: 1.8 }, 220)
+          .easing(TWEEN.Easing.Back.In)
+          .onComplete(() => {
+            prize.view.root.visible = false;
+          })
+          .start();
+
+        return true;
+      }
+
+      allCollected() {
+        return this.prizes.length > 0 &&
+          this.prizes.every(prize => prize.collected);
+      }
+
+      update(deltaSeconds) {
+        for (const prize of this.prizes) {
+          if (!prize.collected && prize.view.root.visible) {
+            prize.view.update(deltaSeconds);
+          }
+        }
+      }
+
+      moveWithBubbleMoves(moves, worldPositionForCell) {
+        const bySource = new Map();
+
+        for (const move of moves) {
+          bySource.set(
+            this.key(move.fromRow, move.fromCol),
+            move
+          );
+        }
+
+        for (const prize of this.prizes) {
+          if (prize.collected) continue;
+
+          const move = bySource.get(this.key(prize.row, prize.col));
+
+          if (!move) continue;
+
+          prize.row = move.toRow;
+          prize.col = move.toCol;
+
+          const target = worldPositionForCell(prize.row, prize.col);
+
+          new TWEEN.Tween(prize.view.root.position)
+            .to({ y: target.y }, 300)
+            .easing(TWEEN.Easing.Elastic.Out)
+            .start();
+        }
+
+        this.reindex();
+      }
+
+      collapseColumns(columnMap, removedColumns, worldPositionForCell) {
+        const removed = new Set(removedColumns);
+
+        for (const prize of this.prizes) {
+          if (prize.collected) continue;
+
+          if (removed.has(prize.col)) {
+            prize.collected = true;
+            prize.view.root.visible = false;
+            continue;
+          }
+
+          const newCol = columnMap.get(prize.col);
+
+          if (newCol === undefined) continue;
+
+          prize.col = newCol;
+          const target = worldPositionForCell(prize.row, prize.col);
+
+          new TWEEN.Tween(prize.view.root.position)
+            .to({ x: target.x }, 480)
+            .easing(TWEEN.Easing.Elastic.Out)
+            .start();
+        }
+
+        this.reindex();
+      }
+
+      reindex() {
+        this.byCell.clear();
+
+        for (const prize of this.prizes) {
+          if (!prize.collected) {
+            this.byCell.set(this.key(prize.row, prize.col), prize);
+          }
+        }
+      }
+
+      dispose() {
+        for (const prize of this.prizes) {
+          this.group.remove(prize.view.root);
+          prize.view.dispose();
+        }
+
+        this.prizes.length = 0;
+        this.byCell.clear();
+      }
+    }
+
+    /*
+     * ============================================================
+     * Optimized starfield
+     * ============================================================
+     * One THREE.Points object replaces 800 independent star meshes.
+     */
+
+    class Starfield {
+      constructor(scene, count = CONFIG.starCount) {
+        this.scene = scene;
+        this.count = count;
+        this.minZ = -50;
+        this.maxZ = 1000;
+
+        this.positions = new Float32Array(count * 3);
+        this.colors = new Float32Array(count * 3);
+        this.speeds = new Float32Array(count);
+
+        const palette = [
+          new THREE.Color(0x8888ff),
+          new THREE.Color(0xff8888),
+          new THREE.Color(0x88ff88),
+          new THREE.Color(0xffff88),
+          new THREE.Color(0xff88ff),
+          new THREE.Color(0x88ffff),
+          new THREE.Color(0xffffff)
+        ];
+
+        for (let i = 0; i < count; i++) {
+          const p = i * 3;
+          const radius = 30 + Math.random() * 50;
+          const theta = Math.random() * Math.PI * 2;
+          const color = palette[Utils.randomInt(palette.length)];
+
+          this.positions[p] = Math.cos(theta) * radius;
+          this.positions[p + 1] = Math.sin(theta) * radius;
+          this.positions[p + 2] =
+            this.minZ + Math.random() * (this.maxZ - this.minZ);
+
+          this.colors[p] = color.r;
+          this.colors[p + 1] = color.g;
+          this.colors[p + 2] = color.b;
+
+          this.speeds[i] = 12 + Math.random() * 36;
+        }
+
+        this.geometry = new THREE.BufferGeometry();
+        this.geometry.setAttribute(
+          'position',
+          new THREE.BufferAttribute(this.positions, 3)
+        );
+        this.geometry.setAttribute(
+          'color',
+          new THREE.BufferAttribute(this.colors, 3)
+        );
+
+        this.material = new THREE.PointsMaterial({
+          size: 0.1,
+          transparent: true,
+          opacity: 0.7,
+          vertexColors: true,
+          sizeAttenuation: true,
+          depthWrite: false
+        });
+
+        this.points = new THREE.Points(this.geometry, this.material);
+        this.points.frustumCulled = false;
+        scene.add(this.points);
+      }
+
+      update(deltaSeconds) {
+        for (let i = 0; i < this.count; i++) {
+          const z = i * 3 + 2;
+          this.positions[z] -= this.speeds[i] * deltaSeconds;
+
+          if (this.positions[z] < this.minZ) {
+            this.positions[z] = this.maxZ;
+          }
+        }
+
+        this.geometry.attributes.position.needsUpdate = true;
+      }
+    }
+
+    /*
+     * ============================================================
+     * Object-pooled particle system
+     * ============================================================
+     */
+
+    class ParticleSystem {
+      constructor(group, camera) {
+        this.group = group;
+        this.camera = camera;
+        this.cameraBase = camera.position.clone();
+
+        this.shared = {
+          tetrahedron: new THREE.TetrahedronGeometry(1, 0),
+          cube: new THREE.BoxGeometry(1.5, 1.5, 1.5),
+          octahedron: new THREE.OctahedronGeometry(1, 0),
+          dodecahedron: new THREE.DodecahedronGeometry(1, 0),
+          icosahedron: new THREE.IcosahedronGeometry(1, 0),
+          sphere: new THREE.SphereGeometry(1, 8, 6)
+        };
+
+        this.pool = [];
+        this.next = 0;
+        this.shakeRemaining = 0;
+        this.shakeIntensity = 0;
+
+        for (let i = 0; i < CONFIG.particlePoolSize; i++) {
+          const material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            depthWrite: false
+          });
+
+          const mesh = new THREE.Mesh(this.shared.sphere, material);
+          mesh.visible = false;
+          group.add(mesh);
+
+          this.pool.push({
+            mesh,
+            active: false,
+            velocity: new THREE.Vector3(),
+            angular: new THREE.Vector3(),
+            life: 0,
+            maxLife: 1,
+            gravity: -3,
+            scale: 0.05
+          });
+        }
+      }
+
+      acquire() {
+        for (let step = 0; step < this.pool.length; step++) {
+          const index = (this.next + step) % this.pool.length;
+          const particle = this.pool[index];
+
+          if (!particle.active) {
+            this.next = (index + 1) % this.pool.length;
+            particle.active = true;
+            particle.mesh.visible = true;
+            return particle;
+          }
+        }
+
+        const particle = this.pool[this.next];
+        this.next = (this.next + 1) % this.pool.length;
+        particle.active = true;
+        particle.mesh.visible = true;
+        return particle;
+      }
+
+      emit(position, color, shapeName, velocity, scale, life, gravity) {
+        const particle = this.acquire();
+
+        particle.mesh.geometry = this.shared[shapeName] || this.shared.sphere;
+        particle.mesh.position.copy(position);
+        particle.mesh.material.color.setHex(color);
+        particle.mesh.material.opacity = 1;
+        particle.mesh.scale.setScalar(scale);
+
+        particle.velocity.copy(velocity);
+        particle.angular.set(
+          (Math.random() - 0.5) * 8,
+          (Math.random() - 0.5) * 8,
+          (Math.random() - 0.5) * 8
+        );
+
+        particle.scale = scale;
+        particle.life = life;
+        particle.maxLife = life;
+        particle.gravity = gravity;
+      }
+
+      createBubbleExplosion(position, color, intensity, shapeName) {
+        const count = Math.floor(11 * intensity);
+
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = (1.8 + Math.random() * 3.8) * intensity;
+          const elevation = (Math.random() - 0.5) * Math.PI * 0.7;
+
+          this.emit(
+            position,
+            color,
+            shapeName,
+            new THREE.Vector3(
+              Math.cos(angle) * Math.cos(elevation) * speed,
+              Math.sin(elevation) * speed,
+              Math.sin(angle) * Math.cos(elevation) * speed
+            ),
+            0.04 + Math.random() * 0.065,
+            0.8 + Math.random() * 0.55,
+            -3.6
+          );
+        }
+      }
+
+      createPrizeExplosion(position, intensity) {
+        const count = Math.floor(18 * intensity);
+
+        for (let i = 0; i < count; i++) {
+          const angle = (i / count) * Math.PI * 4;
+          const speed = 1.5 + Math.random() * 2.5;
+
+          this.emit(
+            position,
+            0xffd700,
+            'sphere',
+            new THREE.Vector3(
+              Math.cos(angle) * speed,
+              2 + Math.random() * 3,
+              Math.sin(angle) * speed
+            ),
+            0.025 + Math.random() * 0.04,
+            1 + Math.random() * 0.6,
+            -2.8
+          );
+        }
+
+        this.addShake(intensity * 0.25);
+      }
+
+      addShake(intensity) {
+        this.shakeIntensity = Math.max(this.shakeIntensity, intensity);
+        this.shakeRemaining = Math.max(this.shakeRemaining, 0.28);
+      }
+
+      update(deltaSeconds) {
+        for (const particle of this.pool) {
+          if (!particle.active) continue;
+
+          particle.life -= deltaSeconds;
+
+          if (particle.life <= 0) {
+            particle.active = false;
+            particle.mesh.visible = false;
+            continue;
+          }
+
+          particle.velocity.y += particle.gravity * deltaSeconds;
+          particle.velocity.multiplyScalar(Math.pow(0.24, deltaSeconds));
+
+          particle.mesh.position.addScaledVector(
+            particle.velocity,
+            deltaSeconds
+          );
+
+          particle.mesh.rotation.x += particle.angular.x * deltaSeconds;
+          particle.mesh.rotation.y += particle.angular.y * deltaSeconds;
+          particle.mesh.rotation.z += particle.angular.z * deltaSeconds;
+
+          const ratio = particle.life / particle.maxLife;
+          particle.mesh.material.opacity = Utils.clamp(ratio * 1.3, 0, 1);
+          particle.mesh.scale.setScalar(
+            particle.scale * Math.max(0.08, ratio)
+          );
+        }
+
+        this.updateShake(deltaSeconds);
+      }
+
+      updateShake(deltaSeconds) {
+        if (this.shakeRemaining <= 0) {
+          this.camera.position.copy(this.cameraBase);
+          return;
+        }
+
+        this.shakeRemaining -= deltaSeconds;
+        const amount =
+          this.shakeIntensity *
+          Utils.clamp(this.shakeRemaining / 0.28, 0, 1);
+
+        this.camera.position.set(
+          this.cameraBase.x + (Math.random() - 0.5) * amount,
+          this.cameraBase.y + (Math.random() - 0.5) * amount,
+          this.cameraBase.z + (Math.random() - 0.5) * amount * 0.4
+        );
+
+        if (this.shakeRemaining <= 0) {
+          this.camera.position.copy(this.cameraBase);
+          this.shakeIntensity = 0;
+        }
+      }
+
+      clear() {
+        for (const particle of this.pool) {
+          particle.active = false;
+          particle.mesh.visible = false;
+        }
+
+        this.shakeRemaining = 0;
+        this.shakeIntensity = 0;
+        this.camera.position.copy(this.cameraBase);
+      }
+    }
+
+    /*
+     * ============================================================
+     * Hover connection pool
+     * ============================================================
+     */
+
+    class TubePool {
+      constructor(group) {
+        this.group = group;
+        this.geometry = new THREE.CylinderGeometry(1, 1, 1, 6, 1, true);
+        this.material = new THREE.MeshPhongMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.6,
+          depthWrite: false
+        });
+
+        this.meshes = [];
+        this.activeCount = 0;
+        this.yAxis = new THREE.Vector3(0, 1, 0);
+        this.direction = new THREE.Vector3();
+        this.midpoint = new THREE.Vector3();
+
+        for (let i = 0; i < CONFIG.tubePoolSize; i++) {
+          const mesh = new THREE.Mesh(this.geometry, this.material);
+          mesh.visible = false;
+          group.add(mesh);
+          this.meshes.push(mesh);
+        }
+      }
+
+      begin(color) {
+        this.clear();
+        this.material.color.setHex(color);
+      }
+
+      add(start, end, radius) {
+        if (this.activeCount >= this.meshes.length) return;
+
+        const mesh = this.meshes[this.activeCount++];
+        mesh.visible = true;
+
+        this.direction.subVectors(end, start);
+        const distance = this.direction.length();
+
+        this.midpoint.copy(start).add(end).multiplyScalar(0.5);
+        mesh.position.copy(this.midpoint);
+        mesh.quaternion.setFromUnitVectors(
+          this.yAxis,
+          this.direction.normalize()
+        );
+
+        mesh.scale.set(radius, distance, radius);
+      }
+
+      clear() {
+        for (let i = 0; i < this.activeCount; i++) {
+          this.meshes[i].visible = false;
+        }
+        this.activeCount = 0;
+      }
+    }
+
+    /*
+     * ============================================================
+     * DOM score effects
+     * ============================================================
+     */
+
+    class ScoreEffects {
+      constructor(layer, camera) {
+        this.layer = layer;
+        this.camera = camera;
+        this.projected = new THREE.Vector3();
+      }
+
+      show(position, text, scale = 1, bonus = false) {
+        this.projected.copy(position).project(this.camera);
+
+        const x =
+          (this.projected.x * 0.5 + 0.5) * window.innerWidth;
+        const y =
+          (-this.projected.y * 0.5 + 0.5) * window.innerHeight;
+
+        const node = document.createElement('div');
+        node.className = `score-popup${bonus ? ' bonus' : ''}`;
+        node.textContent = text;
+        node.style.left = `${x}px`;
+        node.style.top = `${y}px`;
+        node.style.fontSize = `${Math.round(25 * scale)}px`;
+
+        this.layer.appendChild(node);
+        node.addEventListener('animationend', () => node.remove(), {
+          once: true
+        });
+      }
+
+      clear() {
+        this.layer.replaceChildren();
+      }
+    }
+
+
+    /*
+     * ============================================================
+     * Audio service
+     * ============================================================
+     * SOLID:
+     * All sound/music policy lives here instead of being coupled to board
+     * rules or rendering.
+     *
+     * - Shape elimination sounds are synthesized with Web Audio, so no
+     *   external gem-effect files are required.
+     * - Fun-phrase WAV files are optional stingers.
+     * - Level music cross-level selection never repeats the prior track.
+     * - Music fades use Web Audio GainNode automation for smooth 3s ramps.
+     */
+
+    class AudioService {
+      constructor() {
+        this.context = null;
+        this.masterGain = null;
+        this.effectsGain = null;
+
+        this.musicEnabled = true;
+        this.orientationPaused = false;
+
+        this.currentMusic = null;
+        this.currentMusicTrack = null;
+        this.currentTrackToken = 0;
+        this.currentMusicSource = null;
+        this.currentMusicGain = null;
+
+        this.analyser = null;
+        this.frequencyData = null;
+        this.waveformData = null;
+        this.previousSpectrum = null;
+
+        this.pendingOutcome = null;
+        this.outcomeTimer = null;
+
+        this.musicFadeSeconds = 3;
+        this.musicVolume = 0.28;
+        this.effectsVolume = 0.48;
+
+        this.lastAnalysisClock = null;
+        this.previousRawRms = 0;
+        this.previousRawBass = 0;
+
+        this.recentOnsets = [];
+        this.beatIntervals = [];
+        this.lastBeatTime = null;
+        this.bpmEstimate = null;
+
+        /*
+         * Smoothed normalized feature vector shared by every orbiter.
+         */
+        this.features = {
+          rms: 0,
+          transient: 0,
+          bass: 0,
+          lowMid: 0,
+          mid: 0,
+          high: 0,
+          sustained: 0,
+          beat: 0,
+          activity: 0,
+          spectralFlux: 0
+        };
+
+        this.rawFeatures = {
+          rms: 0,
+          transient: 0,
+          bass: 0,
+          lowMid: 0,
+          mid: 0,
+          high: 0,
+          sustained: 0,
+          beat: 0,
+          activity: 0,
+          spectralFlux: 0
+        };
+
+        this.shapeVoices = Object.freeze({
+          tetrahedron: { fundamental: 659.25, overtone: 1318.51, decay: 0.30 },
+          cube:         { fundamental: 523.25, overtone: 1046.50, decay: 0.34 },
+          octahedron:   { fundamental: 783.99, overtone: 1567.98, decay: 0.27 },
+          dodecahedron: { fundamental: 587.33, overtone: 1174.66, decay: 0.38 },
+          icosahedron:  { fundamental: 880.00, overtone: 1760.00, decay: 0.31 },
+          sphere:       { fundamental: 698.46, overtone: 1396.91, decay: 0.36 }
+        });
+      }
+
+      async unlock() {
+        if (!this.context) {
+          const AudioContextClass =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+          if (!AudioContextClass) {
+            return;
+          }
+
+          this.context =
+            new AudioContextClass();
+
+          this.masterGain =
+            this.context.createGain();
+
+          this.effectsGain =
+            this.context.createGain();
+
+          this.masterGain.gain.value = 1;
+          this.effectsGain.gain.value =
+            this.effectsVolume;
+
+          this.effectsGain.connect(
+            this.masterGain
+          );
+
+          this.masterGain.connect(
+            this.context.destination
+          );
+
+          this.analyser =
+            this.context.createAnalyser();
+
+          this.analyser.fftSize = 2048;
+          this.analyser.smoothingTimeConstant = 0;
+
+          /*
+           * Connect the analyzer output exactly once. Individual music
+           * channels connect INTO this node; level changes therefore cannot
+           * accumulate duplicate output connections.
+           */
+          this.analyser.connect(
+            this.masterGain
+          );
+
+          this.frequencyData =
+            new Uint8Array(
+              this.analyser.frequencyBinCount
+            );
+
+          this.waveformData =
+            new Uint8Array(
+              this.analyser.fftSize
+            );
+
+          this.previousSpectrum =
+            new Float32Array(
+              this.analyser.frequencyBinCount
+            );
+        }
+
+        if (
+          this.context.state ===
+          'suspended'
+        ) {
+          try {
+            await this.context.resume();
+          } catch (_) {}
+        }
+      }
+
+      playShapeGem(shapeName, intensity = 1) {
+        if (
+          !this.context ||
+          this.context.state !== 'running' ||
+          this.orientationPaused
+        ) {
+          return;
+        }
+
+        const voice =
+          this.shapeVoices[shapeName] ||
+          this.shapeVoices.sphere;
+
+        const now =
+          this.context.currentTime;
+
+        const gain =
+          this.context.createGain();
+
+        const fundamental =
+          this.context.createOscillator();
+
+        const overtone =
+          this.context.createOscillator();
+
+        const shimmer =
+          this.context.createOscillator();
+
+        fundamental.type = 'sine';
+        overtone.type = 'triangle';
+        shimmer.type = 'sine';
+
+        const detune =
+          (Math.random() - 0.5) * 18;
+
+        fundamental.frequency.value =
+          voice.fundamental;
+
+        overtone.frequency.value =
+          voice.overtone;
+
+        shimmer.frequency.value =
+          voice.overtone * 1.5;
+
+        fundamental.detune.value =
+          detune;
+
+        overtone.detune.value =
+          -detune * 0.5;
+
+        shimmer.detune.value =
+          detune * 0.25;
+
+        const peak =
+          Math.min(
+            0.22,
+            0.07 +
+            intensity * 0.025
+          );
+
+        const decay =
+          voice.decay +
+          Math.random() * 0.08;
+
+        gain.gain.setValueAtTime(
+          0.0001,
+          now
+        );
+
+        gain.gain
+          .exponentialRampToValueAtTime(
+            peak,
+            now + 0.008
+          );
+
+        gain.gain
+          .exponentialRampToValueAtTime(
+            0.0001,
+            now + decay
+          );
+
+        fundamental.connect(gain);
+        overtone.connect(gain);
+        shimmer.connect(gain);
+        gain.connect(this.effectsGain);
+
+        fundamental.start(now);
+        overtone.start(now);
+        shimmer.start(now);
+
+        fundamental.stop(
+          now + decay + 0.03
+        );
+
+        overtone.stop(
+          now + decay + 0.03
+        );
+
+        shimmer.stop(
+          now + decay + 0.03
+        );
+      }
+
+      playFunPhraseSometimes(
+        phrase,
+        probability = 0.34
+      ) {
+        if (
+          this.orientationPaused ||
+          Math.random() >= probability
+        ) {
+          return;
+        }
+
+        const filename =
+          phrase
+            .toLowerCase()
+            .replace(/[^a-z]+/g, '');
+
+        if (
+          !FUN_PHRASE_AUDIO.has(
+            filename
+          )
+        ) {
+          return;
+        }
+
+        this.playMediaEffect(
+          `${filename}.wav`,
+          0.72
+        );
+      }
+
+      playMediaEffect(
+        filename,
+        volume = 0.7
+      ) {
+        if (this.orientationPaused) {
+          return;
+        }
+
+        const audio =
+          new Audio(filename);
+
+        audio.preload = 'auto';
+        audio.volume = volume;
+
+        audio.play().catch(() => {});
+      }
+
+      scheduleOutcome(kind) {
+        if (this.outcomeTimer) {
+          clearTimeout(
+            this.outcomeTimer
+          );
+
+          this.outcomeTimer = null;
+        }
+
+        const files =
+          kind === 'win'
+            ? WIN_SOUNDS
+            : LOSE_SOUNDS;
+
+        this.pendingOutcome =
+          files[
+            Utils.randomInt(
+              files.length
+            )
+          ];
+
+        this.outcomeTimer =
+          window.setTimeout(() => {
+            this.outcomeTimer = null;
+
+            if (
+              this.orientationPaused
+            ) {
+              return;
+            }
+
+            const file =
+              this.pendingOutcome;
+
+            this.pendingOutcome = null;
+
+            if (file) {
+              this.playMediaEffect(
+                file,
+                0.82
+              );
+            }
+          }, 1000);
+      }
+
+      flushPendingOutcome() {
+        if (
+          !this.pendingOutcome ||
+          this.orientationPaused
+        ) {
+          return;
+        }
+
+        const file =
+          this.pendingOutcome;
+
+        this.pendingOutcome = null;
+
+        this.playMediaEffect(
+          file,
+          0.82
+        );
+      }
+
+      chooseNextMusicTrack() {
+        const candidates =
+          MUSIC_TRACKS.filter(
+            track =>
+              track !==
+              this.currentMusicTrack
+          );
+
+        return candidates[
+          Utils.randomInt(
+            candidates.length
+          )
+        ];
+      }
+
+      resetAnalysisState() {
+        this.lastAnalysisClock = null;
+        this.previousRawRms = 0;
+        this.previousRawBass = 0;
+        this.recentOnsets.length = 0;
+        this.beatIntervals.length = 0;
+        this.lastBeatTime = null;
+        this.bpmEstimate = null;
+
+        if (this.previousSpectrum) {
+          this.previousSpectrum.fill(0);
+        }
+
+        for (
+          const key of
+          Object.keys(this.features)
+        ) {
+          this.features[key] = 0;
+          this.rawFeatures[key] = 0;
+        }
+      }
+
+      disconnectCurrentMusicGraph() {
+        try {
+          this.currentMusicSource?.disconnect();
+        } catch (_) {}
+
+        try {
+          this.currentMusicGain?.disconnect();
+        } catch (_) {}
+
+        this.currentMusicSource = null;
+        this.currentMusicGain = null;
+      }
+
+      async startLevelMusic() {
+        await this.unlock();
+
+        if (
+          !this.musicEnabled ||
+          this.orientationPaused ||
+          !this.context
+        ) {
+          return;
+        }
+
+        const track =
+          this.chooseNextMusicTrack();
+
+        const prior =
+          this.currentMusic;
+
+        if (prior) {
+          prior.pause();
+          prior.currentTime = 0;
+          this.disconnectCurrentMusicGraph();
+        }
+
+        const audio =
+          new Audio(track);
+
+        audio.loop = true;
+        audio.preload = 'auto';
+        audio.volume = 1;
+
+        const source =
+          this.context
+            .createMediaElementSource(
+              audio
+            );
+
+        const gain =
+          this.context.createGain();
+
+        gain.gain.value = 0;
+
+        source.connect(gain);
+        gain.connect(this.analyser);
+
+        this.currentMusic = audio;
+        this.currentMusicTrack = track;
+        this.currentMusicSource = source;
+        this.currentMusicGain = gain;
+        this.currentTrackToken++;
+        this.resetAnalysisState();
+
+        try {
+          await audio.play();
+        } catch (_) {
+          return;
+        }
+
+        this.fadeMusicGain(
+          gain,
+          0,
+          this.musicVolume,
+          this.musicFadeSeconds
+        );
+      }
+
+      fadeMusicGain(
+        gainNode,
+        from,
+        to,
+        durationSeconds,
+        onComplete = null
+      ) {
+        if (!gainNode || !this.context) {
+          if (onComplete) onComplete();
+          return;
+        }
+
+        const now =
+          this.context.currentTime;
+
+        gainNode.gain.cancelScheduledValues(
+          now
+        );
+
+        gainNode.gain.setValueAtTime(
+          Math.max(0.0001, from),
+          now
+        );
+
+        gainNode.gain
+          .linearRampToValueAtTime(
+            Math.max(0.0001, to),
+            now + durationSeconds
+          );
+
+        if (onComplete) {
+          window.setTimeout(
+            onComplete,
+            durationSeconds * 1000
+          );
+        }
+      }
+
+      fadeOutCurrentMusic(
+        onComplete = null
+      ) {
+        if (
+          !this.currentMusic ||
+          !this.currentMusicGain
+        ) {
+          if (onComplete) onComplete();
+          return;
+        }
+
+        const audio =
+          this.currentMusic;
+
+        const gain =
+          this.currentMusicGain;
+
+        const from =
+          gain.gain.value ||
+          this.musicVolume;
+
+        this.fadeMusicGain(
+          gain,
+          from,
+          0,
+          this.musicFadeSeconds,
+          () => {
+            audio.pause();
+
+            if (
+              audio ===
+              this.currentMusic
+            ) {
+              this.currentMusic = null;
+              this.disconnectCurrentMusicGraph();
+            }
+
+            if (onComplete) {
+              onComplete();
+            }
+          }
+        );
+      }
+
+      toggleMusic() {
+        this.musicEnabled =
+          !this.musicEnabled;
+
+        if (!this.musicEnabled) {
+          if (
+            this.currentMusic &&
+            this.currentMusicGain
+          ) {
+            const audio =
+              this.currentMusic;
+
+            this.fadeMusicGain(
+              this.currentMusicGain,
+              this.currentMusicGain.gain.value,
+              0,
+              this.musicFadeSeconds,
+              () => audio.pause()
+            );
+          }
+        } else if (
+          !this.orientationPaused
+        ) {
+          if (this.currentMusic) {
+            this.currentMusic
+              .play()
+              .then(() => {
+                this.fadeMusicGain(
+                  this.currentMusicGain,
+                  this.currentMusicGain.gain.value,
+                  this.musicVolume,
+                  this.musicFadeSeconds
+                );
+              })
+              .catch(() => {});
+          } else {
+            this.startLevelMusic();
+          }
+        }
+
+        return this.musicEnabled;
+      }
+
+      getBandEnergy(
+        frequencyData,
+        lowHz,
+        highHz
+      ) {
+        if (
+          !this.context ||
+          !this.analyser
+        ) {
+          return 0;
+        }
+
+        const nyquist =
+          this.context.sampleRate / 2;
+
+        const binCount =
+          frequencyData.length;
+
+        const start =
+          Math.max(
+            0,
+            Math.floor(
+              lowHz /
+              nyquist *
+              binCount
+            )
+          );
+
+        const end =
+          Math.min(
+            binCount - 1,
+            Math.ceil(
+              highHz /
+              nyquist *
+              binCount
+            )
+          );
+
+        if (end <= start) {
+          return 0;
+        }
+
+        let sum = 0;
+
+        for (
+          let i = start;
+          i <= end;
+          i++
+        ) {
+          sum +=
+            frequencyData[i] / 255;
+        }
+
+        return (
+          sum /
+          (end - start + 1)
+        );
+      }
+
+      smoothFeature(
+        current,
+        target,
+        attack,
+        release,
+        dt
+      ) {
+        const timeConstant =
+          target > current
+            ? attack
+            : release;
+
+        const alpha =
+          1 -
+          Math.exp(
+            -dt /
+            Math.max(
+              0.001,
+              timeConstant
+            )
+          );
+
+        return (
+          current +
+          alpha *
+          (target - current)
+        );
+      }
+
+      median(values) {
+        if (!values.length) {
+          return null;
+        }
+
+        const sorted =
+          values
+            .slice()
+            .sort((a, b) => a - b);
+
+        const middle =
+          Math.floor(
+            sorted.length / 2
+          );
+
+        return sorted.length % 2
+          ? sorted[middle]
+          : (
+              sorted[middle - 1] +
+              sorted[middle]
+            ) / 2;
+      }
+
+      normalizeTempo(bpm) {
+        if (!bpm) return null;
+
+        let result = bpm;
+
+        while (result < 70) {
+          result *= 2;
+        }
+
+        while (result > 180) {
+          result /= 2;
+        }
+
+        return result;
+      }
+
+      registerBeat(
+        audioTime,
+        strength
+      ) {
+        if (
+          this.lastBeatTime != null
+        ) {
+          const interval =
+            audioTime -
+            this.lastBeatTime;
+
+          if (
+            interval >= 0.25 &&
+            interval <= 1.5
+          ) {
+            this.beatIntervals.push(
+              interval
+            );
+
+            if (
+              this.beatIntervals.length >
+              16
+            ) {
+              this.beatIntervals.shift();
+            }
+
+            if (
+              this.beatIntervals.length >=
+              2
+            ) {
+              const medianInterval =
+                this.median(
+                  this.beatIntervals
+                );
+
+              const candidate =
+                this.normalizeTempo(
+                  60 /
+                  medianInterval
+                );
+
+              if (candidate) {
+                if (
+                  this.bpmEstimate == null
+                ) {
+                  this.bpmEstimate =
+                    candidate;
+                } else {
+                  /*
+                   * Slow BPM smoothing prevents tempo jitter from changing
+                   * angular velocity abruptly while preserving phase.
+                   */
+                  this.bpmEstimate =
+                    this.bpmEstimate +
+                    0.10 *
+                    (
+                      candidate -
+                      this.bpmEstimate
+                    );
+                }
+              }
+            }
+          }
+        }
+
+        this.lastBeatTime =
+          audioTime;
+
+        this.recentOnsets.push(
+          audioTime
+        );
+
+        this.rawFeatures.beat =
+          Math.max(
+            this.rawFeatures.beat,
+            strength
+          );
+      }
+
+      updateAnalysis() {
+        if (
+          !this.context ||
+          !this.analyser ||
+          !this.currentMusic ||
+          this.currentMusic.paused ||
+          this.orientationPaused
+        ) {
+          return;
+        }
+
+        const audioTime =
+          this.currentMusic.currentTime;
+
+        let dt =
+          this.lastAnalysisClock == null
+            ? 1 / 60
+            : audioTime -
+              this.lastAnalysisClock;
+
+        if (
+          dt <= 0 ||
+          Math.abs(dt) > 0.5
+        ) {
+          dt = 1 / 60;
+        }
+
+        this.lastAnalysisClock =
+          audioTime;
+
+        this.analyser
+          .getByteFrequencyData(
+            this.frequencyData
+          );
+
+        this.analyser
+          .getByteTimeDomainData(
+            this.waveformData
+          );
+
+        let squareSum = 0;
+
+        for (
+          let i = 0;
+          i < this.waveformData.length;
+          i++
+        ) {
+          const sample =
+            (
+              this.waveformData[i] -
+              128
+            ) / 128;
+
+          squareSum +=
+            sample * sample;
+        }
+
+        let rms =
+          Math.sqrt(
+            squareSum /
+            this.waveformData.length
+          );
+
+        const bass =
+          this.getBandEnergy(
+            this.frequencyData,
+            30,
+            180
+          );
+
+        const lowMid =
+          this.getBandEnergy(
+            this.frequencyData,
+            180,
+            500
+          );
+
+        const mid =
+          this.getBandEnergy(
+            this.frequencyData,
+            500,
+            2500
+          );
+
+        const high =
+          this.getBandEnergy(
+            this.frequencyData,
+            2500,
+            12000
+          );
+
+        let positiveFlux = 0;
+
+        for (
+          let i = 0;
+          i < this.frequencyData.length;
+          i++
+        ) {
+          const normalized =
+            this.frequencyData[i] /
+            255;
+
+          const delta =
+            normalized -
+            this.previousSpectrum[i];
+
+          if (delta > 0) {
+            positiveFlux += delta;
+          }
+
+          this.previousSpectrum[i] =
+            normalized;
+        }
+
+        const spectralFlux =
+          Utils.clamp(
+            positiveFlux /
+            this.frequencyData.length *
+            9,
+            0,
+            1
+          );
+
+        /*
+         * Noise floors prevent constant low-level movement.
+         */
+        rms =
+          rms < 0.025 ? 0 : rms;
+
+        const flooredBass =
+          bass < 0.035 ? 0 : bass;
+
+        const transient =
+          Utils.clamp(
+            Math.max(
+              0,
+              rms -
+              this.previousRawRms
+            ) *
+            8 +
+            Math.max(
+              0,
+              flooredBass -
+              this.previousRawBass
+            ) *
+            3.4 +
+            spectralFlux *
+            0.72,
+            0,
+            1
+          );
+
+        this.previousRawRms = rms;
+        this.previousRawBass =
+          flooredBass;
+
+        const beatCandidate =
+          Utils.clamp(
+            transient * 0.62 +
+            flooredBass * 0.55 +
+            rms * 0.22,
+            0,
+            1
+          );
+
+        const enoughTime =
+          this.lastBeatTime == null ||
+          audioTime -
+          this.lastBeatTime >
+          0.18;
+
+        const adaptiveThreshold =
+          0.34 +
+          this.features.sustained *
+          0.13;
+
+        if (
+          enoughTime &&
+          beatCandidate >
+          adaptiveThreshold
+        ) {
+          this.registerBeat(
+            audioTime,
+            beatCandidate
+          );
+        }
+
+        const cutoff =
+          audioTime - 1.10;
+
+        while (
+          this.recentOnsets.length &&
+          this.recentOnsets[0] <
+          cutoff
+        ) {
+          this.recentOnsets.shift();
+        }
+
+        const onsetDensity =
+          Utils.clamp(
+            this.recentOnsets.length /
+            7,
+            0,
+            1
+          );
+
+        const activity =
+          Utils.clamp(
+            onsetDensity * 0.60 +
+            spectralFlux * 0.55 +
+            high * 0.18,
+            0,
+            1
+          );
+
+        this.rawFeatures.rms =
+          Utils.clamp(
+            rms * 2.1,
+            0,
+            1
+          );
+
+        this.rawFeatures.transient =
+          transient;
+
+        this.rawFeatures.bass =
+          Utils.clamp(
+            flooredBass * 1.8,
+            0,
+            1
+          );
+
+        this.rawFeatures.lowMid =
+          Utils.clamp(
+            lowMid * 1.65,
+            0,
+            1
+          );
+
+        this.rawFeatures.mid =
+          Utils.clamp(
+            mid * 1.75,
+            0,
+            1
+          );
+
+        this.rawFeatures.high =
+          Utils.clamp(
+            high * 2.0,
+            0,
+            1
+          );
+
+        this.rawFeatures.sustained =
+          this.rawFeatures.rms;
+
+        this.rawFeatures.activity =
+          activity;
+
+        this.rawFeatures.spectralFlux =
+          spectralFlux;
+
+        /*
+         * Beat is impulse-like: registerBeat raises it; it otherwise decays.
+         */
+        this.rawFeatures.beat =
+          Math.max(
+            0,
+            this.rawFeatures.beat -
+            dt * 3.6
+          );
+
+        const smoothing = {
+          rms:          [0.025, 0.16],
+          transient:    [0.010, 0.14],
+          bass:         [0.020, 0.18],
+          lowMid:       [0.030, 0.22],
+          mid:          [0.025, 0.18],
+          high:         [0.012, 0.11],
+          sustained:    [0.18, 0.55],
+          beat:         [0.008, 0.24],
+          activity:     [0.055, 0.38],
+          spectralFlux: [0.015, 0.14]
+        };
+
+        for (
+          const [
+            key,
+            [attack, release]
+          ] of Object.entries(
+            smoothing
+          )
+        ) {
+          this.features[key] =
+            this.smoothFeature(
+              this.features[key],
+              this.rawFeatures[key],
+              attack,
+              release,
+              dt
+            );
+        }
+      }
+
+      getAudioFeatures() {
+        return this.features;
+      }
+
+      getTempoBpm() {
+        return this.bpmEstimate;
+      }
+
+      getMusicClock() {
+        if (!this.currentMusic) {
+          return {
+            time: null,
+            duration: 0,
+            playing: false,
+            trackToken:
+              this.currentTrackToken
+          };
+        }
+
+        return {
+          time:
+            this.currentMusic
+              .currentTime,
+          duration:
+            Number.isFinite(
+              this.currentMusic.duration
+            )
+              ? this.currentMusic.duration
+              : 0,
+          playing:
+            !this.currentMusic.paused &&
+            !this.orientationPaused &&
+            this.musicEnabled,
+          trackToken:
+            this.currentTrackToken
+        };
+      }
+
+      pauseForOrientation() {
+        this.orientationPaused = true;
+
+        if (
+          this.currentMusic &&
+          !this.currentMusic.paused
+        ) {
+          this.currentMusic
+            .datasetOrientationResume =
+            '1';
+
+          this.currentMusic.pause();
+        }
+      }
+
+      async resumeFromOrientation() {
+        this.orientationPaused = false;
+        await this.unlock();
+
+        if (
+          this.musicEnabled &&
+          this.currentMusic &&
+          this.currentMusic
+            .datasetOrientationResume ===
+            '1'
+        ) {
+          delete this.currentMusic
+            .datasetOrientationResume;
+
+          try {
+            await this.currentMusic.play();
+          } catch (_) {}
+        }
+
+        this.flushPendingOutcome();
+      }
+
+      stopAllMusicImmediate() {
+        if (this.currentMusic) {
+          this.currentMusic.pause();
+          this.currentMusic.currentTime = 0;
+          this.currentMusic = null;
+        }
+
+        this.disconnectCurrentMusicGraph();
+        this.resetAnalysisState();
+      }
+    }
+
+    /*
+     * ============================================================
+     * Main application controller
+     * ============================================================
+     */
+
+
+    class SplashScene {
+      constructor(container) {
+        this.container = container;
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
+        this.camera.position.z = 14;
+        this.renderer = new THREE.WebGLRenderer({
+          alpha: true,
+          antialias: true,
+          powerPreference: 'high-performance'
+        });
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+        this.renderer.setClearColor(0x000000, 0);
+        this.container.appendChild(this.renderer.domElement);
+
+        this.gems = [];
+        this.clock = new THREE.Clock();
+        this.running = true;
+        this.resize = this.resize.bind(this);
+        this.animate = this.animate.bind(this);
+
+        this.scene.add(new THREE.AmbientLight(0xffffff, 0.78));
+        const light = new THREE.DirectionalLight(0xffffff, 1.15);
+        light.position.set(4, 6, 8);
+        this.scene.add(light);
+
+        this.createGems();
+        window.addEventListener('resize', this.resize);
+        this.resize();
+        this.animate();
+      }
+
+      createGeometry(index, size) {
+        switch (index % 5) {
+          case 0: return new THREE.TetrahedronGeometry(size);
+          case 1: return new THREE.BoxGeometry(size * 1.45, size * 1.45, size * 1.45);
+          case 2: return new THREE.OctahedronGeometry(size);
+          case 3: return new THREE.DodecahedronGeometry(size);
+          default: return new THREE.IcosahedronGeometry(size);
+        }
+      }
+
+      createGems() {
+        const palette = [0xff3b6b, 0x55ff66, 0x3d63ff, 0xffe13b, 0xe83dff, 0x28eaff];
+        const count = 11;
+        const phaseOffset = Math.random() * Math.PI * 2;
+
+        for (let i = 0; i < count; i++) {
+          const size = 0.34 + Math.random() * 0.38;
+          const color = new THREE.Color(palette[i % palette.length]);
+          const mesh = new THREE.Mesh(
+            this.createGeometry(i, size),
+            new THREE.MeshPhysicalMaterial({
+              color,
+              emissive: color.clone().multiplyScalar(0.08),
+              roughness: 0.08,
+              metalness: 0.02,
+              clearcoat: 1,
+              clearcoatRoughness: 0.12,
+              transparent: true,
+              opacity: 0.88,
+              flatShading: true
+            })
+          );
+
+          const phase = phaseOffset + i * Math.PI * 2 / count;
+          const radiusX = 4.2 + Math.random() * 2.5;
+          const radiusY = 2.0 + Math.random() * 2.2;
+          const zRadius = 1.1 + Math.random() * 1.8;
+
+          mesh.userData.splashOrbit = {
+            phase,
+            speed: 0.055 + Math.random() * 0.065,
+            radiusX,
+            radiusY,
+            zRadius,
+            tilt: (Math.random() - 0.5) * 1.15,
+            spinX: (Math.random() - 0.5) * 0.42,
+            spinY: (Math.random() - 0.5) * 0.52,
+            spinZ: (Math.random() - 0.5) * 0.30
+          };
+
+          this.scene.add(mesh);
+          this.gems.push(mesh);
+        }
+      }
+
+      resize() {
+        const width = Math.max(1, this.container.clientWidth);
+        const height = Math.max(1, this.container.clientHeight);
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(width, height, false);
+      }
+
+      animate() {
+        if (!this.running) return;
+        requestAnimationFrame(this.animate);
+
+        const dt = Math.min(this.clock.getDelta(), 0.05);
+
+        for (const gem of this.gems) {
+          const orbit = gem.userData.splashOrbit;
+          orbit.phase += orbit.speed * dt;
+
+          const c = Math.cos(orbit.phase);
+          const s = Math.sin(orbit.phase);
+          gem.position.set(
+            c * orbit.radiusX,
+            s * orbit.radiusY,
+            Math.sin(orbit.phase * 0.83 + orbit.tilt) * orbit.zRadius - 1.0
+          );
+
+          gem.rotation.x += orbit.spinX * dt;
+          gem.rotation.y += orbit.spinY * dt;
+          gem.rotation.z += orbit.spinZ * dt;
+        }
+
+        this.renderer.render(this.scene, this.camera);
+      }
+
+      setVisible(visible) {
+        this.container.style.visibility = visible ? 'visible' : 'hidden';
+      }
+    }
+
+    class PlatonicNeighborsGame {
+      constructor() {
+        this.container = document.getElementById('container');
+        this.effectsLayer = document.getElementById('effectsLayer');
+        this.hud = document.getElementById('hud');
+        this.scoreElement = document.getElementById('score');
+        this.levelInfo = document.getElementById('levelInfo');
+        this.overlay = document.getElementById('overlay');
+        this.overlayTitle = document.getElementById('overlayTitle');
+        this.overlayText = document.getElementById('overlayText');
+        this.orientationOverlay =
+          document.getElementById('orientationOverlay');
+        this.musicToggle =
+          document.getElementById('musicToggle');
+        this.levelIndex = 0;
+        this.score = 0;
+        this.gamePaused = true;
+        this.isAnimating = false;
+
+        // A new level cannot accept its first move until at least one
+        // level-start satellite has advanced from its assigned start phase.
+        this.firstMoveUnlocked = false;
+        this.levelHasOrbiters = false;
+
+        this.model = null;
+        this.viewGrid = [];
+        this.pickables = [];
+        this.highlightedViews = [];
+        this.hoveredView = null;
+
+        this.orientationPaused = false;
+        this.pendingStartLevel = false;
+        this.wasPausedBeforeOrientation = false;
+        this.restartWithoutMusicChange = false;
+
+        this.initThree();
+        this.initServices();
+        this.bindEvents();
+
+        this.animate = this.animate.bind(this);
+      }
+
+      initThree() {
+        this.scene = new THREE.Scene();
+        /*
+         * BACKGROUND:
+         * Neutral deep navy/black so the crystal palette stays bright and
+         * saturated instead of inheriting a green/muted wash.
+         */
+        this.scene.background = new THREE.Color(0x030816);
+
+        this.camera = new THREE.PerspectiveCamera(
+          70,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1100
+        );
+
+        this.camera.position.set(0, 0, 20);
+        this.camera.lookAt(0, 0, 0);
+
+        this.renderer = new THREE.WebGLRenderer({
+          antialias: true,
+          powerPreference: 'high-performance'
+        });
+
+        // OPTIMIZATION: avoid pathological GPU fill cost on high-DPI screens.
+        this.renderer.setPixelRatio(
+          Math.min(window.devicePixelRatio || 1, 2)
+        );
+
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+        /*
+         * CRYSTAL RENDERING:
+         * Filmic tone mapping and sRGB output improve transmitted highlights,
+         * refraction cues and saturated gemstone color.
+         */
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 0.4;
+
+        this.container.appendChild(this.renderer.domElement);
+
+        this.raycaster = new THREE.Raycaster();
+        this.pointer = new THREE.Vector2();
+        this.clock = new THREE.Clock();
+
+        this.boardGroup = new THREE.Group();
+        this.prizeGroup = new THREE.Group();
+        this.tubeGroup = new THREE.Group();
+        this.prismBaseTubeGroup = new THREE.Group();
+        this.prismRingTubeGroup = new THREE.Group();
+        this.effectsGroup = new THREE.Group();
+
+        this.scene.add(
+          this.boardGroup,
+          this.prizeGroup,
+          this.tubeGroup,
+          this.prismBaseTubeGroup,
+          this.prismRingTubeGroup,
+          this.effectsGroup
+        );
+
+        this.scene.add(new THREE.AmbientLight(0xffffff, 0.50));
+
+        const keyLight = new THREE.DirectionalLight(0xffffff, 1.85);
+        keyLight.position.set(3, 4, 6);
+        this.scene.add(keyLight);
+
+        const coolRim = new THREE.PointLight(0xd9ecff, 1.15, 46);
+        coolRim.position.set(-8, 5, 8);
+        this.scene.add(coolRim);
+
+        const whiteFill = new THREE.PointLight(0xffffff, 0.95, 44);
+        whiteFill.position.set(8, -4, 7);
+        this.scene.add(whiteFill);
+
+        const topSparkle = new THREE.PointLight(0xffffff, 0.75, 36);
+        topSparkle.position.set(0, 9, 5);
+        this.scene.add(topSparkle);
+      }
+
+      initServices() {
+        this.starfield = new Starfield(this.scene);
+        this.particles = new ParticleSystem(
+          this.effectsGroup,
+          this.camera
+        );
+        this.tubes = new TubePool(this.tubeGroup);
+        this.prismBaseTubes = new TubePool(this.prismBaseTubeGroup);
+        this.prismRingTubes = new TubePool(this.prismRingTubeGroup);
+
+        this.scoreEffects = new ScoreEffects(
+          this.effectsLayer,
+          this.camera
+        );
+
+        this.audio = new AudioService();
+        this.orbitCoordinator =
+          new OrbitalPhaseCoordinator();
+
+        /*
+         * MOBILE:
+         * Coarse pointers use tap-to-select / tap-again-to-activate.
+         * Pointer-event type is still checked per event for hybrid devices.
+         */
+        this.coarsePointer =
+          window.matchMedia('(pointer: coarse)').matches ||
+          navigator.maxTouchPoints > 0;
+
+        this.raycaster.params.Line.threshold = 0.22;
+        this.campaignLevels = LEVELS;
+      }
+
+      bindEvents() {
+        window.addEventListener('resize', () => this.onResize());
+
+        this.renderer.domElement.addEventListener(
+          'pointermove',
+          event => this.onPointerMove(event),
+          { passive: true }
+        );
+
+        this.renderer.domElement.addEventListener(
+          'pointerdown',
+          event => this.onPointerDown(event)
+        );
+
+        document
+          .getElementById('leaveGame')
+          .addEventListener('click', () => this.leaveGame());
+
+        this.musicToggle.addEventListener('click', async () => {
+          await this.audio.unlock();
+          const enabled = this.audio.toggleMusic();
+          this.updateMusicButton(enabled);
+        });
+
+        window.addEventListener(
+          'orientationchange',
+          () => window.setTimeout(() => this.enforceMobileLandscape(), 50)
+        );
+      }
+
+      getMaximumPlayableGridSize() {
+        if (!this.isMobileExperience()) {
+          return BOARD_SIZES[BOARD_SIZES.length - 1];
+        }
+
+        /*
+         * The rendered solid diameter is approximately
+         * 2 * bubbleSizeRatio * cellPitch. Solve for cellPitch such that
+         * the solid remains >= 20 CSS pixels.
+         */
+        const solidFractionOfCell = CONFIG.bubbleSizeRatio * 2;
+        const requiredCellPitch =
+          CONFIG.minTouchSolidPixels / solidFractionOfCell;
+
+        const availableWidth = window.innerWidth;
+        const availableHeight = Math.max(0, window.innerHeight - 64);
+        const limitingDimension = Math.min(
+          availableWidth,
+          availableHeight
+        );
+
+        return Math.floor(
+          limitingDimension / requiredCellPitch
+        );
+      }
+
+      getPlayableCampaignLevels() {
+        const maxGrid = this.getMaximumPlayableGridSize();
+
+        const playable = LEVELS.filter(
+          level => level.size <= maxGrid
+        );
+
+        /*
+         * A very small screen should still receive the 7×7 campaign rather
+         * than an empty game. Raycasting remains usable even if the ideal
+         * 20px target cannot mathematically fit.
+         */
+        return playable.length
+          ? playable
+          : LEVELS.filter(level => level.size === 7);
+      }
+
+      isMobileExperience() {
+        const userAgent = navigator.userAgent || '';
+        const uaMobile =
+          /Android|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(userAgent);
+
+        const clientHintMobile =
+          navigator.userAgentData?.mobile === true;
+
+        const touchCapable =
+          navigator.maxTouchPoints > 0 ||
+          window.matchMedia('(pointer: coarse)').matches ||
+          window.matchMedia('(hover: none)').matches;
+
+        /*
+         * EMULATION:
+         * Chrome/Safari responsive emulation is not guaranteed to expose a
+         * coarse pointer or mobile UA. A portrait viewport <= 1024 CSS px is
+         * therefore treated as the mobile presentation as well.
+         */
+        const emulatedMobileViewport =
+          Math.min(window.innerWidth, window.innerHeight) <= 1024;
+
+        return (
+          uaMobile ||
+          clientHintMobile ||
+          touchCapable ||
+          emulatedMobileViewport
+        );
+      }
+
+      isMobilePortrait() {
+        return (
+          this.isMobileExperience() &&
+          window.innerHeight > window.innerWidth
+        );
+      }
+
+      enforceMobileLandscape() {
+        const mustPause = this.isMobilePortrait();
+
+        if (mustPause === this.orientationPaused) {
+          return;
+        }
+
+        if (mustPause) {
+          this.pauseForOrientation();
+        } else {
+          this.resumeFromOrientation();
+        }
+      }
+
+      pauseForOrientation() {
+        this.orientationPaused = true;
+        this.wasPausedBeforeOrientation = this.gamePaused;
+        this.gamePaused = true;
+
+        this.orientationOverlay.style.display = 'flex';
+        this.clearHover();
+
+        /*
+         * TWEEN.js supports pausing individual tweens. Guard the calls so the
+         * game remains compatible if a future Tween build omits them.
+         */
+        if (typeof TWEEN.getAll === 'function') {
+          for (const tween of TWEEN.getAll()) {
+            if (typeof tween.pause === 'function') {
+              tween.pause();
+            }
+          }
+        }
+
+        this.audio.pauseForOrientation();
+      }
+
+      async resumeFromOrientation() {
+        this.orientationPaused = false;
+        this.orientationOverlay.style.display = 'none';
+
+        if (typeof TWEEN.getAll === 'function') {
+          for (const tween of TWEEN.getAll()) {
+            if (typeof tween.resume === 'function') {
+              tween.resume();
+            }
+          }
+        }
+
+        this.gamePaused = this.wasPausedBeforeOrientation;
+        await this.audio.resumeFromOrientation();
+
+        if (this.pendingStartLevel) {
+          this.pendingStartLevel = false;
+          this.startLevel();
+        }
+      }
+
+      updateMusicButton(enabled = this.audio.musicEnabled) {
+        this.musicToggle.textContent =
+          enabled ? 'Music: On' : 'Music: Off';
+
+        this.musicToggle.setAttribute(
+          'aria-pressed',
+          enabled ? 'false' : 'true'
+        );
+      }
+
+      async startCampaign() {
+        await this.audio.unlock();
+
+        this.levelIndex = 0;
+        this.score = 0;
+        this.campaignLevels = this.getPlayableCampaignLevels();
+        this.hud.style.display = 'flex';
+        this.updateMusicButton();
+
+        this.enforceMobileLandscape();
+
+        if (this.orientationPaused) {
+          this.pendingStartLevel = true;
+          return;
+        }
+
+        this.startLevel();
+      }
+
+      startLevel() {
+        if (this.orientationPaused) {
+          this.pendingStartLevel = true;
+          return;
+        }
+
+        this.clearBoard();
+
+        const level = this.campaignLevels[this.levelIndex];
+        this.level = level;
+        this.model = new BoardModel(level);
+
+        this.scoreElement.textContent = `Score: ${this.score}`;
+        const campaignCap =
+          this.campaignLevels.length < LEVELS.length
+            ? ` · Mobile max ${this.campaignLevels[this.campaignLevels.length - 1].size}×${this.campaignLevels[this.campaignLevels.length - 1].size}`
+            : '';
+
+        this.levelInfo.textContent =
+          `Level ${this.levelIndex + 1}/${this.campaignLevels.length} · ${level.size}×${level.size} ${Utils.shapeLabel(level.shape)}${campaignCap}`;
+
+        this.gamePaused = false;
+        this.isAnimating = false;
+
+        this.overlay.style.display = 'none';
+
+        // MUSIC:
+        // - New level: choose a different track than the prior level.
+        // - Lost/restarted level: keep the current looping track.
+        if (this.restartWithoutMusicChange) {
+          this.restartWithoutMusicChange = false;
+        } else {
+          this.audio.startLevelMusic();
+        }
+
+        this.applyLevelTheme(level);
+
+        this.spacing = CONFIG.boardWorldSpan / level.size;
+        this.bubbleSize = this.spacing * CONFIG.bubbleSizeRatio;
+
+        this.resources = new BubbleResourceFactory(this.bubbleSize);
+
+        // The final crystal appearance is baked into MaterialFactory settings.
+        this.renderer.toneMappingExposure = 0.4;
+        this.prizes = new PrizeManager(
+          this.prizeGroup,
+          level.size,
+          this.bubbleSize,
+          this.resources,
+          level.palette,
+          this.audio,
+          this.orbitCoordinator
+        );
+
+        this.viewGrid = Utils.matrix(level.size, level.size, null);
+        this.pickables = [];
+
+        const activeCells = this.model.getActiveCells();
+        this.createViews(activeCells);
+        this.createPrizes(activeCells);
+
+        this.firstMoveUnlocked = false;
+        this.levelHasOrbiters =
+          this.orbitCoordinator.orbiters.size > 0;
+
+        /*
+         * UNIQUE STARTING POSITIONS:
+         * Once all level-start orbiters exist, evenly distribute them across
+         * 360 degrees from one randomized global phase offset.
+         */
+        this.orbitCoordinator
+          .redistributePhases();
+
+        if (!this.levelHasOrbiters) {
+          this.firstMoveUnlocked = true;
+        }
+
+        window.setTimeout(() => {
+          if (
+            !this.gamePaused &&
+            !this.model.hasValidMoves()
+          ) {
+            this.handleGameOver();
+          }
+        }, 850);
+      }
+
+      applyLevelTheme(level) {
+        const accent = new THREE.Color(level.palette[1]);
+
+        // Keep the world background neutral; only the HUD accent follows level color.
+        this.scene.background.setHex(0x030816);
+
+        document.documentElement.style.setProperty(
+          '--accent',
+          `#${accent.getHexString()}`
+        );
+      }
+
+      createViews(activeCells) {
+        const center = Math.floor(this.level.size / 2);
+
+        for (const { row, col } of activeCells) {
+          const cell = this.model.getCell(row, col);
+          const view = this.createViewForCell(row, col, cell);
+
+          const distance =
+            Math.abs(row - center) + Math.abs(col - center);
+
+          view.popIn(distance * 24);
+        }
+      }
+
+      createViewForCell(row, col, cell) {
+        const view = new BubbleView(
+          this.resources,
+          cell,
+          this.level.palette,
+          row,
+          col,
+          this.worldPositionForCell(row, col),
+          this.audio,
+          this.orbitCoordinator
+        );
+
+        this.viewGrid[row][col] = view;
+        this.boardGroup.add(view.root);
+
+        // OPTIMIZATION: only actual bubble renderables are raycast.
+        this.pickables.push(view.primaryObject);
+
+        if (view.prismOrbiter) {
+          this.pickables.push(
+            view.prismOrbiter.marker
+          );
+        }
+
+        return view;
+      }
+
+      createPrizes(activeCells) {
+        /*
+         * COMPLETABILITY INVARIANT:
+         * Golden rings are created ONLY in pairs on identical compatible
+         * gameplay types: same Platonic shape/color AND same solid/hollow
+         * form. Therefore a ring-bearing type can never be generated alone.
+         */
+        const groups = new Map();
+
+        for (const position of activeCells) {
+          const cell = this.model.getCell(
+            position.row,
+            position.col
+          );
+
+          const signature =
+            `${cell.colorIndex}:${cell.hollow ? 1 : 0}`;
+
+          if (!groups.has(signature)) {
+            groups.set(signature, []);
+          }
+
+          groups.get(signature).push(position);
+        }
+
+        const pairPools = [];
+
+        for (const positions of groups.values()) {
+          Utils.shuffleInPlace(positions);
+
+          for (let i = 0; i + 1 < positions.length; i += 2) {
+            pairPools.push([
+              positions[i],
+              positions[i + 1]
+            ]);
+          }
+        }
+
+        Utils.shuffleInPlace(pairPools);
+
+        const requested =
+          Math.min(Math.floor(activeCells.length / 5), 14);
+
+        // Prize count is intentionally even because prizes are paired.
+        const pairCount =
+          Math.min(
+            Math.max(1, Math.floor(requested / 2)),
+            pairPools.length
+          );
+
+        for (let i = 0; i < pairCount; i++) {
+          for (const { row, col } of pairPools[i]) {
+            this.prizes.create(
+              row,
+              col,
+              this.worldPositionForCell(row, col),
+              this.model.getCell(row, col)
+            );
+          }
+        }
+      }
+
+      worldPositionForCell(row, col) {
+        const offsetX =
+          -((this.level.size - 1) * this.spacing) / 2;
+        const offsetY =
+          ((this.level.size - 1) * this.spacing) / 2;
+
+        return new THREE.Vector3(
+          offsetX + col * this.spacing,
+          offsetY - row * this.spacing,
+          0
+        );
+      }
+
+      updatePointer(event) {
+        const rect =
+          this.renderer.domElement.getBoundingClientRect();
+
+        this.pointer.x =
+          ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        this.pointer.y =
+          -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      }
+
+      raycast(event) {
+        this.updatePointer(event);
+        this.raycaster.setFromCamera(this.pointer, this.camera);
+
+        const hit = this.raycaster.intersectObjects(
+          this.pickables,
+          false
+        )[0];
+
+        return hit?.object?.userData?.bubbleView || null;
+      }
+
+      onPointerMove(event) {
+        if (
+          this.gamePaused ||
+          this.isAnimating ||
+          !this.firstMoveUnlocked ||
+          !this.model
+        ) {
+          return;
+        }
+
+        // MOBILE: touch has no hover; selection is handled by taps.
+        if (event.pointerType !== 'mouse') {
+          return;
+        }
+
+        const view = this.raycast(event);
+
+        if (view === this.hoveredView) return;
+
+        this.selectView(view);
+      }
+
+      onPointerDown(event) {
+        if (
+          this.gamePaused ||
+          this.isAnimating ||
+          !this.firstMoveUnlocked ||
+          !this.model
+        ) {
+          return;
+        }
+
+        if (event.pointerType !== 'mouse') {
+          event.preventDefault();
+        }
+
+        const view = this.raycast(event);
+
+        if (!view) {
+          if (event.pointerType !== 'mouse') {
+            this.clearHover();
+          }
+          return;
+        }
+
+        const touchLike =
+          event.pointerType !== 'mouse' ||
+          this.coarsePointer;
+
+        if (touchLike) {
+          /*
+           * MOBILE:
+           * First tap = select/preview (equivalent to desktop hover).
+           * Second tap on the same selected solid = activate/destroy.
+           */
+          if (view !== this.hoveredView) {
+            this.selectView(view);
+            return;
+          }
+
+          this.clearHover();
+          this.activateSelectedView(view);
+          return;
+        }
+
+        // Desktop retains hover + single-click activation.
+        this.clearHover();
+        this.activateSelectedView(view);
+      }
+
+      activateSelectedView(view) {
+        if (view.cell.prismatic) {
+          this.activatePrism(view);
+        } else {
+          this.processNormalClick(view);
+        }
+      }
+
+      selectView(view) {
+        this.clearHover();
+        this.hoveredView = view;
+
+        if (!view) return;
+
+        if (view.cell.prismatic) {
+          this.highlightPrism(view);
+        } else {
+          this.highlightChain(view);
+        }
+      }
+
+      highlightChain(view) {
+        const connected =
+          this.model.findConnected(view.row, view.col);
+
+        if (connected.length < 2) return;
+
+        this.highlightedViews = connected
+          .map(({ row, col }) => this.viewGrid[row][col])
+          .filter(Boolean);
+
+        for (const item of this.highlightedViews) {
+          item.setHighlighted(true);
+        }
+
+        this.createConnections(
+          connected,
+          this.level.palette[view.cell.colorIndex]
+        );
+      }
+
+      createConnections(
+        positions,
+        color,
+        pool = this.tubes
+      ) {
+        const members = new Set(
+          positions.map(({ row, col }) =>
+            Utils.cellKey(
+              row,
+              col,
+              this.level.size
+            )
+          )
+        );
+
+        const seen = new Set();
+        pool.begin(color);
+
+        for (const { row, col } of positions) {
+          const source = this.viewGrid[row][col];
+
+          if (!source) continue;
+
+          const sourceId =
+            Utils.cellKey(row, col, this.level.size);
+
+          for (const [dr, dc] of DIRECTIONS_8) {
+            const nr = row + dr;
+            const nc = col + dc;
+
+            if (!this.model.isInside(nr, nc)) continue;
+
+            const targetId =
+              Utils.cellKey(nr, nc, this.level.size);
+
+            if (!members.has(targetId)) continue;
+
+            const low = Math.min(sourceId, targetId);
+            const high = Math.max(sourceId, targetId);
+            const edge = `${low}:${high}`;
+
+            if (seen.has(edge)) continue;
+            seen.add(edge);
+
+            const target = this.viewGrid[nr][nc];
+
+            if (!target) continue;
+
+            pool.add(
+              source.root.position,
+              target.root.position,
+              this.bubbleSize * 0.16
+            );
+          }
+        }
+      }
+
+      highlightPrism(view) {
+        const baseTargets =
+          this.model.getPrismColorTargets(
+            view.row,
+            view.col,
+            view.cell.colorIndex
+          );
+
+        const ringTargets =
+          this.model.getPrismColorTargets(
+            view.row,
+            view.col,
+            view.cell.ringColorIndex
+          );
+
+        /*
+         * PRISM PREVIEW:
+         * Show both destruction paths simultaneously. Base-color path stays
+         * fixed; ring-color path is rebuilt whenever the ring changes color.
+         */
+        const uniqueViews = new Set();
+
+        for (const target of [...baseTargets, ...ringTargets]) {
+          const targetView =
+            this.viewGrid[target.row]?.[target.col];
+
+          if (targetView) {
+            uniqueViews.add(targetView);
+          }
+        }
+
+        this.highlightedViews = [...uniqueViews];
+
+        for (const targetView of this.highlightedViews) {
+          targetView.setHighlighted(true);
+        }
+
+        this.createConnections(
+          baseTargets,
+          this.level.palette[view.cell.colorIndex],
+          this.prismBaseTubes
+        );
+
+        this.createConnections(
+          ringTargets,
+          this.level.palette[view.cell.ringColorIndex],
+          this.prismRingTubes
+        );
+      }
+
+      refreshPrismPreview(view) {
+        if (
+          !view ||
+          !view.cell.prismatic ||
+          view !== this.hoveredView
+        ) {
+          return;
+        }
+
+        for (const highlighted of this.highlightedViews) {
+          highlighted.setHighlighted(false);
+        }
+
+        this.highlightedViews.length = 0;
+        this.prismBaseTubes.clear();
+        this.prismRingTubes.clear();
+
+        this.highlightPrism(view);
+      }
+
+      clearHover() {
+        for (const view of this.highlightedViews) {
+          view.setHighlighted(false);
+        }
+
+        this.highlightedViews.length = 0;
+        this.hoveredView = null;
+        this.tubes.clear();
+        this.prismBaseTubes.clear();
+        this.prismRingTubes.clear();
+      }
+
+      processNormalClick(clickedView) {
+        const connected =
+          this.model.findConnected(
+            clickedView.row,
+            clickedView.col
+          );
+
+        if (connected.length < 2) {
+          return;
+        }
+
+        this.isAnimating = true;
+
+        const groupSize = connected.length;
+        const groupScore =
+          groupSize * groupSize * CONFIG.scoreFactor;
+        const perBubble =
+          groupSize * CONFIG.scoreFactor;
+
+        this.score += groupScore;
+        this.updateScore();
+
+        const phrase = this.funPhrase(groupSize);
+
+        this.scoreEffects.show(
+          clickedView.root.position,
+          `${phrase} +${groupScore}`,
+          1.1 + groupSize * 0.06,
+          groupSize >= CONFIG.prismThreshold
+        );
+
+        /*
+         * AUDIO:
+         * One gem-like voice per Platonic shape, independent of wireframe.
+         * Phrase WAV stingers intentionally fire only sometimes.
+         */
+        this.audio.playShapeGem(
+          clickedView.shapeName,
+          Math.min(groupSize / 4, 3)
+        );
+        this.audio.playFunPhraseSometimes(phrase);
+
+        const createsPrism =
+          groupSize >= CONFIG.prismThreshold;
+
+        const sourceCell = clickedView.cell;
+        const clickRow = clickedView.row;
+        const clickCol = clickedView.col;
+
+        /*
+         * SHELL DROP ELIGIBILITY:
+         * - source chain must be solid;
+         * - there must be no orbiting object anywhere in the chain;
+         * - prism generation takes precedence for chains >= 8;
+         * - chance is bounded/configurable.
+         */
+        const chainHadOrbiter =
+          connected.some(({ row, col }) => {
+            const prize =
+              this.prizes.get(row, col);
+
+            const view =
+              this.viewGrid[row]?.[col];
+
+            return Boolean(
+              (prize && !prize.collected) ||
+              view?.prismOrbiter
+            );
+          });
+
+        const createsShell =
+          !createsPrism &&
+          !sourceCell.hollow &&
+          !chainHadOrbiter &&
+          Math.random() <
+            CONFIG.shellDropChance;
+
+        // Collect orbiting golden markers only AFTER shell eligibility is known.
+        this.collectPrizes(connected);
+
+        const sorted = connected
+          .map(cell => ({
+            ...cell,
+            distance:
+              Math.abs(cell.row - clickRow) +
+              Math.abs(cell.col - clickCol)
+          }))
+          .sort((a, b) => a.distance - b.distance);
+
+        let remaining = sorted.length;
+
+        for (const item of sorted) {
+          const view = this.viewGrid[item.row][item.col];
+
+          if (!view) {
+            remaining--;
+            continue;
+          }
+
+          const delay = item.distance * 42;
+
+          window.setTimeout(() => {
+            this.scoreEffects.show(
+              view.root.position,
+              `+${perBubble}`,
+              0.86
+            );
+
+            this.particles.createBubbleExplosion(
+              view.root.position,
+              this.level.palette[view.cell.colorIndex],
+              Math.min(groupSize / 6, 2),
+              view.shapeName
+            );
+          }, delay);
+
+          view.popOut(delay, () => {
+            this.removeView(view);
+            remaining--;
+
+            if (remaining === 0) {
+              this.model.removeCells(connected);
+
+              if (createsPrism) {
+                const prismCell =
+                  this.model.createPrism(
+                    clickRow,
+                    clickCol,
+                    sourceCell
+                  );
+
+                const prismView =
+                  this.createViewForCell(
+                    clickRow,
+                    clickCol,
+                    prismCell
+                  );
+
+                prismView.popIn(0);
+
+                this.scoreEffects.show(
+                  prismView.root.position,
+                  'PRISMATIC!',
+                  1.45,
+                  true
+                );
+              } else if (createsShell) {
+                const shellCell =
+                  this.model.createShell(
+                    clickRow,
+                    clickCol,
+                    sourceCell
+                  );
+
+                const shellView =
+                  this.createViewForCell(
+                    clickRow,
+                    clickCol,
+                    shellCell
+                  );
+
+                shellView.popIn(0);
+
+                this.scoreEffects.show(
+                  shellView.root.position,
+                  'SHELL!',
+                  1.12,
+                  false
+                );
+              }
+
+              this.afterCellRemoval();
+            }
+          });
+        }
+      }
+
+      activatePrism(prismView) {
+        this.isAnimating = true;
+
+        /*
+         * PRISMATIC RULE:
+         * Clicking a prism destroys every compatible cell whose color is
+         * either:
+         *   1. the prism's original/base color, or
+         *   2. the ring's color at the exact moment of the click.
+         *
+         * Solid/hollow compatibility is still enforced.
+         */
+        // Freed prismatic orbiter flies to the scoreboard before teardown.
+        this.launchFreedOrbiterToScore(
+          prismView.prismOrbiter,
+          prismView.root
+        );
+
+        const targets =
+          this.model.getPrismaticTargets(
+            prismView.row,
+            prismView.col
+          );
+
+        const baseColor =
+          this.level.palette[prismView.cell.colorIndex];
+        const ringColor =
+          this.level.palette[prismView.cell.ringColorIndex];
+
+        this.scoreEffects.show(
+          prismView.root.position,
+          'PRISMATIC BLAST!',
+          1.55,
+          true
+        );
+
+        /*
+         * A prism can remove two color/shape families. Play one gem voice
+         * for each distinct Platonic shape represented in the blast.
+         */
+        const prismShapeNames = new Set();
+
+        for (const target of targets) {
+          const targetView =
+            this.viewGrid[target.row]?.[target.col];
+
+          if (targetView) {
+            prismShapeNames.add(targetView.shapeName);
+          }
+        }
+
+        let prismSoundDelay = 0;
+
+        for (const shapeName of prismShapeNames) {
+          window.setTimeout(() => {
+            this.audio.playShapeGem(shapeName, 3);
+          }, prismSoundDelay);
+
+          prismSoundDelay += 65;
+        }
+
+        this.collectPrizes(targets);
+
+        // Score based on total prism destruction count.
+        const blastScore =
+          targets.length *
+          targets.length *
+          CONFIG.scoreFactor;
+
+        this.score += blastScore;
+        this.updateScore();
+
+        let remaining = targets.length;
+
+        for (const item of targets) {
+          const view = this.viewGrid[item.row][item.col];
+
+          if (!view) {
+            remaining--;
+            continue;
+          }
+
+          const delay = Math.random() * 140;
+
+          window.setTimeout(() => {
+            /*
+             * Use the cell's own color for its particles. The prism ring
+             * itself visibly communicates the secondary selected color.
+             */
+            this.particles.createBubbleExplosion(
+              view.root.position,
+              this.level.palette[view.cell.colorIndex],
+              1.55,
+              view.shapeName
+            );
+          }, delay);
+
+          view.popOut(delay, () => {
+            this.removeView(view);
+            remaining--;
+
+            if (remaining === 0) {
+              this.model.removeCells(targets);
+              this.afterCellRemoval();
+            }
+          });
+        }
+
+        // Defensive fallback; prism itself should always be in targets.
+        if (targets.length === 0) {
+          this.isAnimating = false;
+        }
+      }
+
+      getScoreTargetWorldPosition() {
+        const rect =
+          this.scoreElement
+            .getBoundingClientRect();
+
+        const screenX =
+          rect.left + rect.width / 2;
+
+        const screenY =
+          rect.top + rect.height / 2;
+
+        const ndc =
+          new THREE.Vector3(
+            (screenX / window.innerWidth) * 2 - 1,
+            -(screenY / window.innerHeight) * 2 + 1,
+            0.5
+          );
+
+        ndc.unproject(this.camera);
+
+        const direction =
+          ndc
+            .sub(this.camera.position)
+            .normalize();
+
+        const targetZ = 0.65;
+        const distance =
+          (targetZ - this.camera.position.z) /
+          direction.z;
+
+        return this.camera.position
+          .clone()
+          .addScaledVector(
+            direction,
+            distance
+          );
+      }
+
+      pulseScoreboard(colorHex = 0xffffff) {
+        /*
+         * Restart the animation even when multiple freed orbiters arrive in
+         * rapid succession.
+         */
+        const impact =
+          new THREE.Color(colorHex);
+
+        this.scoreElement.style.setProperty(
+          '--score-hit-color',
+          `#${impact.getHexString()}`
+        );
+
+        this.scoreElement.classList.remove(
+          'score-hit'
+        );
+
+        void this.scoreElement.offsetWidth;
+
+        this.scoreElement.classList.add(
+          'score-hit'
+        );
+
+        window.setTimeout(() => {
+          this.scoreElement.classList.remove(
+            'score-hit'
+          );
+        }, 430);
+      }
+
+      launchFreedOrbiterToScore(
+        orbiter,
+        hostRoot
+      ) {
+        if (!orbiter?.marker) {
+          return;
+        }
+
+        /*
+         * Detach visually by cloning only the miniature orbiting solid.
+         * The original marker/trail remains owned by its cell and can be
+         * disposed normally while this lightweight flight continues.
+         */
+        const worldStart =
+          new THREE.Vector3();
+
+        orbiter.marker.getWorldPosition(
+          worldStart
+        );
+
+        const flightMaterial =
+          orbiter.marker.material.clone();
+
+        flightMaterial.transparent = true;
+        flightMaterial.opacity = 0.86;
+
+        const impactColor =
+          orbiter.marker.material.color
+            ? orbiter.marker.material.color.getHex()
+            : 0xffffff;
+
+        const flight =
+          new THREE.Mesh(
+            orbiter.marker.geometry,
+            flightMaterial
+          );
+
+        flight.position.copy(worldStart);
+        flight.quaternion.copy(
+          orbiter.marker.getWorldQuaternion(
+            new THREE.Quaternion()
+          )
+        );
+
+        flight.scale.copy(
+          orbiter.marker.getWorldScale(
+            new THREE.Vector3()
+          )
+        );
+
+        this.scene.add(flight);
+
+        const target =
+          this.getScoreTargetWorldPosition();
+
+        const mid =
+          worldStart
+            .clone()
+            .lerp(target, 0.48);
+
+        mid.y +=
+          Math.max(
+            0.8,
+            worldStart.distanceTo(target) *
+            0.12
+          );
+
+        const duration =
+          520 +
+          Math.random() * 180;
+
+        new TWEEN.Tween(flight.position)
+          .to(
+            {
+              x: mid.x,
+              y: mid.y,
+              z: Math.max(
+                worldStart.z,
+                target.z
+              ) + 0.9
+            },
+            duration * 0.46
+          )
+          .easing(
+            TWEEN.Easing.Quadratic.Out
+          )
+          .onComplete(() => {
+            new TWEEN.Tween(
+              flight.position
+            )
+              .to(
+                {
+                  x: target.x,
+                  y: target.y,
+                  z: target.z
+                },
+                duration * 0.54
+              )
+              .easing(
+                TWEEN.Easing.Quadratic.In
+              )
+              .onComplete(() => {
+                this.scene.remove(flight);
+                flightMaterial.dispose();
+                this.pulseScoreboard(
+                  impactColor
+                );
+              })
+              .start();
+          })
+          .start();
+
+        new TWEEN.Tween(flight.scale)
+          .to(
+            {
+              x: flight.scale.x * 0.72,
+              y: flight.scale.y * 0.72,
+              z: flight.scale.z * 0.72
+            },
+            duration
+          )
+          .start();
+
+        new TWEEN.Tween(flight.rotation)
+          .to(
+            {
+              x:
+                flight.rotation.x +
+                Math.PI * 2,
+              y:
+                flight.rotation.y +
+                Math.PI * 3,
+              z:
+                flight.rotation.z +
+                Math.PI * 2
+            },
+            duration
+          )
+          .start();
+      }
+
+      collectPrizes(positions) {
+        let any = false;
+
+        for (const { row, col } of positions) {
+          const prize =
+            this.prizes.get(row, col);
+
+          if (
+            prize &&
+            !prize.collected
+          ) {
+            this.launchFreedOrbiterToScore(
+              prize.view.orbiter,
+              prize.view.root
+            );
+          }
+
+          any =
+            this.prizes.collect(
+              row,
+              col,
+              this.particles
+            ) || any;
+        }
+
+        if (any) {
+          this.score += CONFIG.prizeBonus;
+          this.updateScore();
+        }
+      }
+
+      removeView(view) {
+        this.boardGroup.remove(view.root);
+
+        if (
+          this.viewGrid[view.row]?.[view.col] === view
+        ) {
+          this.viewGrid[view.row][view.col] = null;
+        }
+
+        /*
+         * CORRECTNESS:
+         * Capture the orbital marker before disposal so it can be removed
+         * from the raycast list cleanly.
+         */
+        const prismMarker =
+          view.prismOrbiter?.marker || null;
+
+        this.pickables = this.pickables.filter(
+          object =>
+            object !== view.primaryObject &&
+            object !== prismMarker
+        );
+
+        view.primaryObject.userData.bubbleView = null;
+
+        if (prismMarker) {
+          prismMarker.userData.bubbleView = null;
+        }
+
+        view.disposeUniqueResources();
+      }
+
+      afterCellRemoval() {
+        const moves = this.model.applyGravity();
+
+        if (moves.length === 0) {
+          this.removeEmptyColumns();
+          return;
+        }
+
+        this.animateGravity(moves);
+      }
+
+      animateGravity(moves) {
+        const moving = moves.map(move => ({
+          move,
+          view: this.viewGrid[move.fromRow][move.fromCol]
+        }));
+
+        for (const { move } of moving) {
+          this.viewGrid[move.fromRow][move.fromCol] = null;
+        }
+
+        let pending = 0;
+
+        for (const { move, view } of moving) {
+          if (!view) continue;
+
+          view.row = move.toRow;
+          view.col = move.toCol;
+          this.viewGrid[move.toRow][move.toCol] = view;
+
+          const target =
+            this.worldPositionForCell(
+              move.toRow,
+              move.toCol
+            );
+
+          pending++;
+
+          new TWEEN.Tween(view.root.position)
+            .to({ y: target.y }, 290)
+            .easing(TWEEN.Easing.Elastic.Out)
+            .onComplete(() => {
+              pending--;
+
+              if (pending === 0) {
+                this.removeEmptyColumns();
+              }
+            })
+            .start();
+        }
+
+        this.prizes.moveWithBubbleMoves(
+          moves,
+          (row, col) =>
+            this.worldPositionForCell(row, col)
+        );
+
+        if (pending === 0) {
+          this.removeEmptyColumns();
+        }
+      }
+
+      removeEmptyColumns() {
+        const emptyColumns =
+          this.model.getEmptyActiveColumns();
+
+        if (emptyColumns.length === 0) {
+          this.checkGameState();
+          return;
+        }
+
+        const bonus =
+          emptyColumns.length * CONFIG.columnBonus;
+
+        this.score += bonus;
+        this.updateScore();
+
+        for (const col of emptyColumns) {
+          const position =
+            this.worldPositionForCell(
+              Math.floor(this.level.size / 2),
+              col
+            );
+
+          position.y = 0;
+
+          this.scoreEffects.show(
+            position,
+            `COLUMN +${CONFIG.columnBonus}`,
+            1.4,
+            true
+          );
+
+          this.particles.createPrizeExplosion(
+            position,
+            1.8
+          );
+        }
+
+        const map =
+          this.model.collapseColumns(emptyColumns);
+
+        this.animateColumnCollapse(
+          map,
+          emptyColumns
+        );
+      }
+
+      animateColumnCollapse(columnMap, emptyColumns) {
+        const newGrid =
+          Utils.matrix(
+            this.level.size,
+            this.level.size,
+            null
+          );
+
+        const animations = [];
+
+        for (let row = 0; row < this.level.size; row++) {
+          for (const [oldCol, newCol] of columnMap) {
+            const view =
+              this.viewGrid[row]?.[oldCol];
+
+            if (!view) continue;
+
+            view.col = newCol;
+            newGrid[row][newCol] = view;
+
+            const target =
+              this.worldPositionForCell(
+                row,
+                newCol
+              );
+
+            if (
+              Math.abs(
+                view.root.position.x - target.x
+              ) > 0.0001
+            ) {
+              animations.push({ view, target });
+            }
+          }
+        }
+
+        this.viewGrid = newGrid;
+
+        this.prizes.collapseColumns(
+          columnMap,
+          emptyColumns,
+          (row, col) =>
+            this.worldPositionForCell(row, col)
+        );
+
+        if (!animations.length) {
+          this.checkGameState();
+          return;
+        }
+
+        let pending = animations.length;
+
+        for (const { view, target } of animations) {
+          new TWEEN.Tween(view.root.position)
+            .to({ x: target.x }, 470)
+            .easing(TWEEN.Easing.Elastic.Out)
+            .onComplete(() => {
+              pending--;
+
+              if (pending === 0) {
+                this.checkGameState();
+              }
+            })
+            .start();
+        }
+      }
+
+      checkGameState() {
+        this.isAnimating = false;
+
+        // User rule: ONLY golden-ring destruction completes the level.
+        if (this.prizes.allCollected()) {
+          this.completeLevel();
+          return;
+        }
+
+        if (!this.model.hasValidMoves()) {
+          this.handleGameOver();
+        }
+      }
+
+      completeLevel() {
+        this.gamePaused = true;
+
+        // OUTCOME AUDIO: exactly one second after level victory.
+        this.audio.scheduleOutcome('win');
+
+        // MUSIC: completed level fades out over three seconds.
+        this.audio.fadeOutCurrentMusic();
+
+        const isFinal =
+          this.levelIndex === this.campaignLevels.length - 1;
+
+        if (isFinal) {
+          this.showOverlay(
+            'Campaign Complete',
+            `All ${this.campaignLevels.length} playable levels cleared on this device. Returning to the title screen.`
+          );
+
+          window.setTimeout(
+            () => this.leaveGame(),
+            4200
+          );
+
+          return;
+        }
+
+        this.showOverlay(
+          `Level ${this.level.number} Complete`,
+          'All golden rings destroyed. Advancing…'
+        );
+
+        /*
+         * Allow the full 3-second fade-out to complete before the next
+         * level chooses a different music track and fades it in.
+         */
+        window.setTimeout(() => {
+          this.levelIndex++;
+          this.startLevel();
+        }, 3200);
+      }
+
+      handleGameOver() {
+        this.gamePaused = true;
+
+        // OUTCOME AUDIO: exactly one second after loss.
+        this.audio.scheduleOutcome('lose');
+
+        this.showOverlay(
+          'No More Moves',
+          'Restarting this level…'
+        );
+
+        /*
+         * The level was not completed, so its looping music remains active.
+         * Restart after the loss stinger has had time to begin.
+         */
+        window.setTimeout(() => {
+          this.restartWithoutMusicChange = true;
+          this.startLevel();
+        }, 2400);
+      }
+
+      showOverlay(title, text) {
+        this.overlayTitle.textContent = title;
+        this.overlayText.textContent = text;
+        this.overlay.style.display = 'block';
+      }
+
+      updateScore() {
+        this.scoreElement.textContent =
+          `Score: ${this.score}`;
+      }
+
+      funPhrase(size) {
+        /*
+         * Two- and three-solid clears retain their small-match vocabulary.
+         * Every clear above three chooses uniformly from the full phrase pool;
+         * playFunPhraseSometimes() still derives the WAV filename from the
+         * selected phrase, so spoken audio always matches the displayed word.
+         */
+        const values =
+          size <= 3
+            ? FUN_PHRASES[0]
+            : RANDOM_FUN_PHRASES;
+
+        return values[
+          Utils.randomInt(values.length)
+        ];
+      }
+
+      clearBoard() {
+        this.firstMoveUnlocked = false;
+        this.levelHasOrbiters = false;
+        this.clearHover();
+        TWEEN.removeAll();
+        this.particles.clear();
+        this.scoreEffects.clear();
+
+        for (const row of this.viewGrid) {
+          for (const view of row || []) {
+            if (!view) continue;
+            this.boardGroup.remove(view.root);
+            view.disposeUniqueResources();
+          }
+        }
+
+        this.viewGrid = [];
+        this.pickables = [];
+
+        /*
+         * Any remaining registrations are stale after a board teardown.
+         */
+        this.orbitCoordinator.clear();
+
+        if (this.prizes) {
+          this.prizes.dispose();
+          this.prizes = null;
+        }
+
+        if (this.resources) {
+          this.resources.dispose();
+          this.resources = null;
+        }
+
+        this.model = null;
+        this.isAnimating = false;
+      }
+
+      leaveGame() {
+        this.clearBoard();
+        this.gamePaused = true;
+        this.pendingStartLevel = false;
+        this.hud.style.display = 'none';
+        this.overlay.style.display = 'none';
+        this.orientationOverlay.style.display = 'none';
+
+        this.audio.stopAllMusicImmediate();
+
+        const splash =
+          document.getElementById('splashScreen');
+
+        splash.style.display = 'flex';
+        splashScene.setVisible(true);
+        void splash.offsetWidth;
+        splash.style.opacity = '1';
+      }
+
+      onResize() {
+        this.camera.aspect =
+          window.innerWidth /
+          window.innerHeight;
+
+        this.camera.updateProjectionMatrix();
+
+        this.renderer.setPixelRatio(
+          Math.min(
+            window.devicePixelRatio || 1,
+            2
+          )
+        );
+
+        this.renderer.setSize(
+          window.innerWidth,
+          window.innerHeight
+        );
+
+        this.enforceMobileLandscape();
+      }
+
+      animate() {
+        requestAnimationFrame(this.animate);
+
+        const delta =
+          Math.min(this.clock.getDelta(), 0.05);
+
+        if (this.orientationPaused) {
+          this.renderer.render(
+            this.scene,
+            this.camera
+          );
+          return;
+        }
+
+        TWEEN.update();
+
+        /*
+         * Shared audio analysis occurs exactly once per frame. Every orbiter
+         * reads the same authoritative feature vector and music clock.
+         */
+        this.audio.updateAnalysis();
+
+        this.starfield.update(delta);
+        this.particles.update(delta);
+
+        if (this.prizes) {
+          this.prizes.update(delta);
+        }
+
+        /*
+         * FIRST-MOVE GATE:
+         * Unlock only after a satellite has genuinely advanced under the
+         * music-synchronized orbital clock. A timeout would unlock too early
+         * when audio, orientation, or the game is paused.
+         */
+        if (
+          !this.firstMoveUnlocked &&
+          this.levelHasOrbiters
+        ) {
+          for (const orbiter of this.orbitCoordinator.orbiters) {
+            if (orbiter.revolutionProgress > 0.0001) {
+              this.firstMoveUnlocked = true;
+              break;
+            }
+          }
+        }
+
+        for (const row of this.viewGrid) {
+          for (const view of row || []) {
+            if (view) {
+              const ringChanged = view.update(delta);
+
+              if (
+                ringChanged &&
+                view === this.hoveredView
+              ) {
+                this.refreshPrismPreview(view);
+              }
+            }
+          }
+        }
+
+        const pulse =
+          0.48 +
+          Math.sin(
+            this.clock.elapsedTime * 3
+          ) * 0.18;
+
+        this.tubes.material.opacity = pulse;
+        this.prismBaseTubes.material.opacity = pulse;
+        this.prismRingTubes.material.opacity = pulse;
+
+        this.renderer.render(
+          this.scene,
+          this.camera
+        );
+      }
+
+      startLoop() {
+        this.clock.start();
+        requestAnimationFrame(this.animate);
+      }
+    }
+
+    /*
+     * ============================================================
+     * Bootstrap
+     * ============================================================
+     */
+
+    const game = new PlatonicNeighborsGame();
+    const splashScene =
+      new SplashScene(
+        document.getElementById('splashOrbitLayer')
+      );
+
+    game.startLoop();
+
+    const splash =
+      document.getElementById('splashScreen');
+
+    let starting = false;
+
+    splash.addEventListener('click', async () => {
+      if (starting) return;
+      starting = true;
+
+      await game.audio.unlock();
+      splash.style.opacity = '0';
+
+      window.setTimeout(() => {
+        splash.style.display = 'none';
+        splashScene.setVisible(false);
+        game.startCampaign();
+        starting = false;
+      }, 700);
+    });
+  </script>
+</body>
+</html>
