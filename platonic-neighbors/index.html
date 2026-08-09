@@ -3,7 +3,70 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Platonic Neighbors</title>
+<title>Platonic Neighbors | 3D Gem Matching Puzzle Game</title>
+  <meta name="description" content="Play Platonic Neighbors, a 3D gem-matching puzzle game featuring crystalline Platonic solids, eight-direction matching, evolving boards, prismatic powers, orbiting satellites, and music-reactive effects.">
+  <meta name="keywords" content="Platonic Neighbors, puzzle game, matching game, browser game, 3D puzzle game, gem matching game, Platonic solids, geometry game, WebGL game, Three.js game, crystal game, free browser game">
+  <meta name="author" content="Dan Houseman">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#050713">
+  <link rel="canonical" href="https://danhouseman.com/platonic-neighbors/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Platonic Neighbors">
+  <meta property="og:title" content="Platonic Neighbors | 3D Gem Matching Puzzle Game">
+  <meta  property="og:description" content="Destroy connected crystalline Platonic solids, collect orbiting satellites, create prismatic gems, and clear increasingly challenging 3D puzzle boards.">
+  <meta property="og:url" content="https://danhouseman.com/platonic-neighbors/">
+  <meta property="og:image" content="https://danhouseman.com/platonic-neighbors/platonic-neighbors.jpg">
+  <meta property="og:image:alt" content="Platonic Neighbors 3D crystalline gem matching puzzle game">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Platonic Neighbors | 3D Gem Matching Puzzle Game">
+  <meta name="twitter:description" content="A browser-based 3D puzzle game of crystalline Platonic solids, prismatic powers, orbiting satellites, evolving levels, and music-reactive effects.">
+  <meta name="twitter:image" content="https://danhouseman.com/platonic-neighbors/platonic-neighbors.jpg">
+  <meta name="twitter:image:alt" content="Platonic Neighbors 3D crystalline puzzle game">
+  <meta name="application-name" content="Platonic Neighbors">
+  <meta name="apple-mobile-web-app-title" content="Platonic Neighbors">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "@id": "https://danhouseman.com/platonic-neighbors/#game",
+    "name": "Platonic Neighbors",
+    "url": "https://example.com/platonic-neighbors/",
+    "description": "Platonic Neighbors is a browser-based 3D gem-matching puzzle game. Players match connected crystalline Platonic solids in eight directions, destroy golden-ring objectives, create prismatic powers from large chains, and progress through increasingly challenging board sizes and layouts.",
+    "image": "https://danhouseman.com/platonic-neighbors/platonic-neighbors.jpg",
+    "genre": [
+      "Puzzle",
+      "Matching",
+      "Strategy"
+    ],
+    "gamePlatform": [
+      "Web Browser",
+      "Desktop",
+      "Mobile"
+    ],
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Any modern web browser",
+    "playMode": "SinglePlayer",
+    "inLanguage": "en",
+    "isAccessibleForFree": true,
+    "browserRequirements": "Requires JavaScript, WebGL, and a modern web browser",
+    "keywords": [
+      "puzzle game",
+      "matching game",
+      "3D puzzle",
+      "gem matching",
+      "Platonic solids",
+      "geometry",
+      "crystal game",
+      "WebGL",
+      "Three.js"
+    ]
+  }
+  </script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.min.js"></script>
@@ -1676,7 +1739,7 @@
      * ============================================================
      * Orbital Platonic marker
      * ============================================================
-     * Replaces both ring/torus markers:
+     * Replaces both satellite/torus markers:
      *
      * - Golden prize marker: small gold Platonic solid orbiting its host.
      * - Prismatic marker: small same-form Platonic solid whose color changes.
@@ -5608,7 +5671,7 @@
          * COMPLETABILITY INVARIANT:
          * Golden rings are created ONLY in pairs on identical compatible
          * gameplay types: same Platonic shape/color AND same solid/hollow
-         * form. Therefore a ring-bearing type can never be generated alone.
+         * form. Therefore a satellite-bearing type can never be generated alone.
          */
         const groups = new Map();
 
@@ -5886,7 +5949,7 @@
         /*
          * PRISM PREVIEW:
          * Show both destruction paths simultaneously. Base-color path stays
-         * fixed; ring-color path is rebuilt whenever the ring changes color.
+         * fixed; satellite-color path is rebuilt whenever the satellite changes color.
          */
         const uniqueViews = new Set();
 
@@ -6135,7 +6198,7 @@
          * Clicking a prism destroys every compatible cell whose color is
          * either:
          *   1. the prism's original/base color, or
-         *   2. the ring's color at the exact moment of the click.
+         *   2. the satellite's color at the exact moment of the click.
          *
          * Solid/hollow compatibility is still enforced.
          */
@@ -6213,7 +6276,7 @@
 
           window.setTimeout(() => {
             /*
-             * Use the cell's own color for its particles. The prism ring
+             * Use the cell's own color for its particles. The prism satellite
              * itself visibly communicates the secondary selected color.
              */
             this.particles.createBubbleExplosion(
@@ -6691,7 +6754,7 @@
       checkGameState() {
         this.isAnimating = false;
 
-        // User rule: ONLY golden-ring destruction completes the level.
+        // User rule: ONLY golden-satellite destruction completes the level.
         if (this.prizes.allCollected()) {
           this.completeLevel();
           return;
@@ -6730,7 +6793,7 @@
 
         this.showOverlay(
           `Level ${this.level.number} Complete`,
-          'All golden rings destroyed. Advancing…'
+          'All satellites destroyed. Advancing…'
         );
 
         /*
