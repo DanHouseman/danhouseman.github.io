@@ -3,70 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Platonic Neighbors | 3D Gem Matching Puzzle Game</title>
-  <meta name="description" content="Play Platonic Neighbors, a 3D gem-matching puzzle game featuring crystalline Platonic solids, eight-direction matching, evolving boards, prismatic powers, orbiting satellites, and music-reactive effects.">
-  <meta name="keywords" content="Platonic Neighbors, puzzle game, matching game, browser game, 3D puzzle game, gem matching game, Platonic solids, geometry game, WebGL game, Three.js game, crystal game, free browser game">
-  <meta name="author" content="Dan Houseman">
-  <meta name="robots" content="index, follow, max-image-preview:large">
-  <meta name="theme-color" content="#050713">
-  <link rel="canonical" href="https://danhouseman.com/platonic-neighbors/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Platonic Neighbors">
-  <meta property="og:title" content="Platonic Neighbors | 3D Gem Matching Puzzle Game">
-  <meta  property="og:description" content="Destroy connected crystalline Platonic solids, collect orbiting satellites, create prismatic gems, and clear increasingly challenging 3D puzzle boards.">
-  <meta property="og:url" content="https://danhouseman.com/platonic-neighbors/">
-  <meta property="og:image" content="https://danhouseman.com/platonic-neighbors/platonic-neighbors.jpg">
-  <meta property="og:image:alt" content="Platonic Neighbors 3D crystalline gem matching puzzle game">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Platonic Neighbors | 3D Gem Matching Puzzle Game">
-  <meta name="twitter:description" content="A browser-based 3D puzzle game of crystalline Platonic solids, prismatic powers, orbiting satellites, evolving levels, and music-reactive effects.">
-  <meta name="twitter:image" content="https://danhouseman.com/platonic-neighbors/platonic-neighbors.jpg">
-  <meta name="twitter:image:alt" content="Platonic Neighbors 3D crystalline puzzle game">
-  <meta name="application-name" content="Platonic Neighbors">
-  <meta name="apple-mobile-web-app-title" content="Platonic Neighbors">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="format-detection" content="telephone=no">
+
+  <meta name="description" content="Play Platonic Neighbors, a 3D gem-matching puzzle game featuring crystalline Platonic solids, eight-direction matching, evolving boards, prismatic powers, orbiting satellites, and music-reactive effects." />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#050713" />
+  <meta name="application-name" content="Platonic Neighbors" />
+  <meta name="apple-mobile-web-app-title" content="Platonic Neighbors" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <link rel="canonical" href="https://danhouseman.com/platonic-neighbors/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Platonic Neighbors" />
+  <meta property="og:title" content="Platonic Neighbors | 3D Gem Matching Puzzle Game" />
+  <meta property="og:description" content="Destroy connected crystalline Platonic solids, collect orbiting satellites, create prismatic gems, and clear increasingly challenging 3D puzzle boards." />
+  <meta property="og:url" content="https://danhouseman.com/platonic-neighbors/" />
+  <meta property="og:image" content="https://danhouseman.com/platonic-neighbors/platonic-neighbors.jpg" />
+  <meta property="og:image:alt" content="Platonic Neighbors 3D crystalline gem matching puzzle game" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Platonic Neighbors | 3D Gem Matching Puzzle Game" />
+  <meta name="twitter:description" content="A browser-based 3D puzzle game of crystalline Platonic solids, prismatic powers, orbiting satellites, evolving levels, and music-reactive effects." />
+  <meta name="twitter:image" content="https://danhouseman.com/platonic-neighbors/platonic-neighbors.jpg" />
+  <meta name="twitter:image:alt" content="Platonic Neighbors 3D crystalline puzzle game" />
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "@id": "https://danhouseman.com/platonic-neighbors/#game",
     "name": "Platonic Neighbors",
-    "url": "https://example.com/platonic-neighbors/",
-    "description": "Platonic Neighbors is a browser-based 3D gem-matching puzzle game. Players match connected crystalline Platonic solids in eight directions, destroy golden-ring objectives, create prismatic powers from large chains, and progress through increasingly challenging board sizes and layouts.",
+    "url": "https://danhouseman.com/platonic-neighbors/",
+    "description": "Platonic Neighbors is a browser-based 3D gem-matching puzzle game. Players match connected crystalline Platonic solids in eight directions, destroy orbiting objectives, create prismatic powers from large chains, and progress through increasingly challenging board sizes and layouts.",
     "image": "https://danhouseman.com/platonic-neighbors/platonic-neighbors.jpg",
-    "genre": [
-      "Puzzle",
-      "Matching",
-      "Strategy"
-    ],
-    "gamePlatform": [
-      "Web Browser",
-      "Desktop",
-      "Mobile"
-    ],
+    "genre": ["Puzzle", "Matching", "Strategy"],
+    "gamePlatform": ["Web Browser", "Desktop", "Mobile"],
     "applicationCategory": "GameApplication",
     "operatingSystem": "Any modern web browser",
     "playMode": "SinglePlayer",
     "inLanguage": "en",
     "isAccessibleForFree": true,
-    "browserRequirements": "Requires JavaScript, WebGL, and a modern web browser",
-    "keywords": [
-      "puzzle game",
-      "matching game",
-      "3D puzzle",
-      "gem matching",
-      "Platonic solids",
-      "geometry",
-      "crystal game",
-      "WebGL",
-      "Three.js"
-    ]
+    "browserRequirements": "Requires JavaScript, WebGL, and a modern web browser"
   }
   </script>
+
+  <title>Platonic Neighbors</title>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.min.js"></script>
@@ -248,8 +231,8 @@
       inset: 0;
       z-index: 1;
       pointer-events: none;
-      left: -230px;
-      top: -120px;
+      left: -45vw;
+      top: -45vh;
     }
 
     #titleContent {
@@ -348,6 +331,33 @@
     @keyframes titlePrompt {
       0%,100% { opacity: .48; }
       50% { opacity: 1; }
+    }
+
+    #boardAnnouncement {
+      position: fixed;
+      top: 72px;
+      left: 50%;
+      z-index: 240;
+      transform: translate(-50%, -14px) scale(.94);
+      pointer-events: none;
+      opacity: 0;
+      color: #fff;
+      font-size: clamp(1.3rem, 3vw, 2.4rem);
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-align: center;
+      text-shadow:
+        0 0 8px rgba(255,255,255,.9),
+        0 0 20px var(--accent),
+        0 0 34px var(--accent);
+      transition:
+        opacity .14s ease,
+        transform .2s ease;
+    }
+
+    #boardAnnouncement.show {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
     }
 
     #overlay {
@@ -486,7 +496,7 @@
   </style>
 </head>
 <body>
-<div id="author" style="
+  <div id="author" style="
     position: absolute;
     bottom: 10px;
     left: 10px;
@@ -507,6 +517,8 @@
   </div>
 
 
+  <div id="boardAnnouncement" aria-live="polite"></div>
+
   <div id="overlay">
     <h2 id="overlayTitle"></h2>
     <p id="overlayText"></p>
@@ -526,7 +538,7 @@
     <div id="titleContent">
       <h1 id="gameTitle" data-text="PLATONIC NEIGHBORS">PLATONIC NEIGHBORS</h1>
       <p id="gameDescription">
-        Match connected solids in eight directions. Destroy every orbiting satellite to clear the level.
+        Match connected solids in eight directions. Destroy every satellite to clear the level.
         Large chains create prismatic satellites that can erase two colors at once.
       </p>
       <div id="startPrompt">Click anywhere to start</div>
@@ -603,9 +615,7 @@
       'game_music_1.mp3',
       'game_music_2.mp3',
       'game_music_3.mp3',
-      'game_music_4.mp3',
-      'game_music_5.mp3',
-      'game_music_6.mp3'
+      'game_music_4.mp3'
     ]);
 
     const WIN_SOUNDS = Object.freeze([
@@ -680,9 +690,11 @@
       trailOrbitFraction: 0.82,
       minimumOrbitalSeparationRadians: Math.PI / 18,
 
-      // Occasionally a cleared solid chain with NO orbiting marker may leave
-      // one same-color wireframe shell at the clicked cell.
-      shellDropChance: 0.18,
+      // Short clears may leave a shell. Smaller chains are more likely to do so.
+      shellChanceByChainSize: Object.freeze({
+        2: 0.62,
+        3: 0.34
+      }),
 
       /*
        * MOBILE RULE:
@@ -930,41 +942,43 @@
         return this.visitGeneration;
       }
 
-      findConnected(startRow, startCol) {
-        const startCell = this.getCell(startRow, startCol);
+      findSolidComponent(startRow, startCol, colorIndex) {
+        const start = this.getCell(startRow, startCol);
 
-        // Prismatic cells activate their power instead of joining chains.
-        if (!startCell || startCell.prismatic) {
+        if (
+          !start ||
+          start.prismatic ||
+          start.hollow ||
+          start.colorIndex !== colorIndex
+        ) {
           return [];
         }
 
         const generation = this.nextVisitGeneration();
-
-        /*
-         * OPTIMIZATION/CORRECTNESS:
-         * Store one flat cell id per stack entry. A normal JS array is used
-         * deliberately here: duplicate neighbor discoveries can temporarily
-         * make the pending stack larger than rows×columns before visitation
-         * marks are applied. A fixed-size typed stack could silently truncate
-         * valid traversal work.
-         */
         const stack = [
           Utils.cellKey(startRow, startCol, this.columns)
         ];
-
         const connected = [];
 
-        while (stack.length > 0) {
+        while (stack.length) {
           const flat = stack.pop();
-          const row = Math.floor(flat / this.columns);
-          const col = flat % this.columns;
 
-          if (this.visitMarks[flat] === generation) continue;
+          if (this.visitMarks[flat] === generation) {
+            continue;
+          }
+
           this.visitMarks[flat] = generation;
 
+          const row = Math.floor(flat / this.columns);
+          const col = flat % this.columns;
           const cell = this.cells[row][col];
 
-          if (!cell || !startCell.matches(cell)) {
+          if (
+            !cell ||
+            cell.prismatic ||
+            cell.hollow ||
+            cell.colorIndex !== colorIndex
+          ) {
             continue;
           }
 
@@ -988,23 +1002,154 @@
         return connected;
       }
 
-      hasValidMoves() {
+      appendTerminalShells(component, colorIndex, onlyShell = null) {
+        const result = [...component];
+        const included = new Set(
+          component.map(({ row, col }) =>
+            Utils.cellKey(row, col, this.columns)
+          )
+        );
+
+        for (const { row, col } of component) {
+          for (const [dr, dc] of DIRECTIONS_8) {
+            const nr = row + dr;
+            const nc = col + dc;
+            const shell = this.getCell(nr, nc);
+
+            if (
+              !shell ||
+              shell.prismatic ||
+              !shell.hollow ||
+              shell.colorIndex !== colorIndex
+            ) {
+              continue;
+            }
+
+            if (
+              onlyShell &&
+              (nr !== onlyShell.row || nc !== onlyShell.col)
+            ) {
+              continue;
+            }
+
+            const key =
+              Utils.cellKey(nr, nc, this.columns);
+
+            if (!included.has(key)) {
+              included.add(key);
+              result.push({ row: nr, col: nc });
+            }
+          }
+        }
+
+        return result;
+      }
+
+      findConnected(startRow, startCol) {
+        const startCell =
+          this.getCell(startRow, startCol);
+
+        if (!startCell || startCell.prismatic) {
+          return [];
+        }
+
         /*
-         * OPTIMIZATION:
-         * - Any prismatic cell is itself a valid move.
-         * - Otherwise only inspect immediate neighbors, not whole components.
+         * Shells are terminal members only:
+         * - traversal never passes through a shell;
+         * - a solid component may include adjacent same-color shells as leaves;
+         * - clicking a shell selects the largest adjacent solid component and
+         *   includes only that clicked shell as its terminal.
          */
+        if (startCell.hollow) {
+          let best = [];
+
+          for (const [dr, dc] of DIRECTIONS_8) {
+            const nr = startRow + dr;
+            const nc = startCol + dc;
+            const neighbor = this.getCell(nr, nc);
+
+            if (
+              !neighbor ||
+              neighbor.prismatic ||
+              neighbor.hollow ||
+              neighbor.colorIndex !== startCell.colorIndex
+            ) {
+              continue;
+            }
+
+            const component =
+              this.findSolidComponent(
+                nr,
+                nc,
+                startCell.colorIndex
+              );
+
+            if (component.length > best.length) {
+              best = component;
+            }
+          }
+
+          return best.length
+            ? this.appendTerminalShells(
+                best,
+                startCell.colorIndex,
+                { row: startRow, col: startCol }
+              )
+            : [];
+        }
+
+        const component =
+          this.findSolidComponent(
+            startRow,
+            startCol,
+            startCell.colorIndex
+          );
+
+        return this.appendTerminalShells(
+          component,
+          startCell.colorIndex
+        );
+      }
+
+      hasValidMoves() {
         for (let row = 0; row < this.rows; row++) {
           for (let col = 0; col < this.columns; col++) {
             const cell = this.cells[row][col];
 
             if (!cell) continue;
+
+            // A prismatic satellite is always independently activatable.
             if (cell.prismatic) return true;
 
-            for (const [dr, dc] of DIRECTIONS_8) {
-              const other = this.getCell(row + dr, col + dc);
+            if (cell.hollow) {
+              // A shell is playable only as the terminal of a matching solid chain.
+              for (const [dr, dc] of DIRECTIONS_8) {
+                const neighbor =
+                  this.getCell(row + dr, col + dc);
 
-              if (cell.matches(other)) {
+                if (
+                  neighbor &&
+                  !neighbor.prismatic &&
+                  !neighbor.hollow &&
+                  neighbor.colorIndex === cell.colorIndex
+                ) {
+                  return true;
+                }
+              }
+
+              continue;
+            }
+
+            for (const [dr, dc] of DIRECTIONS_8) {
+              const other =
+                this.getCell(row + dr, col + dc);
+
+              if (
+                other &&
+                !other.prismatic &&
+                other.colorIndex === cell.colorIndex
+              ) {
+                // solid-solid or solid-shell terminal
                 return true;
               }
             }
@@ -1012,6 +1157,200 @@
         }
 
         return false;
+      }
+
+      restoreAdjacentShells(explodedPositions) {
+        const exploded = new Set(
+          explodedPositions.map(({ row, col }) =>
+            Utils.cellKey(row, col, this.columns)
+          )
+        );
+
+        const restored = new Map();
+
+        for (const { row, col } of explodedPositions) {
+          for (const [dr, dc] of DIRECTIONS_8) {
+            const nr = row + dr;
+            const nc = col + dc;
+
+            if (!this.isInside(nr, nc)) continue;
+
+            const key =
+              Utils.cellKey(nr, nc, this.columns);
+
+            if (exploded.has(key) || restored.has(key)) {
+              continue;
+            }
+
+            const shell = this.getCell(nr, nc);
+
+            if (
+              shell &&
+              shell.hollow &&
+              !shell.prismatic
+            ) {
+              shell.hollow = false;
+              restored.set(key, { row: nr, col: nc });
+            }
+          }
+        }
+
+        return [...restored.values()];
+      }
+
+      hasDuplicateSolidColor() {
+        const counts =
+          new Uint16Array(this.level.palette.length);
+
+        for (let row = 0; row < this.rows; row++) {
+          for (let col = 0; col < this.columns; col++) {
+            const cell = this.cells[row][col];
+
+            if (
+              !cell ||
+              cell.prismatic ||
+              cell.hollow
+            ) {
+              continue;
+            }
+
+            counts[cell.colorIndex]++;
+
+            if (counts[cell.colorIndex] >= 2) {
+              return true;
+            }
+          }
+        }
+
+        return false;
+      }
+
+      repackRemainingAsSquare() {
+        const entries = [];
+
+        for (let row = 0; row < this.rows; row++) {
+          for (let col = 0; col < this.columns; col++) {
+            const cell = this.cells[row][col];
+
+            if (cell) {
+              entries.push({
+                fromRow: row,
+                fromCol: col,
+                cell
+              });
+            }
+          }
+        }
+
+        if (entries.length < 2) {
+          return [];
+        }
+
+        Utils.shuffleInPlace(entries);
+
+        /*
+         * Guarantee that the rescue shuffle creates at least one legal
+         * same-color solid pair when the prerequisite duplicate exists.
+         */
+        let pair = null;
+
+        outer:
+        for (let i = 0; i < entries.length; i++) {
+          const a = entries[i].cell;
+
+          if (a.hollow || a.prismatic) continue;
+
+          for (let j = i + 1; j < entries.length; j++) {
+            const b = entries[j].cell;
+
+            if (
+              !b.hollow &&
+              !b.prismatic &&
+              a.colorIndex === b.colorIndex
+            ) {
+              pair = [i, j];
+              break outer;
+            }
+          }
+        }
+
+        if (pair) {
+          [entries[0], entries[pair[0]]] =
+            [entries[pair[0]], entries[0]];
+
+          const secondIndex =
+            pair[1] === 0 ? pair[0] : pair[1];
+
+          [entries[1], entries[secondIndex]] =
+            [entries[secondIndex], entries[1]];
+        }
+
+        const count = entries.length;
+        const width = Math.ceil(Math.sqrt(count));
+        const height = Math.ceil(count / width);
+
+        const startRow =
+          Math.floor((this.rows - height) / 2);
+
+        const startCol =
+          Math.floor((this.columns - width) / 2);
+
+        const destinations = [];
+        let remaining = count;
+
+        /*
+         * Fill from the bottom upward. Complete rows fill left-to-right;
+         * a partial top row is centered within the target width.
+         */
+        for (let localRow = height - 1; localRow >= 0; localRow--) {
+          const slotsThisRow =
+            Math.min(width, remaining);
+
+          const rowInset =
+            slotsThisRow < width
+              ? Math.floor((width - slotsThisRow) / 2)
+              : 0;
+
+          for (let localCol = 0; localCol < slotsThisRow; localCol++) {
+            destinations.push({
+              row: startRow + localRow,
+              col: startCol + rowInset + localCol
+            });
+          }
+
+          remaining -= slotsThisRow;
+        }
+
+        const newCells =
+          Utils.matrix(this.rows, this.columns, null);
+
+        const newLayout =
+          Utils.matrix(this.rows, this.columns, false);
+
+        const moves = [];
+
+        for (let i = 0; i < entries.length; i++) {
+          const source = entries[i];
+          const destination = destinations[i];
+
+          newCells[destination.row][destination.col] =
+            source.cell;
+
+          newLayout[destination.row][destination.col] =
+            true;
+
+          moves.push({
+            fromRow: source.fromRow,
+            fromCol: source.fromCol,
+            toRow: destination.row,
+            toCol: destination.col
+          });
+        }
+
+        this.cells = newCells;
+        this.layout = newLayout;
+
+        return moves;
       }
 
       getPrismColorTargets(row, col, colorIndex) {
@@ -1739,7 +2078,7 @@
      * ============================================================
      * Orbital Platonic marker
      * ============================================================
-     * Replaces both satellite/torus markers:
+     * Replaces both satellite markers:
      *
      * - Golden prize marker: small gold Platonic solid orbiting its host.
      * - Prismatic marker: small same-form Platonic solid whose color changes.
@@ -1903,6 +2242,8 @@
         phaseCoordinator,
         beatsPerOrbit = CONFIG.beatsPerOrbit,
         speedMultiplier = CONFIG.orbitSpeedMultiplier,
+        brightnessMultiplier = 1,
+        markerOpacity = 0.75,
         colorProvider = null,
         colorChangeSeconds = null,
         onColorChange = null
@@ -1917,6 +2258,8 @@
         this.baseMarkerScale = markerScale;
         this.beatsPerOrbit = beatsPerOrbit;
         this.speedMultiplier = speedMultiplier;
+        this.brightnessMultiplier = brightnessMultiplier;
+        this.markerOpacity = markerOpacity;
 
         this.phase = 0;
         this.revolutionProgress = 0;
@@ -1938,7 +2281,9 @@
             emissive:
               this.currentColor
                 .clone()
-                .multiplyScalar(0.22),
+                .multiplyScalar(
+                  0.22 * this.brightnessMultiplier
+                ),
             roughness: 0.12,
             metalness: 0.05,
             reflectivity: 1,
@@ -1947,7 +2292,7 @@
 
             // ORBIT VISIBILITY: 25% lower opacity than before.
             transparent: true,
-            opacity: 0.75,
+            opacity: this.markerOpacity,
             flatShading: true
           });
 
@@ -2905,12 +3250,17 @@
         this.markerMaterial.emissive
           .copy(this.currentColor)
           .multiplyScalar(
-            modulation.emissive
+            modulation.emissive *
+            this.brightnessMultiplier
           );
 
         this.trailMaterial.uniforms
           .uTrailEnergy.value =
-          modulation.trailEnergy;
+          Math.min(
+            1,
+            modulation.trailEnergy *
+            this.brightnessMultiplier
+          );
 
         this.trailMaterial.uniforms
           .uTrailWidth.value =
@@ -3009,6 +3359,9 @@
           0.12 + Math.random() * 0.16
         );
 
+        this.prismPulsePhase =
+          Math.random() * Math.PI * 2;
+
         this.primaryObject = resourceFactory.createRenderable(
           cell,
           palette[cell.colorIndex]
@@ -3077,6 +3430,8 @@
           phaseCoordinator: this.phaseCoordinator,
           beatsPerOrbit: CONFIG.beatsPerOrbit,
           speedMultiplier: CONFIG.orbitSpeedMultiplier,
+          brightnessMultiplier: 1.9,
+          markerOpacity: 1,
           colorChangeSeconds:
             CONFIG.prismRingChangeSeconds,
 
@@ -3176,6 +3531,28 @@
           !this.prismOrbiter
         ) {
           return false;
+        }
+
+        /*
+         * A prismatic host continuously breathes in place. Only the visible
+         * gem/edge layers scale, so board position and picking remain stable.
+         */
+        this.prismPulsePhase +=
+          deltaSeconds * 4.2;
+
+        const prismPulse =
+          1 +
+          Math.sin(this.prismPulsePhase) *
+          0.075;
+
+        this.primaryObject.scale.setScalar(
+          prismPulse
+        );
+
+        if (this.crystalEdges) {
+          this.crystalEdges.scale.setScalar(
+            1.008 * prismPulse
+          );
         }
 
         return this.prismOrbiter.update(
@@ -3346,7 +3723,12 @@
         }
       }
 
-      moveWithBubbleMoves(moves, worldPositionForCell) {
+      moveWithBubbleMoves(
+        moves,
+        worldPositionForCell,
+        duration = 300,
+        easing = TWEEN.Easing.Elastic.Out
+      ) {
         const bySource = new Map();
 
         for (const move of moves) {
@@ -3359,19 +3741,75 @@
         for (const prize of this.prizes) {
           if (prize.collected) continue;
 
-          const move = bySource.get(this.key(prize.row, prize.col));
+          const move =
+            bySource.get(
+              this.key(prize.row, prize.col)
+            );
 
           if (!move) continue;
 
           prize.row = move.toRow;
           prize.col = move.toCol;
 
-          const target = worldPositionForCell(prize.row, prize.col);
+          const target =
+            worldPositionForCell(
+              prize.row,
+              prize.col
+            );
 
-          new TWEEN.Tween(prize.view.root.position)
-            .to({ y: target.y }, 300)
-            .easing(TWEEN.Easing.Elastic.Out)
+          /*
+           * Satellites live in a separate render group from their host gems,
+           * so every board transformation must move all coordinates. Updating
+           * only Y works for gravity but leaves satellites behind after a
+           * shuffle or any future diagonal/repacking operation.
+           */
+          new TWEEN.Tween(
+            prize.view.root.position
+          )
+            .to(
+              {
+                x: target.x,
+                y: target.y,
+                z: target.z
+              },
+              duration
+            )
+            .easing(easing)
+            .onComplete(() => {
+              // Snap to the authoritative host-cell position to eliminate
+              // accumulated tween/float error.
+              prize.view.root.position.copy(
+                worldPositionForCell(
+                  prize.row,
+                  prize.col
+                )
+              );
+            })
             .start();
+        }
+
+        this.reindex();
+      }
+
+      synchronizePositions(worldPositionForCell) {
+        /*
+         * Defensive reconciliation used after compound board transforms.
+         * A satellite's row/column is authoritative; render position is not.
+         */
+        for (const prize of this.prizes) {
+          if (
+            prize.collected ||
+            !prize.view.root.visible
+          ) {
+            continue;
+          }
+
+          prize.view.root.position.copy(
+            worldPositionForCell(
+              prize.row,
+              prize.col
+            )
+          );
         }
 
         this.reindex();
@@ -5184,6 +5622,9 @@
         this.overlay = document.getElementById('overlay');
         this.overlayTitle = document.getElementById('overlayTitle');
         this.overlayText = document.getElementById('overlayText');
+        this.boardAnnouncement =
+          document.getElementById('boardAnnouncement');
+        this.boardAnnouncementTimer = null;
         this.orientationOverlay =
           document.getElementById('orientationOverlay');
         this.musicToggle =
@@ -5208,6 +5649,22 @@
         this.pendingStartLevel = false;
         this.wasPausedBeforeOrientation = false;
         this.restartWithoutMusicChange = false;
+        this.shuffleUsed = false;
+
+        // Ambient audio scheduler state.
+        this.idleBaseDelayMs = 15000;
+        this.idleExtraDelayMs = 0;
+        this.idleTimer = null;
+        this.idleSoundPlayed = false;
+
+        this.ambientBaseIntervalMs = 69000;
+        this.ambientIntervalMultiplier = 1;
+        this.ambientTimer = null;
+        this.ambientSoundsRemaining = [
+          'gir.wav',
+          'bother.wav',
+          'cake.wav'
+        ];
 
         this.initThree();
         this.initServices();
@@ -5329,8 +5786,156 @@
         this.campaignLevels = LEVELS;
       }
 
+      markUserActivity() {
+        if (
+          this.gamePaused ||
+          !this.model
+        ) {
+          return;
+        }
+
+        this.idleSoundPlayed = false;
+        this.scheduleIdleSound();
+      }
+
+      scheduleIdleSound() {
+        if (this.idleTimer) {
+          window.clearTimeout(
+            this.idleTimer
+          );
+        }
+
+        this.idleExtraDelayMs =
+          1000 +
+          Math.floor(
+            Math.random() * 15000
+          );
+
+        const totalDelay =
+          this.idleBaseDelayMs +
+          this.idleExtraDelayMs;
+
+        this.idleTimer =
+          window.setTimeout(() => {
+            this.idleTimer = null;
+
+            if (
+              this.gamePaused ||
+              this.orientationPaused ||
+              !this.model ||
+              this.idleSoundPlayed
+            ) {
+              return;
+            }
+
+            this.idleSoundPlayed = true;
+            this.audio.playMediaEffect(
+              'stillthere.wav',
+              0.78
+            );
+          }, totalDelay);
+      }
+
+      startAmbientSoundScheduler() {
+        this.stopAmbientSoundScheduler();
+
+        this.ambientIntervalMultiplier = 1;
+        this.ambientSoundsRemaining = [
+          'gir.wav',
+          'bother.wav',
+          'cake.wav'
+        ];
+
+        this.scheduleNextAmbientSoundCheck();
+      }
+
+      scheduleNextAmbientSoundCheck() {
+        if (!this.ambientSoundsRemaining.length) {
+          return;
+        }
+
+        const delay =
+          this.ambientBaseIntervalMs *
+          this.ambientIntervalMultiplier;
+
+        this.ambientTimer =
+          window.setTimeout(() => {
+            this.ambientTimer = null;
+
+            if (
+              !this.gamePaused &&
+              !this.orientationPaused &&
+              this.model &&
+              Math.random() < 0.1
+            ) {
+              const index =
+                Utils.randomInt(
+                  this.ambientSoundsRemaining.length
+                );
+
+              const [filename] =
+                this.ambientSoundsRemaining.splice(
+                  index,
+                  1
+                );
+
+              this.audio.playMediaEffect(
+                filename,
+                0.76
+              );
+
+              /*
+               * Each successful occurrence doubles the future check interval:
+               * 69s -> 138s -> 276s. Played files are removed, so repeats are
+               * impossible within the current campaign.
+               */
+              this.ambientIntervalMultiplier *= 2;
+            }
+
+            this.scheduleNextAmbientSoundCheck();
+          }, delay);
+      }
+
+      stopAmbientSoundScheduler() {
+        if (this.ambientTimer) {
+          window.clearTimeout(
+            this.ambientTimer
+          );
+
+          this.ambientTimer = null;
+        }
+      }
+
+      stopIdleSoundScheduler() {
+        if (this.idleTimer) {
+          window.clearTimeout(
+            this.idleTimer
+          );
+
+          this.idleTimer = null;
+        }
+
+        this.idleSoundPlayed = false;
+      }
+
       bindEvents() {
         window.addEventListener('resize', () => this.onResize());
+
+        const activityEvents = [
+          'pointerdown',
+          'pointermove',
+          'keydown',
+          'wheel',
+          'touchstart'
+        ];
+
+        for (const eventName of activityEvents) {
+          window.addEventListener(
+            eventName,
+            () => this.markUserActivity(),
+            { passive: true }
+          );
+        }
 
         this.renderer.domElement.addEventListener(
           'pointermove',
@@ -5516,6 +6121,9 @@
         this.hud.style.display = 'flex';
         this.updateMusicButton();
 
+        this.startAmbientSoundScheduler();
+        this.scheduleIdleSound();
+
         this.enforceMobileLandscape();
 
         if (this.orientationPaused) {
@@ -5549,6 +6157,10 @@
 
         this.gamePaused = false;
         this.isAnimating = false;
+        this.shuffleUsed = false;
+
+        this.idleSoundPlayed = false;
+        this.scheduleIdleSound();
 
         this.overlay.style.display = 'none';
 
@@ -5608,7 +6220,14 @@
             !this.gamePaused &&
             !this.model.hasValidMoves()
           ) {
-            this.handleGameOver();
+            if (
+              !this.shuffleUsed &&
+              this.model.hasDuplicateSolidColor()
+            ) {
+              this.performRescueShuffle();
+            } else {
+              this.handleGameOver();
+            }
           }
         }, 850);
       }
@@ -5671,7 +6290,7 @@
          * COMPLETABILITY INVARIANT:
          * Golden rings are created ONLY in pairs on identical compatible
          * gameplay types: same Platonic shape/color AND same solid/hollow
-         * form. Therefore a satellite-bearing type can never be generated alone.
+         * form. Therefore a ring-bearing type can never be generated alone.
          */
         const groups = new Map();
 
@@ -5834,11 +6453,17 @@
       }
 
       activateSelectedView(view) {
+        /*
+         * Prismatic cells/satellites are standalone actions. Clicking either
+         * the host prism or its orbiting satellite activates the prism
+         * immediately; no matching chain is required.
+         */
         if (view.cell.prismatic) {
           this.activatePrism(view);
-        } else {
-          this.processNormalClick(view);
+          return;
         }
+
+        this.processNormalClick(view);
       }
 
       selectView(view) {
@@ -5949,7 +6574,7 @@
         /*
          * PRISM PREVIEW:
          * Show both destruction paths simultaneously. Base-color path stays
-         * fixed; satellite-color path is rebuilt whenever the satellite changes color.
+         * fixed; ring-color path is rebuilt whenever the ring changes color.
          */
         const uniqueViews = new Set();
 
@@ -6063,34 +6688,19 @@
         const clickCol = clickedView.col;
 
         /*
-         * SHELL DROP ELIGIBILITY:
-         * - source chain must be solid;
-         * - there must be no orbiting object anywhere in the chain;
-         * - prism generation takes precedence for chains >= 8;
-         * - chance is bounded/configurable.
+         * Only short clears can leave a shell. A two-piece clear has the
+         * highest probability; three pieces have a lower probability.
          */
-        const chainHadOrbiter =
-          connected.some(({ row, col }) => {
-            const prize =
-              this.prizes.get(row, col);
-
-            const view =
-              this.viewGrid[row]?.[col];
-
-            return Boolean(
-              (prize && !prize.collected) ||
-              view?.prismOrbiter
-            );
-          });
+        const shellChance =
+          CONFIG.shellChanceByChainSize[groupSize] || 0;
 
         const createsShell =
           !createsPrism &&
           !sourceCell.hollow &&
-          !chainHadOrbiter &&
-          Math.random() <
-            CONFIG.shellDropChance;
+          groupSize < 4 &&
+          Math.random() < shellChance;
 
-        // Collect orbiting golden markers only AFTER shell eligibility is known.
+        // Collect orbiting objectives before the chain is removed.
         this.collectPrizes(connected);
 
         const sorted = connected
@@ -6136,6 +6746,15 @@
             if (remaining === 0) {
               this.model.removeCells(connected);
 
+              const restoredShells =
+                this.model.restoreAdjacentShells(
+                  connected
+                );
+
+              this.refreshRestoredShellViews(
+                restoredShells
+              );
+
               if (createsPrism) {
                 const prismCell =
                   this.model.createPrism(
@@ -6153,11 +6772,8 @@
 
                 prismView.popIn(0);
 
-                this.scoreEffects.show(
-                  prismView.root.position,
-                  'PRISMATIC!',
-                  1.45,
-                  true
+                this.showBoardAnnouncement(
+                  'PRISMATIC!'
                 );
               } else if (createsShell) {
                 const shellCell =
@@ -6198,7 +6814,7 @@
          * Clicking a prism destroys every compatible cell whose color is
          * either:
          *   1. the prism's original/base color, or
-         *   2. the satellite's color at the exact moment of the click.
+         *   2. the ring's color at the exact moment of the click.
          *
          * Solid/hollow compatibility is still enforced.
          */
@@ -6276,7 +6892,7 @@
 
           window.setTimeout(() => {
             /*
-             * Use the cell's own color for its particles. The prism satellite
+             * Use the cell's own color for its particles. The prism ring
              * itself visibly communicates the secondary selected color.
              */
             this.particles.createBubbleExplosion(
@@ -6293,6 +6909,16 @@
 
             if (remaining === 0) {
               this.model.removeCells(targets);
+
+              const restoredShells =
+                this.model.restoreAdjacentShells(
+                  targets
+                );
+
+              this.refreshRestoredShellViews(
+                restoredShells
+              );
+
               this.afterCellRemoval();
             }
           });
@@ -6576,6 +7202,157 @@
         view.disposeUniqueResources();
       }
 
+      showBoardAnnouncement(text, duration = 1150) {
+        if (this.boardAnnouncementTimer) {
+          window.clearTimeout(
+            this.boardAnnouncementTimer
+          );
+        }
+
+        this.boardAnnouncement.textContent = text;
+        this.boardAnnouncement.classList.remove('show');
+        void this.boardAnnouncement.offsetWidth;
+        this.boardAnnouncement.classList.add('show');
+
+        this.boardAnnouncementTimer =
+          window.setTimeout(() => {
+            this.boardAnnouncement.classList.remove('show');
+            this.boardAnnouncementTimer = null;
+          }, duration);
+      }
+
+      refreshRestoredShellViews(positions) {
+        for (const { row, col } of positions) {
+          const oldView =
+            this.viewGrid[row]?.[col];
+
+          if (oldView) {
+            const position =
+              oldView.root.position.clone();
+
+            this.removeView(oldView);
+
+            const cell =
+              this.model.getCell(row, col);
+
+            const view =
+              this.createViewForCell(
+                row,
+                col,
+                cell
+              );
+
+            view.root.position.copy(position);
+            view.popIn(0);
+          }
+        }
+      }
+
+      performRescueShuffle() {
+        this.shuffleUsed = true;
+        this.isAnimating = true;
+        this.clearHover();
+
+        const moves =
+          this.model.repackRemainingAsSquare();
+
+        if (!moves.length) {
+          this.isAnimating = false;
+          this.handleGameOver();
+          return;
+        }
+
+        this.showBoardAnnouncement(
+          'ONE-TIME SHUFFLE',
+          1450
+        );
+
+        const oldGrid = this.viewGrid;
+        const newGrid =
+          Utils.matrix(
+            this.level.size,
+            this.level.size,
+            null
+          );
+
+        const animations = [];
+
+        for (const move of moves) {
+          const view =
+            oldGrid[move.fromRow]?.[move.fromCol];
+
+          if (!view) continue;
+
+          view.row = move.toRow;
+          view.col = move.toCol;
+          newGrid[move.toRow][move.toCol] = view;
+
+          const target =
+            this.worldPositionForCell(
+              move.toRow,
+              move.toCol
+            );
+
+          animations.push({
+            view,
+            target
+          });
+        }
+
+        this.viewGrid = newGrid;
+
+        this.prizes.moveWithBubbleMoves(
+          moves,
+          (row, col) =>
+            this.worldPositionForCell(
+              row,
+              col
+            ),
+          650,
+          TWEEN.Easing.Cubic.InOut
+        );
+
+        if (!animations.length) {
+          this.checkGameState();
+          return;
+        }
+
+        let pending = animations.length;
+
+        for (const { view, target } of animations) {
+          new TWEEN.Tween(
+            view.root.position
+          )
+            .to(
+              {
+                x: target.x,
+                y: target.y,
+                z: target.z
+              },
+              650
+            )
+            .easing(
+              TWEEN.Easing.Cubic.InOut
+            )
+            .onComplete(() => {
+              pending--;
+
+              if (pending === 0) {
+                this.prizes.synchronizePositions(
+                  (row, col) =>
+                    this.worldPositionForCell(
+                      row,
+                      col
+                    )
+                );
+
+                this.checkGameState();
+              }
+            })
+            .start();
+        }
+      }
+
       afterCellRemoval() {
         const moves = this.model.applyGravity();
 
@@ -6744,6 +7521,14 @@
               pending--;
 
               if (pending === 0) {
+                this.prizes.synchronizePositions(
+                  (row, col) =>
+                    this.worldPositionForCell(
+                      row,
+                      col
+                    )
+                );
+
                 this.checkGameState();
               }
             })
@@ -6754,13 +7539,21 @@
       checkGameState() {
         this.isAnimating = false;
 
-        // User rule: ONLY golden-satellite destruction completes the level.
+        // User rule: ONLY golden-ring destruction completes the level.
         if (this.prizes.allCollected()) {
           this.completeLevel();
           return;
         }
 
         if (!this.model.hasValidMoves()) {
+          if (
+            !this.shuffleUsed &&
+            this.model.hasDuplicateSolidColor()
+          ) {
+            this.performRescueShuffle();
+            return;
+          }
+
           this.handleGameOver();
         }
       }
@@ -6793,7 +7586,7 @@
 
         this.showOverlay(
           `Level ${this.level.number} Complete`,
-          'All satellites destroyed. Advancing…'
+          'All golden rings destroyed. Advancing…'
         );
 
         /*
@@ -6858,6 +7651,16 @@
       clearBoard() {
         this.firstMoveUnlocked = false;
         this.levelHasOrbiters = false;
+        this.shuffleUsed = false;
+
+        if (this.boardAnnouncementTimer) {
+          window.clearTimeout(
+            this.boardAnnouncementTimer
+          );
+          this.boardAnnouncementTimer = null;
+        }
+
+        this.boardAnnouncement?.classList.remove('show');
         this.clearHover();
         TWEEN.removeAll();
         this.particles.clear();
@@ -6901,6 +7704,8 @@
         this.overlay.style.display = 'none';
         this.orientationOverlay.style.display = 'none';
 
+        this.stopIdleSoundScheduler();
+        this.stopAmbientSoundScheduler();
         this.audio.stopAllMusicImmediate();
 
         const splash =
