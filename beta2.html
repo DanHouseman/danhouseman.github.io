@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>webscan — browser network scanner</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --border: #30363d; --text: #c9d1d9;
+    --muted: #8b949e; --accent: #58a6ff; --ok: #3fb950; --warn: #d29922;
+    --err: #f85149; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px; background: var(--bg); color: var(--text);
+    font: 14px/1.5 system-ui, -apple-system, sans-serif;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; font-weight: 600; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px;
+  }
+  .panel h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--muted); margin: 0 0 12px; font-weight: 600;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+  input, select {
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; padding: 6px 8px; font: inherit; min-width: 90px;
+  }
+  button {
+    background: var(--accent); color: #0d1117; border: 0; border-radius: 6px;
+    padding: 8px 16px; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  button:disabled { opacity: .5; cursor: default; }
+  button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  #status { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 12px; min-height: 18px; }
+  #status.running { color: var(--warn); }
+  #status.done { color: var(--ok); }
+  #status.error { color: var(--err); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; position: sticky; top: 0; background: var(--panel); }
+  .scroll { max-height: 280px; overflow: auto; }
+  .ip-local { color: var(--err); font-weight: 600; font-family: var(--mono); font-size: 12px; padding: 2px 0; }
+  .ip-net { color: var(--ok); }
+  .tag { font-size: 10px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+  #log {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px; height: 180px; overflow: auto; white-space: pre-wrap;
+  }
+  .empty { color: var(--muted); font-size: 12px; padding: 8px 0; }
+  .bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 12px; }
+  .bar > div { height: 100%; width: 0; background: var(--accent); transition: width .15s linear; }
+</style>
+</head>
+<body>
+
+<h1>webscan</h1>
+<p class="sub">Browser-based network scanner &amp; local-IP detector — beta2 build</p>
+
+<div class="panel" style="margin-bottom:16px">
+  <h2>Scan controls</h2>
+  <div class="controls">
+    <label>Port
+      <input id="port" type="number" value="1337" min="1" max="65535">
+    </label>
+    <label>Timeout (ms)
+      <input id="timeout" type="number" value="2000" min="200" step="100">
+    </label>
+    <label>Block size
+      <input id="block" type="number" value="10" min="1" max="64">
+    </label>
+    <label>Scanner
+      <select id="scanner">
+        <option value="fetch" selected>fetch</option>
+        <option value="img">img</option>
+      </select>
+    </label>
+    <label style="flex-direction:row;align-items:center;gap:6px;color:var(--text)">
+      <input id="rtc" type="checkbox" checked style="min-width:auto"> WebRTC probe
+    </label>
+    <button id="start">Start scan</button>
+    <button id="stop" class="secondary" disabled>Stop</button>
+    <button id="copy" class="secondary" disabled>Copy results</button>
+  </div>
+  <div class="bar"><div id="bar-fill"></div></div>
+  <div id="status">Idle.</div>
+</div>
+
+<div class="grid">
+  <div class="panel">
+    <h2>Local IPs <span class="tag" id="local-count">0</span></h2>
+    <div class="scroll" id="local-list"><div class="empty">No local IPs found yet.</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Network hosts <span class="tag" id="net-count">0</span></h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>IP</th><th>Response</th></tr></thead>
+        <tbody id="net-body">
+          <tr><td colspan="2" class="empty">No hosts found yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px">
+  <h2>Log</h2>
+  <div id="log"></div>
+</div>
+
+<script src="beta2.js"></script>
+
+<script>
+
+const $ = id => document.getElementById(id);
+
+const state = {
+  running: false,
+  stopFlag: false,
+  localIps: new Set(),
+  networkIps: new Map(),      // ip -> ms
+  totalBlocks: 0,
+  doneBlocks: 0,
+};
+
+/* ---- logging ---- */
+function log(line) {
+  const el = $('log');
+  el.textContent += line + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function setStatus(text, cls = '') {
+  const el = $('status');
+  el.textContent = text;
+  el.className = cls;
+}
+
+function setProgress(done, total) {
+  const pct = total ? Math.min(100, Math.round(done / total * 100)) : 0;
+  $('bar-fill').style.width = pct + '%';
+}
+
+/* ---- result rendering ---- */
+function renderLocal() {
+  const ips = [...state.localIps].sort();
+  $('local-count').textContent = ips.length;
+  $('local-list').innerHTML = ips.length
+    ? ips.map(ip => `<div class="ip-local">${ip}</div>`).join('')
+    : '<div class="empty">No local IPs found yet.</div>';
+}
+
+function renderNetwork() {
+  const rows = [...state.networkIps.entries()]
+    .filter(([ip]) => !state.localIps.has(ip))
+    .sort((a, b) => a[1] - b[1]);
+  $('net-count').textContent = rows.length;
+  $('net-body').innerHTML = rows.length
+    ? rows.map(([ip, ms]) => `<tr><td class="ip-net">${ip}</td><td>${ms} ms</td></tr>`).join('')
+    : '<tr><td colspan="2" class="empty">No hosts found yet.</td></tr>';
+}
+
+/* ---- scan driver ---- */
+async function startScan() {
+  if (state.running) return;
+  if (typeof window.webScanAll !== 'function') {
+    setStatus('beta2.js not loaded — check that it sits next to beta.html.', 'error');
+    return;
+  }
+
+  state.running = true;
+  state.stopFlag = false;
+  state.localIps.clear();
+  state.networkIps.clear();
+  state.totalBlocks = 0;
+  state.doneBlocks = 0;
+
+  renderLocal();
+  renderNetwork();
+  $('log').textContent = '';
+  $('start').disabled = true;
+  $('stop').disabled = false;
+  $('copy').disabled = true;
+  setProgress(0, 1);
+  setStatus('Scanning…', 'running');
+
+  const conf = {
+    ports: [Number($('port').value) || 1337],
+    timeout: Number($('timeout').value) || 2000,
+    block: Number($('block').value) || 10,
+    scanner: $('scanner').value,
+    rtc: $('rtc').checked,
+    forceHttp: false,           // do not reload the page
+
+    logger: line => {
+      if (state.stopFlag) return;
+      log(String(line).replace(/<[^>]*>/g, ''));   // strip any HTML tags
+      // crude progress heuristic: count block starts
+      if (/scanIpsBlock\(/.test(line)) { state.totalBlocks++; }
+    },
+
+    localCallback: ip => {
+      if (state.stopFlag) return;
+      state.localIps.add(ip);
+      renderLocal();
+    },
+
+    networkCallback: ip => {
+      if (state.stopFlag) return;
+      if (!state.networkIps.has(ip)) state.networkIps.set(ip, 0);
+      renderNetwork();
+    },
+  };
+
+  try {
+    const result = await webScanAll(undefined, conf);
+
+    if (!state.stopFlag) {
+      // reconcile with authoritative timings from the return value
+      for (const [ip, ms] of Object.entries(result.network || {})) {
+        if (ms === 0) state.localIps.add(ip);
+        else          state.networkIps.set(ip, ms);
+      }
+      for (const ip of result.local || []) state.localIps.add(ip);
+      renderLocal();
+      renderNetwork();
+      setProgress(1, 1);
+      setStatus(
+        `Done — ${state.localIps.size} local, ` +
+        `${[...state.networkIps.keys()].filter(ip => !state.localIps.has(ip)).length} network.`,
+        'done'
+      );
+      $('copy').disabled = false;
+    } else {
+      setStatus('Stopped by user (in-flight requests still finishing).', '');
+    }
+  } catch (err) {
+    setStatus('Error: ' + (err && err.message ? err.message : err), 'error');
+    log(String(err && err.stack || err));
+  } finally {
+    state.running = false;
+    $('start').disabled = false;
+    $('stop').disabled = true;
+  }
+}
+
+/* ---- copy results ---- */
+function copyResults() {
+  const payload = {
+    local: [...state.localIps].sort(),
+    network: Object.fromEntries(
+      [...state.networkIps.entries()]
+        .filter(([ip]) => !state.localIps.has(ip))
+        .sort((a, b) => a[1] - b[1])
+    ),
+  };
+  navigator.clipboard.writeText(JSON.stringify(payload, null, 2))
+    .then(() => setStatus('Results copied to clipboard.', 'done'))
+    .catch(() => setStatus('Clipboard write failed.', 'error'));
+}
+
+/* ---- wiring ---- */
+$('start').addEventListener('click', startScan);
+$('stop').addEventListener('click', () => {
+  // webScanAll does not expose an abort handle; flip the flag so we stop
+  // rendering, and let the scanner's own block timeout finish the rest.
+  state.stopFlag = true;
+  setStatus('Stopping…', 'running');
+});
+$('copy').addEventListener('click', copyResults);
+
+log('Ready. Click “Start scan”.');
+</script>
+
+</body>
+</html>
